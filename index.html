@@ -5,240 +5,378 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>工资管理系统</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:system-ui,sans-serif}
-body{background:#f4f7fa;padding:12px;font-size:14px}
-.container{max-width:460px;margin:0 auto}
-.card{background:#fff;border-radius:14px;padding:16px;margin-bottom:12px;box-shadow:0 2px 10px rgba(0,0,0,0.04)}
-h3{font-size:16px;font-weight:600;margin-bottom:12px;color:#222}
-input,select{width:100%;padding:10px;border:1px solid #e6e8eb;border-radius:10px;margin:5px 0;font-size:14px}
-.row{display:flex;gap:8px}
-.row>div{flex:1}
-button{width:100%;padding:11px;background:#007bff;color:#fff;border:none;border-radius:10px;margin-top:8px;font-weight:500}
-.btn-red{background:#ff4444}
-.btn-sm{padding:6px 10px;font-size:12px;width:auto}
-.table{width:100%;border-collapse:collapse;margin-top:10px;font-size:12px}
-.table th,.table td{padding:7px 4px;text-align:center;border-bottom:1px solid #f0f0f0}
-.table th{background:#f0f7ff;color:#007bff}
-.total{margin-top:10px;padding:10px;background:#e8f3ff;border-radius:10px;font-weight:600;color:#007bff}
-#login{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center}
-#login .card{width:90%;max-width:320px}
-.hide{display:none}
-.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#222;color:#fff;padding:8px 14px;border-radius:20px;opacity:0;transition:.3s}
-.toast.show{opacity:1}
+* {margin:0;padding:0;box-sizing:border-box;font-family:system-ui,sans-serif}
+body {background:#f4f7fa;padding:12px;font-size:14px}
+.container {max-width:460px;margin:0 auto}
+.card {background:#fff;border-radius:14px;padding:16px;margin-bottom:12px;box-shadow:0 2px 10px rgba(0,0,0,0.04)}
+h3 {font-size:16px;font-weight:600;margin-bottom:12px;color:#222}
+input, select {width:100%;padding:10px;border:1px solid #e6e8eb;border-radius:10px;margin:5px 0;font-size:14px}
+.row {display:flex;gap:8px}
+.row > div {flex:1}
+button {width:100%;padding:11px;background:#007bff;color:#fff;border:none;border-radius:10px;margin-top:8px;font-weight:500}
+.btn-red {background:#ff4444}
+.btn-sm {padding:6px 10px;font-size:12px;width:auto}
+.table {width:100%;border-collapse:collapse;margin-top:10px;font-size:12px}
+.table th, .table td {padding:7px 4px;text-align:center;border-bottom:1px solid #f0f0f0}
+.table th {background:#f0f7ff;color:#007bff}
+.total {margin-top:10px;padding:10px;background:#e8f3ff;border-radius:10px;font-weight:600;color:#007bff}
 
-/* 型号单价美化 */
-.price-item{display:flex;justify-content:space-between;align-items:center;padding:9px 12px;border-bottom:1px solid #f3f3f3;background:#fafbfc;border-radius:8px;margin-bottom:6px}
-.price-item .name{font-weight:500}
-.price-item .price{color:#007bff;font-weight:600}
-.price-item button{margin:0;padding:5px 8px;font-size:12px}
+/* 登录弹窗核心修复 */
+#login-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+#login-modal.hidden { display: none !important; }
+#main { display: none; }
+#main.visible { display: block; }
+
+/* 其他样式 */
+.price-item {display:flex;justify-content:space-between;align-items:center;padding:9px 12px;border-bottom:1px solid #f3f3f3;background:#fafbfc;border-radius:8px;margin-bottom:6px}
+.price-item .name {font-weight:500}
+.price-item .price {color:#007bff;font-weight:600}
+.price-item button {margin:0;padding:5px 8px;font-size:12px}
+.toast {position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#222;color:#fff;padding:8px 14px;border-radius:20px;opacity:0;transition:.3s;z-index:10000}
+.toast.show {opacity:1}
 </style>
 </head>
 <body>
 
-<div id="login">
-  <div class="card">
+<!-- 登录弹窗（修复版） -->
+<div id="login-modal">
+  <div class="card" style="width:90%;max-width:320px">
     <h3 style="text-align:center">🔐 工资管理系统</h3>
-    <input type="password" id="pwd" placeholder="输入密码">
-    <button onclick="login()">登录</button>
+    <input type="password" id="pwd-input" placeholder="输入密码">
+    <button onclick="handleLogin()">登录</button>
   </div>
 </div>
 
-<div class="container hide" id="main">
-
-<!-- 工序单价（美化版） -->
-<div class="card">
-  <h3>📦 工序 / 单价管理</h3>
-  <div class="row">
-    <div><input id="wName" placeholder="工序名称"></div>
-    <div><input id="wPrice" type="number" placeholder="单价" step="0.01"></div>
+<!-- 主界面 -->
+<div class="container" id="main">
+  <!-- 工序单价 -->
+  <div class="card">
+    <h3>📦 工序 / 单价管理</h3>
+    <div class="row">
+      <div><input id="wName" placeholder="工序名称"></div>
+      <div><input id="wPrice" type="number" placeholder="单价" step="0.01"></div>
+    </div>
+    <button onclick="saveWork()">保存工序</button>
+    <div id="workList" style="margin-top:12px"></div>
   </div>
-  <button onclick="saveWork()">保存工序</button>
-  <div id="workList" style="margin-top:12px"></div>
+
+  <!-- 录入 -->
+  <div class="card">
+    <h3>📝 每日记录录入</h3>
+    <input type="date" id="rDate">
+    <input id="rName" placeholder="姓名">
+    <select id="wSel" onchange="setPrice()"></select>
+    <div class="row">
+      <div><input id="uPrice" placeholder="单价" readonly></div>
+      <div><input id="qty" type="number" placeholder="数量"></div>
+    </div>
+    <div class="row">
+      <div><input id="hRate" type="number" placeholder="时薪"></div>
+      <div><input id="hours" type="number" placeholder="工时" step="0.5"></div>
+    </div>
+    <div class="row">
+      <div><input id="meal" type="number" placeholder="餐补天数"></div>
+      <div><input id="night" type="number" placeholder="夜班天数"></div>
+    </div>
+    <input id="bonus" type="number" placeholder="补贴/奖金">
+    <button onclick="saveRecord()">保存记录</button>
+  </div>
+
+  <!-- 当日明细 -->
+  <div class="card">
+    <h3>📅 当日明细</h3>
+    <div class="row">
+      <div><input type="date" id="dDay" onchange="loadDay()"></div>
+      <div><input id="dName" placeholder="姓名筛选" oninput="loadDay()"></div>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>姓名</th><th>工序</th><th>数量</th><th>计件</th>
+            <th>工时</th><th>计时</th><th>补贴</th><th>当日</th><th>删</th>
+          </tr>
+        </thead>
+        <tbody id="dayBody"></tbody>
+      </table>
+    </div>
+    <div class="total" id="daySum">当日合计：0.00</div>
+  </div>
+
+  <!-- 当月明细 -->
+  <div class="card">
+    <h3>📊 当月明细汇总</h3>
+    <div class="row">
+      <div><input type="month" id="mMonth" onchange="loadMonth()"></div>
+      <div><input id="mName" placeholder="姓名筛选" oninput="loadMonth()"></div>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>日期</th><th>姓名</th><th>工序</th><th>数量</th><th>计件</th>
+            <th>工时</th><th>计时</th><th>补贴</th><th>小计</th>
+          </tr>
+        </thead>
+        <tbody id="monthBody"></tbody>
+      </table>
+    </div>
+    <div class="total" id="monthSum">当月合计：0.00</div>
+  </div>
+
+  <!-- 数据 -->
+  <div class="card">
+    <h3>💾 数据管理</h3>
+    <div class="row">
+      <button class="btn-sm" onclick="exportData()">导出备份</button>
+      <button class="btn-sm btn-red" onclick="clearAll()">清空记录</button>
+    </div>
+  </div>
 </div>
 
-<!-- 录入 -->
-<div class="card">
-  <h3>📝 每日记录录入</h3>
-  <input type="date" id="rDate">
-  <input id="rName" placeholder="姓名">
-  <select id="wSel" onchange="setPrice()"></select>
-  <div class="row">
-    <div><input id="uPrice" placeholder="单价" readonly></div>
-    <div><input id="qty" type="number" placeholder="数量"></div>
-  </div>
-  <div class="row">
-    <div><input id="hRate" type="number" placeholder="时薪"></div>
-    <div><input id="hours" type="number" placeholder="工时" step="0.5"></div>
-  </div>
-  <div class="row">
-    <div><input id="meal" type="number" placeholder="餐补天数"></div>
-    <div><input id="night" type="number" placeholder="夜班天数"></div>
-  </div>
-  <input id="bonus" type="number" placeholder="补贴/奖金">
-  <button onclick="saveRecord()">保存记录</button>
-</div>
-
-<!-- 当日明细（可筛选姓名） -->
-<div class="card">
-  <h3>📅 当日明细</h3>
-  <div class="row">
-    <div><input type="date" id="dDay" onchange="loadDay()"></div>
-    <div><input id="dName" placeholder="姓名筛选" oninput="loadDay()"></div>
-  </div>
-  <div style="overflow-x:auto">
-    <table class="table">
-      <thead>
-        <tr>
-          <th>姓名</th><th>工序</th><th>数量</th><th>计件</th>
-          <th>工时</th><th>计时</th><th>补贴</th><th>当日</th><th>删</th>
-        </tr>
-      </thead>
-      <tbody id="dayBody"></tbody>
-    </table>
-  </div>
-  <div class="total" id="daySum">当日合计：0.00</div>
-</div>
-
-<!-- 当月明细（可筛选姓名） -->
-<div class="card">
-  <h3>📊 当月明细汇总</h3>
-  <div class="row">
-    <div><input type="month" id="mMonth" onchange="loadMonth()"></div>
-    <div><input id="mName" placeholder="姓名筛选" oninput="loadMonth()"></div>
-  </div>
-  <div style="overflow-x:auto">
-    <table class="table">
-      <thead>
-        <tr>
-          <th>日期</th><th>姓名</th><th>工序</th><th>数量</th><th>计件</th>
-          <th>工时</th><th>计时</th><th>补贴</th><th>小计</th>
-        </tr>
-      </thead>
-      <tbody id="monthBody"></tbody>
-    </table>
-  </div>
-  <div class="total" id="monthSum">当月合计：0.00</div>
-</div>
-
-<!-- 数据 -->
-<div class="card">
-  <h3>💾 数据管理</h3>
-  <div class="row">
-    <button class="btn-sm" onclick="exportData()">导出备份</button>
-    <button class="btn-sm btn-red" onclick="clearAll()">清空记录</button>
-  </div>
-</div>
-
-</div>
-
-<div class="toast" id="ts"></div>
+<div class="toast" id="toast"></div>
 
 <script>
-const PWD = "123456"
-const MEAL = 15
-const NIGHT = 20
+// 配置
+const CONFIG = {
+  PASSWORD: "123456",
+  MEAL_ALLOWANCE: 15,
+  NIGHT_ALLOWANCE: 20
+};
 
-let works = JSON.parse(localStorage.getItem("works")) || []
-let records = JSON.parse(localStorage.getItem("records")) || []
+// 数据
+let works = JSON.parse(localStorage.getItem("works")) || [];
+let records = JSON.parse(localStorage.getItem("records")) || [];
 
-const $ = id => document.getElementById(id)
-function msg(t){$("ts").textContent=t;$("ts").classList.add("show");setTimeout(()=>$("ts").classList.remove("show"),1800)}
-
-function login(){
-  if($("pwd").value===PWD){$("login").classList.add("hide");$("main").classList.remove("hide");refresh()}
-  else msg("密码错误")
+// 工具函数
+const $ = id => document.getElementById(id);
+function showToast(msg) {
+  const t = $("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 2000);
 }
 
-function refresh(){renderWorks();renderSel()}
-
-// 工序美化版
-function saveWork(){
-  let n = $("wName").value.trim(), p = parseFloat($("wPrice").value)
-  if(!n||isNaN(p))return msg("请完整填写")
-  let i = works.findIndex(x=>x.name===n)
-  i>=0 ? works[i].price=p : works.push({name:n,price:p})
-  localStorage.setItem("works",JSON.stringify(works))
-  $("wName").value=$("wPrice").value=""
-  refresh()
-  msg("保存成功")
+// 登录核心修复
+function handleLogin() {
+  const inputPwd = $("pwd-input").value;
+  if (inputPwd === CONFIG.PASSWORD) {
+    $("login-modal").classList.add("hidden");
+    $("main").classList.add("visible");
+    refreshUI();
+    showToast("登录成功！");
+  } else {
+    showToast("密码错误，请重试");
+  }
 }
-function renderWorks(){
-  let html = ""
-  works.forEach((w,i)=>{
-    html+=`
+
+// 刷新界面
+function refreshUI() {
+  renderWorks();
+  renderWorkSelect();
+}
+
+// 工序管理
+function saveWork() {
+  const name = $("wName").value.trim();
+  const price = parseFloat($("wPrice").value);
+  if (!name || isNaN(price)) return showToast("请完整填写工序和单价");
+  const idx = works.findIndex(x => x.name === name);
+  idx >= 0 ? works[idx].price = price : works.push({ name, price });
+  localStorage.setItem("works", JSON.stringify(works));
+  $("wName").value = "";
+  $("wPrice").value = "";
+  refreshUI();
+  showToast("工序保存成功");
+}
+
+function renderWorks() {
+  let html = "";
+  works.forEach((w, i) => {
+    html += `
     <div class="price-item">
       <div class="name">${w.name}</div>
       <div class="price">${w.price} 元</div>
-      <button class="btn-sm btn-red" onclick="delWork(${i})">删</button>
-    </div>`
-  })
-  $("workList").innerHTML = html
+      <button class="btn-sm btn-red" onclick="deleteWork(${i})">删</button>
+    </div>`;
+  });
+  $("workList").innerHTML = html;
 }
-function delWork(i){if(confirm("删除？")){works.splice(i,1);localStorage.setItem("works",JSON.stringify(works));refresh()}}
-function renderSel(){let o=`<option value="">--选择工序--</option>`;works.forEach(w=>o+=`<option value="${w.name}">${w.name}</option>`);$("wSel").innerHTML=o}
-function setPrice(){let w=works.find(x=>x.name===$("wSel").value);$("uPrice").value=w?w.price:0}
+
+function deleteWork(i) {
+  if (confirm("确定删除该工序？")) {
+    works.splice(i, 1);
+    localStorage.setItem("works", JSON.stringify(works));
+    refreshUI();
+  }
+}
+
+function renderWorkSelect() {
+  let html = `<option value="">--选择工序--</option>`;
+  works.forEach(w => html += `<option value="${w.name}">${w.name}</option>`);
+  $("wSel").innerHTML = html;
+}
+
+function setPrice() {
+  const selected = works.find(x => x.name === $("wSel").value);
+  $("uPrice").value = selected ? selected.price : "";
+}
 
 // 保存记录
-function saveRecord(){
-  let d=$("rDate").value, n=$("rName").value.trim()
-  if(!d||!n)return msg("填日期和姓名")
-  let w=$("wSel").value, up=+$("uPrice").value||0, q=+$("qty").value||0
-  let piece=up*q, hr=+$("hRate").value||0, hs=+$("hours").value||0, time=hr*hs
-  let m=+$("meal").value||0, nt=+$("night").value||0, allow=m*MEAL+nt*NIGHT
-  let b=+$("bonus").value||0, total=piece+time+allow+b
-  records.unshift({d,n,w,q,piece,hs,time,allow,b,total})
-  localStorage.setItem("records",JSON.stringify(records))
-  $("wSel").value=$("uPrice").value=$("qty").value=$("hRate").value=$("hours").value=$("meal").value=$("night").value=$("bonus").value=""
-  msg("保存成功")
-  loadDay()
-  loadMonth()
+function saveRecord() {
+  const date = $("rDate").value;
+  const name = $("rName").value.trim();
+  if (!date || !name) return showToast("请填写日期和姓名");
+  
+  const work = $("wSel").value;
+  const unitPrice = parseFloat($("uPrice").value) || 0;
+  const quantity = parseInt($("qty").value) || 0;
+  const piecePay = unitPrice * quantity;
+  
+  const hourlyRate = parseFloat($("hRate").value) || 0;
+  const hours = parseFloat($("hours").value) || 0;
+  const hourlyPay = hourlyRate * hours;
+  
+  const mealDays = parseInt($("meal").value) || 0;
+  const nightDays = parseInt($("night").value) || 0;
+  const allowance = mealDays * CONFIG.MEAL_ALLOWANCE + nightDays * CONFIG.NIGHT_ALLOWANCE;
+  
+  const bonus = parseFloat($("bonus").value) || 0;
+  const total = piecePay + hourlyPay + allowance + bonus;
+
+  records.unshift({
+    date, name, work, quantity, piecePay, hours, hourlyPay, allowance, bonus, total
+  });
+  localStorage.setItem("records", JSON.stringify(records));
+  
+  // 清空表单
+  $("wSel").value = "";
+  $("uPrice").value = "";
+  $("qty").value = "";
+  $("hRate").value = "";
+  $("hours").value = "";
+  $("meal").value = "";
+  $("night").value = "";
+  $("bonus").value = "";
+  
+  showToast("记录保存成功");
+  loadDay();
+  loadMonth();
 }
 
 // 当日明细
-function loadDay(){
-  let day=$("dDay").value, name=$("dName").value.trim().toLowerCase()
-  let list=records.filter(x=>x.d===day && (!name||x.n.toLowerCase().includes(name)))
-  let html="",sum=0
-  list.forEach((r,i)=>{
-    sum+=r.total
-    html+=`<tr>
-      <td>${r.n}</td><td>${r.w||'-'}</td><td>${r.q}</td><td>${r.piece.toFixed(1)}</td>
-      <td>${r.hs}</td><td>${r.time.toFixed(1)}</td><td>${(r.allow+r.b).toFixed(1)}</td>
+function loadDay() {
+  const selectedDate = $("dDay").value;
+  const filterName = $("dName").value.trim().toLowerCase();
+  if (!selectedDate) {
+    $("dayBody").innerHTML = "";
+    $("daySum").textContent = "当日合计：0.00";
+    return;
+  }
+  const filtered = records.filter(r => 
+    r.date === selectedDate && 
+    (!filterName || r.name.toLowerCase().includes(filterName))
+  );
+  let html = "";
+  let total = 0;
+  filtered.forEach((r, i) => {
+    total += r.total;
+    html += `
+    <tr>
+      <td>${r.name}</td>
+      <td>${r.work || '-'}</td>
+      <td>${r.quantity}</td>
+      <td>${r.piecePay.toFixed(1)}</td>
+      <td>${r.hours}</td>
+      <td>${r.hourlyPay.toFixed(1)}</td>
+      <td>${(r.allowance + r.bonus).toFixed(1)}</td>
       <td>${r.total.toFixed(1)}</td>
-      <td><button class="btn-sm btn-red" onclick="delRec(${i})">×</button></td>
-    </tr>`
-  })
-  $("dayBody").innerHTML=html
-  $("daySum").innerText=`当日合计：${sum.toFixed(2)} 元`
+      <td><button class="btn-sm btn-red" onclick="deleteRecord(${i})">×</button></td>
+    </tr>`;
+  });
+  $("dayBody").innerHTML = html;
+  $("daySum").textContent = `当日合计：${total.toFixed(2)} 元`;
 }
 
 // 当月明细
-function loadMonth(){
-  let mon=$("mMonth").value, name=$("mName").value.trim().toLowerCase()
-  let list=records.filter(x=>x.d.startsWith(mon) && (!name||x.n.toLowerCase().includes(name)))
-  let html="",sum=0
-  list.forEach(r=>{
-    sum+=r.total
-    html+=`<tr>
-      <td>${r.d.slice(5)}</td><td>${r.n}</td><td>${r.w||'-'}</td><td>${r.q}</td><td>${r.piece.toFixed(1)}</td>
-      <td>${r.hs}</td><td>${r.time.toFixed(1)}</td><td>${(r.allow+r.b).toFixed(1)}</td>
+function loadMonth() {
+  const selectedMonth = $("mMonth").value;
+  const filterName = $("mName").value.trim().toLowerCase();
+  if (!selectedMonth) {
+    $("monthBody").innerHTML = "";
+    $("monthSum").textContent = "当月合计：0.00";
+    return;
+  }
+  const filtered = records.filter(r => 
+    r.date.startsWith(selectedMonth) && 
+    (!filterName || r.name.toLowerCase().includes(filterName))
+  );
+  let html = "";
+  let total = 0;
+  filtered.forEach(r => {
+    total += r.total;
+    html += `
+    <tr>
+      <td>${r.date.slice(5)}</td>
+      <td>${r.name}</td>
+      <td>${r.work || '-'}</td>
+      <td>${r.quantity}</td>
+      <td>${r.piecePay.toFixed(1)}</td>
+      <td>${r.hours}</td>
+      <td>${r.hourlyPay.toFixed(1)}</td>
+      <td>${(r.allowance + r.bonus).toFixed(1)}</td>
       <td>${r.total.toFixed(1)}</td>
-    </tr>`
-  })
-  $("monthBody").innerHTML=html
-  $("monthSum").innerText=`当月合计：${sum.toFixed(2)} 元`
+    </tr>`;
+  });
+  $("monthBody").innerHTML = html;
+  $("monthSum").textContent = `当月合计：${total.toFixed(2)} 元`;
 }
 
-function delRec(i){if(confirm("删除？")){records.splice(i,1);localStorage.setItem("records",JSON.stringify(records));loadDay();loadMonth()}}
-function exportData(){
-  let blob=new Blob([JSON.stringify({works,records},null,2)],{type:"application/json"})
-  let a=document.createElement("a")
-  a.href=URL.createObjectURL(blob)
-  a.download=`工资记录_${new Date().toLocaleDateString()}.json`
-  a.click()
-  msg("已导出")
+// 删除记录
+function deleteRecord(index) {
+  if (confirm("确定删除这条记录？")) {
+    records.splice(index, 1);
+    localStorage.setItem("records", JSON.stringify(records));
+    loadDay();
+    loadMonth();
+    showToast("记录已删除");
+  }
 }
-function clearAll(){if(confirm("清空所有记录？不可恢复！")){records=[];localStorage.setItem("records","[]");loadDay();loadMonth();msg("已清空")}}
+
+// 数据管理
+function exportData() {
+  const data = {
+    works,
+    records,
+    exportTime: new Date().toLocaleString()
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `工资记录备份_${new Date().toLocaleDateString()}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast("数据已导出");
+}
+
+function clearAll() {
+  if (confirm("⚠️ 确定清空所有记录？此操作不可恢复！")) {
+    records = [];
+    localStorage.removeItem("records");
+    loadDay();
+    loadMonth();
+    showToast("所有记录已清空");
+  }
+}
 </script>
 </body>
 </html>
