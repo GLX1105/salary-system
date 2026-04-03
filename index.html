@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>工资管理系统（26~25日周期）</title>
+<title>工资管理系统（26~25周期）</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:system-ui,sans-serif}
 body{background:#f4f7fa;padding:12px;font-size:14px}
@@ -22,6 +22,11 @@ button{width:100%;padding:11px;background:#007bff;color:#fff;border:none;border-
 .total{margin-top:10px;padding:10px;background:#e8f3ff;border-radius:10px;font-weight:600;color:#007bff}
 .total2{margin-top:6px;padding:10px;background:#fff3cd;border-radius:10px;font-weight:600;color:#d97706}
 .total3{margin-top:6px;padding:10px;background:#e8f3ff;border-radius:10px;font-weight:600;color:#007bff}
+
+/* 型号单价卡片样式 */
+.price-item{display:flex;justify-content:space-between;align-items:center;padding:10px;background:#f8f9fa;border-radius:8px;margin-bottom:6px}
+.price-item .name{font-weight:500}
+.price-item .price{color:#007bff;font-weight:600}
 
 #login-modal{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:9999}
 #login-modal.hidden{display:none!important}
@@ -43,13 +48,24 @@ button{width:100%;padding:11px;background:#007bff;color:#fff;border:none;border-
 
 <div class="container" id="main">
 
-<!-- 录入区域 -->
+<!-- ====================== 型号 / 单价表（必加，这次不会漏） ====================== -->
+<div class="card">
+  <h3>📦 型号 / 单价管理</h3>
+  <div class="row">
+    <div><input id="workName" placeholder="型号/工序名称"></div>
+    <div><input id="workPrice" type="number" placeholder="单价" step="0.01"></div>
+  </div>
+  <button onclick="savePrice()">保存型号单价</button>
+  <div id="priceList" style="margin-top:12px"></div>
+</div>
+
+<!-- ====================== 录入工资 ====================== -->
 <div class="card">
   <h3>📝 录入工资记录</h3>
   <input type="date" id="recordDate">
   <input id="workerName" placeholder="姓名">
-  <input id="workText" placeholder="手动输入工序">
-  
+  <input id="workText" placeholder="输入型号/工序" oninput="autoPrice()">
+
   <div class="row">
     <div><input id="unitPrice" placeholder="单价" readonly></div>
     <div><input id="qty" type="number" placeholder="数量" min="0"></div>
@@ -69,7 +85,7 @@ button{width:100%;padding:11px;background:#007bff;color:#fff;border:none;border-
   <button onclick="saveRecord()">保存记录</button>
 </div>
 
-<!-- 保险设置 -->
+<!-- 保险 -->
 <div class="card">
   <h3>🛡️ 保险扣除（每月）</h3>
   <input id="insurance" type="number" placeholder="保险金额" value="0">
@@ -115,9 +131,14 @@ button{width:100%;padding:11px;background:#007bff;color:#fff;border:none;border-
 
 <script>
 const PASSWORD = "123456"
+
+// 型号单价
+let priceList = JSON.parse(localStorage.getItem("priceList")) || []
+// 工资记录
 let records = JSON.parse(localStorage.getItem("records")) || []
 
 const $ = id => document.getElementById(id)
+
 function msg(t){
   $("toast").textContent = t
   $("toast").classList.add("show")
@@ -129,13 +150,50 @@ function login(){
   if($("pwd").value === PASSWORD){
     $("login-modal").classList.add("hidden")
     $("main").classList.add("visible")
+    renderPriceList()
     loadCurrentCycle()
   }else msg("密码错误")
 }
 
-// ======================================
-// 工资周期：26日 ~ 25日
-// ======================================
+// ====================== 型号 / 单价管理 ======================
+function savePrice(){
+  let name = $("workName").value.trim()
+  let price = parseFloat($("workPrice").value)
+  if(!name || isNaN(price)) return msg("请填写型号和单价")
+  let i = priceList.findIndex(x=>x.name === name)
+  i>=0 ? priceList[i].price = price : priceList.push({name,price})
+  localStorage.setItem("priceList",JSON.stringify(priceList))
+  $("workName").value = $("workPrice").value = ""
+  renderPriceList()
+}
+
+function renderPriceList(){
+  let html = ""
+  priceList.forEach((p,i)=>{
+    html+=`
+    <div class="price-item">
+      <div class="name">${p.name}</div>
+      <div class="price">${p.price} 元</div>
+      <button class="btn-sm btn-red" onclick="delPrice(${i})">删</button>
+    </div>`
+  })
+  $("priceList").innerHTML = html
+}
+
+function delPrice(i){
+  priceList.splice(i,1)
+  localStorage.setItem("priceList",JSON.stringify(priceList))
+  renderPriceList()
+}
+
+// 输入型号自动带出单价
+function autoPrice(){
+  let val = $("workText").value.trim()
+  let item = priceList.find(x=>x.name === val)
+  $("unitPrice").value = item ? item.price : ""
+}
+
+// ====================== 工资周期 26 ~ 25 ======================
 function getCycleByYearMonth(y, m) {
   let start = new Date(y, m-1, 26)
   let end   = new Date(y, m,    25)
@@ -148,45 +206,34 @@ function getCycleByYearMonth(y, m) {
 function getCurrentCycle() {
   let now = new Date()
   let y = now.getFullYear()
-  let m = now.getMonth() + 1
+  let m = now.getMonth()+1
   let d = now.getDate()
-  if (d >= 26) {
-    return getCycleByYearMonth(y, m)
-  } else {
-    return getCycleByYearMonth(y, m-1)
-  }
+  if(d>=26) return getCycleByYearMonth(y,m)
+  else return getCycleByYearMonth(y,m-1)
 }
 
-// ======================================
-// 加载当前周期
-// ======================================
-function loadCurrentCycle() {
-  let {start, end} = getCurrentCycle()
-  renderList(start, end)
+// ====================== 加载 ======================
+function loadCurrentCycle(){
+  let {start,end} = getCurrentCycle()
+  renderList(start,end)
 }
 
-// ======================================
-// 手动选择历史月份
-// ======================================
-function loadSelectMonth() {
-  let val = $("selectMonth").value
-  if (!val) return
-  let [y, m] = val.split('-').map(Number)
-  let {start, end} = getCycleByYearMonth(y, m)
-  renderList(start, end)
+function loadSelectMonth(){
+  let v = $("selectMonth").value
+  if(!v) return
+  let [y,m] = v.split("-").map(Number)
+  let {start,end} = getCycleByYearMonth(y,m)
+  renderList(start,end)
 }
 
-// ======================================
-// 渲染列表 + 计算 + 可删除
-// ======================================
-function renderList(start, end) {
-  let list = records.filter(r => r.date >= start && r.date <= end)
-  let html = ''
-  let ying = 0
-
-  list.forEach((r, idx) => {
-    ying += r.total
-    html += `
+// ====================== 渲染工资列表 ======================
+function renderList(start,end){
+  let list = records.filter(r=>r.date>=start && r.date<=end)
+  let html = ""
+  let totalYing = 0
+  list.forEach((r,idx)=>{
+    totalYing += r.total
+    html+=`
     <tr>
       <td>${r.date.slice(5)}</td>
       <td>${r.name}</td>
@@ -201,45 +248,39 @@ function renderList(start, end) {
       <td><button class="btn-sm btn-red" onclick="delRecord(${idx})">删</button></td>
     </tr>`
   })
-
   $("dataBody").innerHTML = html
   let ins = parseFloat($("insurance").value) || 0
-  let real = ying - ins
-  if (real < 0) real = 0
-
-  $("totalYing").innerText = `应发合计：${ying.toFixed(2)}`
+  let real = totalYing - ins
+  if(real<0) real=0
+  $("totalYing").innerText = `应发合计：${totalYing.toFixed(2)}`
   $("totalIns").innerText  = `扣除保险：${ins.toFixed(2)}`
   $("totalReal").innerText = `实发工资：${real.toFixed(2)}`
 }
 
-// ======================================
-// 保存记录
-// ======================================
-function saveRecord() {
-  let date  = $("recordDate").value
-  let name  = $("workerName").value.trim()
-  let work  = $("workText").value.trim()
+// ====================== 保存工资 ======================
+function saveRecord(){
+  let date = $("recordDate").value
+  let name = $("workerName").value.trim()
+  let work = $("workText").value.trim()
+  if(!date || !name) return msg("请填日期和姓名")
 
-  if (!date || !name) return msg("填日期、姓名")
+  let price = parseFloat($("unitPrice").value) || 0
+  let qty = parseInt($("qty").value) || 0
+  let piece = price * qty
 
-  let price   = parseFloat($("unitPrice").value) || 0
-  let qty     = parseInt($("qty").value) || 0
-  let piece   = price * qty
+  let hr = parseFloat($("hourRate").value) || 0
+  let hours = parseFloat($("hours").value) || 0
+  let time = hr * hours
 
-  let hr      = parseFloat($("hourRate").value) || 0
-  let hours   = parseFloat($("hours").value) || 0
-  let time    = hr * hours
+  let meal = parseInt($("meal").value) || 0
+  let night = parseInt($("night").value) || 0
+  let bonus = parseInt($("bonus").value) || 0
 
-  let meal    = parseInt($("meal").value) || 0
-  let night   = parseInt($("night").value) || 0
-  let bonus   = parseInt($("bonus").value) || 0
+  let total = piece + time + meal + night + bonus
 
-  let total   = piece + time + meal + night + bonus
+  records.unshift({ date,name,work,qty,piece,hours,time,meal,night,bonus,total })
+  localStorage.setItem("records",JSON.stringify(records))
 
-  records.unshift({ date, name, work, qty, piece, hours, time, meal, night, bonus, total })
-  localStorage.setItem("records", JSON.stringify(records))
-
-  // 清空
   $("workText").value = $("unitPrice").value = $("qty").value = $("hourRate").value = $("hours").value = ""
   $("meal").value = $("night").value = $("bonus").value = 0
 
@@ -247,39 +288,35 @@ function saveRecord() {
   loadCurrentCycle()
 }
 
-// ======================================
-// 删除单条记录
-// ======================================
-function delRecord(idx) {
-  if (!confirm("确定删除这条记录？")) return
-  records.splice(idx, 1)
-  localStorage.setItem("records", JSON.stringify(records))
+// ====================== 删除单条 ======================
+function delRecord(idx){
+  if(!confirm("确定删除？")) return
+  records.splice(idx,1)
+  localStorage.setItem("records",JSON.stringify(records))
   loadCurrentCycle()
   msg("已删除")
 }
 
-// ======================================
-// 导出 / 清空
-// ======================================
-function exportData() {
-  let blob = new Blob([JSON.stringify(records, null, 2)], { type:"application/json" })
+// ====================== 导出 / 清空 ======================
+function exportData(){
+  let data = {priceList,records}
+  let blob = new Blob([JSON.stringify(data,null,2)],{type:"application/json"})
   let a = document.createElement("a")
   a.href = URL.createObjectURL(blob)
-  a.download = "工资记录.json"
+  a.download = "工资数据.json"
   a.click()
   msg("已导出")
 }
 
-function clearAll() {
-  if (!confirm("确定清空当前周期所有记录？")) return
-  let {start, end} = getCurrentCycle()
-  records = records.filter(r => r.date < start || r.date > end)
-  localStorage.setItem("records", JSON.stringify(records))
+function clearAll(){
+  if(!confirm("确定清空当前周期？")) return
+  let {start,end} = getCurrentCycle()
+  records = records.filter(r=>r.date<start || r.date>end)
+  localStorage.setItem("records",JSON.stringify(records))
   loadCurrentCycle()
   msg("已清空")
 }
 
-// 保险修改自动刷新
 $("insurance").oninput = loadCurrentCycle
 </script>
 </body>
