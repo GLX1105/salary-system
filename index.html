@@ -5,39 +5,31 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>工资管理系统（云端同步版）</title>
 <style>
-* {margin:0;padding:0;box-sizing:border-box;font-family:system-ui,sans-serif}
-body {background:#f4f7fa;padding:12px;font-size:14px}
-.container {max-width:800px;margin:0 auto}
-.card {background:#fff;border-radius:14px;padding:16px;margin-bottom:12px;box-shadow:0 2px 10px rgba(0,0,0,0.04)}
-h3 {font-size:16px;font-weight:600;margin-bottom:12px;color:#222}
-input {width:100%;padding:10px;border:1px solid #e6e8eb;border-radius:10px;margin:5px 0;font-size:14px}
-.row {display:flex;gap:8px}
-.row > div {flex:1}
-button {width:100%;padding:11px;background:#007bff;color:#fff;border:none;border-radius:10px;margin-top:8px;font-weight:500}
-.btn-red {background:#ff4444}
-.btn-sm {
-  padding: 4px 8px;
-  font-size:12px;
-  min-width:40px;
-  text-align:center;
-}
-.table {width:100%;border-collapse:collapse;margin-top:10px;font-size:12px}
-.table th,.table td {padding:7px 4px;text-align:center;border-bottom:1px solid #f0f0f0}
-.table th {background:#f0f7ff;color:#007bff}
-.total {margin-top:10px;padding:10px;background:#e8f3ff;border-radius:10px;font-weight:600;color:#007bff}
-.total2 {margin-top:6px;padding:10px;background:#fff3cd;border-radius:10px;font-weight:600;color:#d97706}
-
-#login-modal {position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:9999}
-#login-modal.hidden {display:none!important}
-#main {display:none}
-#main.visible {display:block}
-.toast {position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#222;color:#fff;padding:8px 14px;border-radius:20px;opacity:0;transition:.3s}
-.toast.show {opacity:1}
-
-/* 型号单价 4 列布局 */
-.price-grid {display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:6px;margin-top:10px}
-.price-item {display:flex;align-items:center;gap:6px;background:#f8f9fa;padding:8px;border-radius:8px}
-.price-item span {flex:1}
+*{box-sizing:border-box;margin:0;padding:0;font-family:system-ui,sans-serif}
+body{background:#f4f7fa;padding:12px}
+.container{max-width:800px;margin:0 auto}
+.card{background:#fff;border-radius:14px;padding:16px;margin-bottom:12px;box-shadow:0 2px 10px rgba(0,0,0,0.04)}
+h3{font-size:16px;font-weight:600;margin-bottom:12px;color:#222}
+input{width:100%;padding:10px;border:1px solid #e6e8eb;border-radius:10px;margin:5px 0;font-size:14px}
+.row{display:flex;gap:8px}
+.row>div{flex:1}
+button{width:100%;padding:11px;background:#007bff;color:#fff;border:none;border-radius:10px;margin-top:8px;font-weight:500}
+.btn-red{background:#ff4444}
+.btn-sm{padding:4px 8px;font-size:12px;min-width:40px}
+.table{width:100%;border-collapse:collapse;margin-top:10px;font-size:12px}
+.table th,.table td{padding:7px 4px;text-align:center;border-bottom:1px solid #f0f0f0}
+.table th{background:#f0f7ff;color:#007bff}
+.total{margin-top:10px;padding:10px;background:#e8f3ff;border-radius:10px;font-weight:600;color:#007bff}
+.total2{margin-top:6px;padding:10px;background:#fff3cd;border-radius:10px;font-weight:600;color:#d97706}
+#login-modal{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:9999}
+#login-modal.hidden{display:none!important}
+#main{display:none}
+#main.visible{display:block}
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#222;color:#fff;padding:8px 14px;border-radius:20px;opacity:0;transition:.3s}
+.toast.show{opacity:1}
+.price-grid{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:6px;margin-top:10px}
+.price-item{display:flex;align-items:center;gap:6px;background:#f8f9fa;padding:8px;border-radius:8px}
+.price-item span{flex:1}
 </style>
 </head>
 <body>
@@ -45,14 +37,13 @@ button {width:100%;padding:11px;background:#007bff;color:#fff;border:none;border
 <div id="login-modal">
   <div class="card" style="width:90%;max-width:320px">
     <h3 style="text-align:center">🔐 工资管理系统</h3>
-    <input type="password" id="pwd" placeholder="输入密码">
-    <button onclick="login()">登录</button>
+    <input type="password" id="pwd" placeholder="登录密码（123456）">
+    <input id="gistId" placeholder="Gist ID（首次留空）">
+    <button onclick="login()">登录 + 同步云端</button>
   </div>
 </div>
 
 <div class="container" id="main">
-
-<!-- 型号单价（4列） -->
 <div class="card">
   <h3>📦 型号 / 单价管理</h3>
   <div class="row">
@@ -63,48 +54,37 @@ button {width:100%;padding:11px;background:#007bff;color:#fff;border:none;border
   <div class="price-grid" id="priceList"></div>
 </div>
 
-<!-- 录入 -->
 <div class="card">
   <h3>📝 录入工资记录</h3>
   <input type="date" id="recordDate">
   <input id="workerName" placeholder="姓名">
   <input id="workText" placeholder="输入型号/工序" oninput="autoPrice()">
-
   <div class="row">
     <div><input id="unitPrice" placeholder="单价" readonly></div>
     <div><input id="qty" type="number" placeholder="数量" min="0"></div>
   </div>
-
   <div class="row">
     <div><input id="hourRate" type="number" placeholder="时薪" min="0"></div>
     <div><input id="hours" type="number" placeholder="工时" min="0" step="0.5"></div>
   </div>
-
   <div class="row">
     <div><input id="mealDays" type="number" placeholder="餐补天数" min="0" value="0"></div>
     <div><input id="nightDays" type="number" placeholder="夜宵天数" min="0" value="0"></div>
   </div>
-
-  <input id="bonus" type="number" placeholder="其他奖金" min="0" value="0">
+  <input id="bonus" type="number" placeholder="奖金" min="0" value="0">
   <button onclick="saveRecord()">保存记录</button>
 </div>
 
-<!-- 保险 -->
 <div class="card">
   <h3>🛡️ 保险扣除（每月）</h3>
   <input id="insurance" type="number" placeholder="保险金额" value="0">
 </div>
 
-<!-- 查询 -->
 <div class="card">
   <h3>📅 查询历史月份工资</h3>
   <input type="month" id="selectMonth" onchange="loadSelectMonth()">
-  <div style="font-size:12px;color:#666;margin-top:6px">
-  选择 4月 → 显示 3.26–4.25
-  </div>
 </div>
 
-<!-- 明细（含奖金） -->
 <div class="card">
   <h3 id="cycleTitle">📊 工资明细</h3>
   <div style="overflow-x:auto">
@@ -124,11 +104,11 @@ button {width:100%;padding:11px;background:#007bff;color:#fff;border:none;border
 </div>
 
 <div class="card">
-  <h3>💾 数据管理</h3>
+  <h3>☁️ 云端同步</h3>
   <div class="row">
+    <button class="btn-sm" onclick="pullCloud()">从云端拉取</button>
+    <button class="btn-sm" onclick="pushCloud()">推送到云端</button>
     <button class="btn-sm" onclick="exportData()">导出备份</button>
-    <button class="btn-sm btn-red" onclick="clearAll()">清空当前周期</button>
-    <button class="btn-sm" onclick="syncCloud()">同步云端</button>
   </div>
 </div>
 
@@ -139,57 +119,119 @@ button {width:100%;padding:11px;background:#007bff;color:#fff;border:none;border
 const PASSWORD = "123456"
 const MEAL_PRICE = 16
 const NIGHT_PRICE = 20
-const CLOUD_KEY = "SALARY_DATA_CLOUD"
+
+// 你给的 Token 我已经填好了
+const GITHUB_TOKEN = "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"
 
 let priceList = []
 let records = []
+let gistId = ""
 const $ = id => document.getElementById(id)
 
 function msg(t){
   $("toast").textContent = t
   $("toast").classList.add("show")
-  setTimeout(()=>$("toast").classList.remove("show"),1800)
+  setTimeout(()=>$("toast").classList.remove("show"),2200)
 }
 
-function login(){
-  if($("pwd").value === PASSWORD){
-    $("login-modal").classList.add("hidden")
-    $("main").classList.add("visible")
-    loadFromCloud()
+async function login(){
+  if($("pwd").value !== PASSWORD) return msg("密码错误")
+  gistId = $("gistId").value.trim()
+  $("login-modal").classList.add("hidden")
+  $("main").classList.add("visible")
+  if(gistId) await pullCloud()
+  renderPriceList()
+  loadCurrentCycle()
+}
+
+// 推送到云端
+async function pushCloud(){
+  if(!gistId){
+    await createGist()
+    if(!gistId) return
+  }
+  try {
+    let data = {
+      files: {
+        "salary.json": {
+          content: JSON.stringify({priceList, records}, null, 2)
+        }
+      }
+    }
+    let res = await fetch(`https://api.github.com/gists/${gistId}`, {
+      method: "PATCH",
+      headers: {
+        "Authorization": `token ${GITHUB_TOKEN}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(data)
+    })
+    if(!res.ok) throw new Error("推送失败")
+    msg("✅ 已同步到云端")
+  } catch(e) {
+    msg("❌ 同步失败："+e.message)
+  }
+}
+
+// 从云端拉取
+async function pullCloud(){
+  if(!gistId) return msg("请先填Gist ID")
+  try {
+    let res = await fetch(`https://api.github.com/gists/${gistId}`, {
+      headers: { "Authorization": `token ${GITHUB_TOKEN}` }
+    })
+    if(!res.ok) throw new Error("拉取失败")
+    let json = await res.json()
+    let content = json.files["salary.json"].content
+    let data = JSON.parse(content)
+    priceList = data.priceList || []
+    records = data.records || []
+    msg("✅ 已从云端同步")
     renderPriceList()
     loadCurrentCycle()
-  }else msg("密码错误")
+  } catch(e) {
+    msg("❌ 拉取失败："+e.message)
+  }
 }
 
-// ========== 云端同步 ==========
-function saveToCloud(){
-  let data = {priceList, records}
-  localStorage.setItem(CLOUD_KEY, JSON.stringify(data))
+// 首次创建Gist
+async function createGist(){
+  try {
+    let res = await fetch("https://api.github.com/gists", {
+      method: "POST",
+      headers: {
+        "Authorization": `token ${GITHUB_TOKEN}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        description: "工资系统数据",
+        public: false,
+        files: {
+          "salary.json": {
+            content: JSON.stringify({priceList:[], records:[]}, null, 2)
+          }
+        }
+      })
+    })
+    let json = await res.json()
+    gistId = json.id
+    alert("你的Gist ID："+ gistId +"\n请保存好，所有设备都用这个ID")
+    $("gistId").value = gistId
+  } catch(e) {
+    msg("创建云端失败")
+  }
 }
 
-function loadFromCloud(){
-  let data = localStorage.getItem(CLOUD_KEY)
-  if(!data) return
-  data = JSON.parse(data)
-  priceList = data.priceList || []
-  records = data.records || []
-}
-
-function syncCloud(){
-  saveToCloud()
-  msg("✅ 已同步到云端")
-}
-
-// ========== 型号单价 ==========
+// 型号管理
 function savePrice(){
   let name = $("workName").value.trim()
   let price = parseFloat($("workPrice").value)
-  if(!name || isNaN(price)) return msg("请填写型号和单价")
+  if(!name || isNaN(price)) return msg("请填完整")
   let i = priceList.findIndex(x=>x.name === name)
   i>=0 ? priceList[i].price = price : priceList.push({name,price})
   $("workName").value = $("workPrice").value = ""
-  saveToCloud()
   renderPriceList()
+  pushCloud()
 }
 
 function renderPriceList(){
@@ -207,8 +249,8 @@ function renderPriceList(){
 
 function delPrice(i){
   priceList.splice(i,1)
-  saveToCloud()
   renderPriceList()
+  pushCloud()
 }
 
 function autoPrice(){
@@ -217,14 +259,14 @@ function autoPrice(){
   $("unitPrice").value = item ? item.price : ""
 }
 
-// ========== 周期逻辑 ==========
+// 周期计算
 function getCycleByDisplayYearMonth(y, m) {
   let start = new Date(y, m-2, 26)
   let end   = new Date(y, m-1, 25)
   return {
     start: start.toISOString().split('T')[0],
     end: end.toISOString().split('T')[0],
-    title: `${start.getMonth()+1}月26日 ~ ${end.getMonth()+1}月25日 → ${m}月`
+    title: `${start.getMonth()+1}月26日 ~ ${end.getMonth()+1}月25日`
   }
 }
 
@@ -248,7 +290,7 @@ function loadSelectMonth(){
   renderList(getCycleByDisplayYearMonth(y,m))
 }
 
-// ========== 渲染明细 ==========
+// 渲染列表
 function renderList(cycle){
   $("cycleTitle").innerText = "📊 工资明细（"+cycle.title+"）"
   let list = records.filter(r=>r.date >= cycle.start && r.date <= cycle.end)
@@ -280,12 +322,12 @@ function renderList(cycle){
   $("totalReal").innerText = `实发工资：${real.toFixed(2)}`
 }
 
-// ========== 保存记录 ==========
+// 保存记录
 function saveRecord(){
   let date = $("recordDate").value
   let name = $("workerName").value.trim()
   let work = $("workText").value.trim()
-  if(!date || !name) return msg("请填日期、姓名")
+  if(!date || !name) return msg("必填日期、姓名")
 
   let price = parseFloat($("unitPrice").value) || 0
   let qty = parseInt($("qty").value) || 0
@@ -304,25 +346,22 @@ function saveRecord(){
   let total = piece + time + meal + night + bonus
 
   records.unshift({ date,name,work,qty,piece,hours,time,meal,night,bonus,total })
-  saveToCloud()
-
+  msg("保存成功 ✅")
   $("workText").value = $("unitPrice").value = $("qty").value = $("hourRate").value = $("hours").value = ""
   $("mealDays").value = $("nightDays").value = $("bonus").value = 0
-
-  msg("保存成功 ✅")
   loadCurrentCycle()
+  pushCloud()
 }
 
-// ========== 删除记录 ==========
 function delRecord(idx){
   if(!confirm("确定删除？")) return
   records.splice(idx,1)
-  saveToCloud()
   loadCurrentCycle()
+  pushCloud()
   msg("已删除")
 }
 
-// ========== 导出 / 清空 ==========
+// 导出
 function exportData(){
   let data = {priceList, records}
   let blob = new Blob([JSON.stringify(data,null,2)],{type:"application/json"})
@@ -331,15 +370,6 @@ function exportData(){
   a.download = "工资数据.json"
   a.click()
   msg("导出成功")
-}
-
-function clearAll(){
-  if(!confirm("确定清空当前周期？")) return
-  let c = getCurrentCycle()
-  records = records.filter(r=>r.date < c.start || r.date > c.end)
-  saveToCloud()
-  loadCurrentCycle()
-  msg("已清空")
 }
 
 $("insurance").oninput = loadCurrentCycle
