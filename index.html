@@ -559,7 +559,7 @@
                 
                 <div class="form-group">
                     <label class="form-label">登录密码</label>
-                    <input type="password" id="login-password" class="form-input" placeholder="输入登录密码" value="123456">
+                    <input type="password" id="login-password" class="form-input" placeholder="请输入登录密码">
                 </div>
                 
                 <div class="form-group">
@@ -568,7 +568,7 @@
                     <div class="form-hint">同一ID可在多设备同步数据，建议使用字母数字组合</div>
                 </div>
                 
-                <button id="login-btn" class="btn" onclick="login()">进入系统</button>
+                <button id="login-btn" class="btn" onclick="login()">登录系统</button>
                 
                 <div class="login-help">
                     <p><strong>💡 新功能介绍：</strong></p>
@@ -641,7 +641,12 @@
                     </div>
                     <div class="card-body">
                         <input type="date" id="record-date" class="form-input" style="margin-bottom: 10px;">
-                        <input type="text" id="worker-name" placeholder="姓名" class="form-input" style="margin-bottom: 10px;">
+                        
+                        <div style="margin-bottom: 10px;">
+                            <input type="text" id="worker-name" placeholder="姓名" class="form-input" value="张三">
+                            <div class="form-hint">默认姓名，可修改</div>
+                        </div>
+                        
                         <input type="text" id="work-text" placeholder="型号/工序" class="form-input" style="margin-bottom: 10px;" oninput="autoPrice()">
                         
                         <div class="form-row">
@@ -654,9 +659,30 @@
                             <input type="number" id="hours" placeholder="工时" min="0" step="0.5" class="form-input">
                         </div>
                         
-                        <div class="form-row">
-                            <input type="number" id="meal-days" placeholder="餐补天数" min="0" value="0" class="form-input">
-                            <input type="number" id="night-days" placeholder="夜宵天数" min="0" value="0" class="form-input">
+                        <div style="margin-top: 10px;">
+                            <label style="display: block; margin-bottom: 8px; color: #555; font-weight: 500;">补贴设置</label>
+                            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px;">
+                                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                                    <div style="flex: 1;">
+                                        <label style="display: block; margin-bottom: 5px; color: #666; font-size: 13px;">餐补标准 (元/天)</label>
+                                        <input type="number" id="meal-price" placeholder="餐补标准" value="16" class="form-input" style="padding: 8px 10px; font-size: 14px;">
+                                    </div>
+                                    <div style="flex: 1;">
+                                        <label style="display: block; margin-bottom: 5px; color: #666; font-size: 13px;">餐补天数</label>
+                                        <input type="number" id="meal-days" placeholder="天数" min="0" value="0" class="form-input" style="padding: 8px 10px; font-size: 14px;">
+                                    </div>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <div style="flex: 1;">
+                                        <label style="display: block; margin-bottom: 5px; color: #666; font-size: 13px;">夜宵标准 (元/天)</label>
+                                        <input type="number" id="night-price" placeholder="夜宵标准" value="20" class="form-input" style="padding: 8px 10px; font-size: 14px;">
+                                    </div>
+                                    <div style="flex: 1;">
+                                        <label style="display: block; margin-bottom: 5px; color: #666; font-size: 13px;">夜宵天数</label>
+                                        <input type="number" id="night-days" placeholder="天数" min="0" value="0" class="form-input" style="padding: 8px 10px; font-size: 14px;">
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         
                         <input type="number" id="bonus" placeholder="奖金" min="0" value="0" class="form-input" style="margin-top: 10px;">
@@ -771,8 +797,9 @@
         // 应用配置
         const CONFIG = {
             PASSWORD: '123456',
-            MEAL_PRICE: 16,
-            NIGHT_PRICE: 20
+            DEFAULT_NAME: '张三',  // 默认姓名
+            DEFAULT_MEAL_PRICE: 16,  // 默认餐补标准
+            DEFAULT_NIGHT_PRICE: 20  // 默认夜宵标准
         };
         
         // 应用状态
@@ -860,6 +887,11 @@
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('record-date').value = today;
             
+            // 设置默认值
+            document.getElementById('worker-name').value = CONFIG.DEFAULT_NAME;
+            document.getElementById('meal-price').value = CONFIG.DEFAULT_MEAL_PRICE;
+            document.getElementById('night-price').value = CONFIG.DEFAULT_NIGHT_PRICE;
+            
             loadLocalData();
         }
         
@@ -867,6 +899,11 @@
         async function login() {
             const password = document.getElementById('login-password').value;
             let storageId = document.getElementById('storage-id').value.trim();
+            
+            if (!password) {
+                showToast('请输入密码', true);
+                return;
+            }
             
             if (password !== CONFIG.PASSWORD) {
                 showToast('密码错误', true);
@@ -975,7 +1012,7 @@
                 storageId: appState.storageId,
                 currentProvider: appState.currentProvider,
                 savedAt: new Date().toISOString(),
-                version: '6.0'
+                version: '8.0'
             };
             
             try {
@@ -1102,6 +1139,67 @@
             }
         }
         
+        // 保存记录
+        function saveRecord() {
+            const date = document.getElementById('record-date').value;
+            const name = document.getElementById('worker-name').value.trim() || CONFIG.DEFAULT_NAME;
+            
+            if (!date) {
+                showToast('请填写日期', true);
+                return;
+            }
+            
+            const work = document.getElementById('work-text').value.trim();
+            const unitPrice = parseFloat(document.getElementById('unit-price').value) || 0;
+            const quantity = parseInt(document.getElementById('quantity').value) || 0;
+            const pieceWage = unitPrice * quantity;
+            
+            const hourRate = parseFloat(document.getElementById('hour-rate').value) || 0;
+            const hours = parseFloat(document.getElementById('hours').value) || 0;
+            const timeWage = hourRate * hours;
+            
+            const mealPrice = parseFloat(document.getElementById('meal-price').value) || CONFIG.DEFAULT_MEAL_PRICE;
+            const mealDays = parseInt(document.getElementById('meal-days').value) || 0;
+            const nightPrice = parseFloat(document.getElementById('night-price').value) || CONFIG.DEFAULT_NIGHT_PRICE;
+            const nightDays = parseInt(document.getElementById('night-days').value) || 0;
+            
+            const mealAllowance = mealDays * mealPrice;
+            const nightAllowance = nightDays * nightPrice;
+            
+            const bonus = parseFloat(document.getElementById('bonus').value) || 0;
+            const total = pieceWage + timeWage + mealAllowance + nightAllowance + bonus;
+            
+            appState.records.unshift({
+                date,
+                name,
+                work,
+                qty: quantity,
+                piece: pieceWage,
+                hours,
+                time: timeWage,
+                mealPrice,  // 保存餐补标准
+                meal: mealAllowance,
+                nightPrice,  // 保存夜宵标准
+                night: nightAllowance,
+                bonus,
+                total
+            });
+            
+            // 不清空姓名，保留上次输入
+            document.getElementById('work-text').value = '';
+            document.getElementById('unit-price').value = '';
+            document.getElementById('quantity').value = '';
+            document.getElementById('hour-rate').value = '';
+            document.getElementById('hours').value = '';
+            document.getElementById('meal-days').value = 0;
+            document.getElementById('night-days').value = 0;
+            document.getElementById('bonus').value = 0;
+            
+            saveLocalData();
+            loadCurrentCycle();
+            showToast('记录已保存');
+        }
+        
         // 云端同步 - 多云端支持
         async function syncToCloud() {
             if (!appState.storageId) {
@@ -1117,7 +1215,7 @@
                     price_list: appState.priceList,
                     records: appState.records,
                     synced_at: new Date().toISOString(),
-                    version: '6.0'
+                    version: '8.0'
                 };
                 
                 // 尝试使用当前选中的提供商
@@ -1440,62 +1538,6 @@
             }
         }
         
-        // 保存记录
-        function saveRecord() {
-            const date = document.getElementById('record-date').value;
-            const name = document.getElementById('worker-name').value.trim();
-            
-            if (!date || !name) {
-                showToast('请填写日期和姓名', true);
-                return;
-            }
-            
-            const work = document.getElementById('work-text').value.trim();
-            const unitPrice = parseFloat(document.getElementById('unit-price').value) || 0;
-            const quantity = parseInt(document.getElementById('quantity').value) || 0;
-            const pieceWage = unitPrice * quantity;
-            
-            const hourRate = parseFloat(document.getElementById('hour-rate').value) || 0;
-            const hours = parseFloat(document.getElementById('hours').value) || 0;
-            const timeWage = hourRate * hours;
-            
-            const mealDays = parseInt(document.getElementById('meal-days').value) || 0;
-            const nightDays = parseInt(document.getElementById('night-days').value) || 0;
-            const mealAllowance = mealDays * CONFIG.MEAL_PRICE;
-            const nightAllowance = nightDays * CONFIG.NIGHT_PRICE;
-            
-            const bonus = parseFloat(document.getElementById('bonus').value) || 0;
-            const total = pieceWage + timeWage + mealAllowance + nightAllowance + bonus;
-            
-            appState.records.unshift({
-                date,
-                name,
-                work,
-                qty: quantity,
-                piece: pieceWage,
-                hours,
-                time: timeWage,
-                meal: mealAllowance,
-                night: nightAllowance,
-                bonus,
-                total
-            });
-            
-            document.getElementById('worker-name').value = '';
-            document.getElementById('work-text').value = '';
-            document.getElementById('unit-price').value = '';
-            document.getElementById('quantity').value = '';
-            document.getElementById('hour-rate').value = '';
-            document.getElementById('hours').value = '';
-            document.getElementById('meal-days').value = 0;
-            document.getElementById('night-days').value = 0;
-            document.getElementById('bonus').value = 0;
-            
-            saveLocalData();
-            loadCurrentCycle();
-            showToast('记录已保存');
-        }
-        
         // 周期计算
         function getCycleByDisplayYearMonth(year, month) {
             const start = new Date(year, month - 2, 26);
@@ -1562,8 +1604,8 @@
                             <td>¥${record.piece.toFixed(2)}</td>
                             <td>${record.hours || 0}</td>
                             <td>¥${record.time.toFixed(2)}</td>
-                            <td>¥${record.meal}</td>
-                            <td>¥${record.night}</td>
+                            <td>¥${record.meal} (${record.mealPrice}/天)</td>
+                            <td>¥${record.night} (${record.nightPrice}/天)</td>
                             <td>¥${record.bonus.toFixed(2)}</td>
                             <td>¥${record.total.toFixed(2)}</td>
                             <td>
@@ -1695,7 +1737,7 @@
                 records: appState.records,
                 storageId: appState.storageId,
                 exported: new Date().toISOString(),
-                version: '6.0'
+                version: '8.0'
             };
             
             const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
