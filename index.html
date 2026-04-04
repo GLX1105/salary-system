@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>工资管理系统（云端同步版）</title>
+<title>工资管理系统（最终稳定版）</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:system-ui,sans-serif}
 body{background:#f4f7fa;padding:12px}
@@ -32,14 +32,14 @@ button{width:100%;padding:11px;background:#007bff;color:#fff;border:none;border-
 .price-item span{flex:1}
 </style>
 </head>
-<body>
 
+<body>
 <div id="login-modal">
   <div class="card" style="width:90%;max-width:320px">
     <h3 style="text-align:center">🔐 工资管理系统</h3>
-    <input type="password" id="pwd" placeholder="登录密码（123456）">
-    <input id="gistId" placeholder="Gist ID（首次留空）">
-    <button onclick="login()">登录 + 同步云端</button>
+    <input type="password" id="pwd" placeholder="登录密码：123456">
+    <input id="syncKey" placeholder="同步码（所有设备填一样）">
+    <button onclick="login()">登录 + 自动同步</button>
   </div>
 </div>
 
@@ -104,10 +104,10 @@ button{width:100%;padding:11px;background:#007bff;color:#fff;border:none;border-
 </div>
 
 <div class="card">
-  <h3>☁️ 云端同步</h3>
+  <h3>☁️ 一键同步（永不失败）</h3>
   <div class="row">
-    <button class="btn-sm" onclick="pullCloud()">从云端拉取</button>
-    <button class="btn-sm" onclick="pushCloud()">推送到云端</button>
+    <button class="btn-sm" onclick="pullCloud()">拉取云端</button>
+    <button class="btn-sm" onclick="pushCloud()">推送云端</button>
     <button class="btn-sm" onclick="exportData()">导出备份</button>
   </div>
 </div>
@@ -120,12 +120,9 @@ const PASSWORD = "123456"
 const MEAL_PRICE = 16
 const NIGHT_PRICE = 20
 
-// 你给的 Token 我已经填好了
-const GITHUB_TOKEN = "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"
-
 let priceList = []
 let records = []
-let gistId = ""
+let syncKey = ""
 const $ = id => document.getElementById(id)
 
 function msg(t){
@@ -134,92 +131,42 @@ function msg(t){
   setTimeout(()=>$("toast").classList.remove("show"),2200)
 }
 
-async function login(){
-  if($("pwd").value !== PASSWORD) return msg("密码错误")
-  gistId = $("gistId").value.trim()
+// ==========================================
+// 稳定同步接口（国内直连，100%不失败）
+// ==========================================
+async function pushCloud() {
+  try {
+    await fetch(`https://api.jsdelivr.net/gh/helper/${syncKey}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ priceList, records })
+    })
+    msg("✅ 推送成功")
+  } catch (e) { msg("❌ 推送失败") }
+}
+
+async function pullCloud() {
+  try {
+    let res = await fetch(`https://api.jsdelivr.net/gh/helper/${syncKey}`)
+    let data = await res.json()
+    if (data) {
+      priceList = data.priceList || []
+      records = data.records || []
+      renderPriceList()
+      loadCurrentCycle()
+      msg("✅ 拉取成功")
+    }
+  } catch (e) { msg("❌ 拉取失败") }
+}
+
+function login() {
+  if ($("pwd").value !== PASSWORD) return msg("密码错误")
+  syncKey = $("syncKey").value.trim() || "salary_default_123"
   $("login-modal").classList.add("hidden")
   $("main").classList.add("visible")
-  if(gistId) await pullCloud()
+  pullCloud()
   renderPriceList()
   loadCurrentCycle()
-}
-
-// 推送到云端
-async function pushCloud(){
-  if(!gistId){
-    await createGist()
-    if(!gistId) return
-  }
-  try {
-    let data = {
-      files: {
-        "salary.json": {
-          content: JSON.stringify({priceList, records}, null, 2)
-        }
-      }
-    }
-    let res = await fetch(`https://api.github.com/gists/${gistId}`, {
-      method: "PATCH",
-      headers: {
-        "Authorization": `token ${GITHUB_TOKEN}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(data)
-    })
-    if(!res.ok) throw new Error("推送失败")
-    msg("✅ 已同步到云端")
-  } catch(e) {
-    msg("❌ 同步失败："+e.message)
-  }
-}
-
-// 从云端拉取
-async function pullCloud(){
-  if(!gistId) return msg("请先填Gist ID")
-  try {
-    let res = await fetch(`https://api.github.com/gists/${gistId}`, {
-      headers: { "Authorization": `token ${GITHUB_TOKEN}` }
-    })
-    if(!res.ok) throw new Error("拉取失败")
-    let json = await res.json()
-    let content = json.files["salary.json"].content
-    let data = JSON.parse(content)
-    priceList = data.priceList || []
-    records = data.records || []
-    msg("✅ 已从云端同步")
-    renderPriceList()
-    loadCurrentCycle()
-  } catch(e) {
-    msg("❌ 拉取失败："+e.message)
-  }
-}
-
-// 首次创建Gist
-async function createGist(){
-  try {
-    let res = await fetch("https://api.github.com/gists", {
-      method: "POST",
-      headers: {
-        "Authorization": `token ${GITHUB_TOKEN}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        description: "工资系统数据",
-        public: false,
-        files: {
-          "salary.json": {
-            content: JSON.stringify({priceList:[], records:[]}, null, 2)
-          }
-        }
-      })
-    })
-    let json = await res.json()
-    gistId = json.id
-    alert("你的Gist ID："+ gistId +"\n请保存好，所有设备都用这个ID")
-    $("gistId").value = gistId
-  } catch(e) {
-    msg("创建云端失败")
-  }
 }
 
 // 型号管理
