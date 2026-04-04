@@ -341,9 +341,15 @@
             color: var(--success);
         }
         
-        /* 型号网格 */
-        .price-grid {
+        .summary-total {
+            background: linear-gradient(135deg, #d6d4ed, #c6c5e3);
+            color: #5a54f1;
+        }
+        
+        /* 型号网格 - 三列布局 */
+        .price-grid-three-col {
             display: grid;
+            grid-template-columns: repeat(3, 1fr);
             gap: 10px;
             margin-top: 15px;
         }
@@ -352,29 +358,33 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 12px 15px;
+            padding: 10px 12px;
             background: var(--light);
             border-radius: 8px;
+            border: 1px solid var(--border);
         }
         
         .price-info {
             display: flex;
-            align-items: center;
-            gap: 10px;
+            flex-direction: column;
+            gap: 4px;
         }
         
         .price-name {
             font-weight: 500;
+            font-size: 13px;
+            color: #333;
         }
         
         .price-value {
             color: var(--primary);
             font-weight: 600;
+            font-size: 13px;
         }
         
         .price-actions {
             display: flex;
-            gap: 5px;
+            gap: 4px;
         }
         
         /* 按钮组 */
@@ -386,8 +396,8 @@
         }
         
         .btn-sm {
-            padding: 8px 15px;
-            font-size: 14px;
+            padding: 6px 12px;
+            font-size: 12px;
         }
         
         .btn-block {
@@ -502,6 +512,10 @@
                 grid-template-columns: 1fr;
             }
             
+            .price-grid-three-col {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
             .btn-group {
                 grid-template-columns: 1fr;
             }
@@ -526,6 +540,12 @@
                 padding: 8px 10px;
             }
         }
+        
+        @media (max-width: 480px) {
+            .price-grid-three-col {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
@@ -535,7 +555,7 @@
             <div class="login-card">
                 <div class="login-icon">💰</div>
                 <h1 class="login-title">工资管理系统</h1>
-                <p class="login-subtitle">多云端同步 | 自动切换备用</p>
+                <p class="login-subtitle">多云端同步 | 三列布局</p>
                 
                 <div class="form-group">
                     <label class="form-label">登录密码</label>
@@ -551,10 +571,10 @@
                 <button id="login-btn" class="btn" onclick="login()">进入系统</button>
                 
                 <div class="login-help">
-                    <p><strong>💡 云端同步说明：</strong></p>
-                    <p>1. 内置3个云端服务，自动选择可用的</p>
-                    <p>2. 手机、电脑使用相同ID即可实时同步</p>
-                    <p>3. 数据自动加密存储，安全可靠</p>
+                    <p><strong>💡 新功能介绍：</strong></p>
+                    <p>1. 型号/单价列表采用三列布局，更节省空间</p>
+                    <p>2. 添加全部周期实发工资统计</p>
+                    <p>3. 手机、电脑使用相同ID即可实时同步</p>
                 </div>
             </div>
         </div>
@@ -599,7 +619,7 @@
                 <!-- 型号管理 -->
                 <div class="card">
                     <div class="card-header">
-                        <div class="card-title">📦 型号/单价管理</div>
+                        <div class="card-title">📦 型号/单价管理 (三列布局)</div>
                     </div>
                     <div class="card-body">
                         <div class="form-row">
@@ -607,7 +627,10 @@
                             <input type="number" id="work-price" placeholder="单价" step="0.01" class="form-input">
                         </div>
                         <button class="btn btn-sm" onclick="savePrice()">保存型号</button>
-                        <div id="price-list" class="price-grid"></div>
+                        
+                        <div id="price-list" class="price-grid-three-col">
+                            <!-- 型号会以三列网格布局显示在这里 -->
+                        </div>
                     </div>
                 </div>
                 
@@ -724,6 +747,11 @@
                             <span>实发工资：</span>
                             <span id="total-real">0.00</span>
                         </div>
+                        <!-- 新增：全部周期总实发工资 -->
+                        <div class="summary-item summary-total">
+                            <span>全部周期总实发：</span>
+                            <span id="total-all-real">0.00</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -771,6 +799,7 @@
             totalYing: document.getElementById('total-ying'),
             totalIns: document.getElementById('total-ins'),
             totalReal: document.getElementById('total-real'),
+            totalAllReal: document.getElementById('total-all-real'), // 新增
             currentCycleName: document.getElementById('current-cycle-name'),
             currentCycleCount: document.getElementById('current-cycle-count'),
             toast: document.getElementById('toast'),
@@ -946,12 +975,15 @@
                 storageId: appState.storageId,
                 currentProvider: appState.currentProvider,
                 savedAt: new Date().toISOString(),
-                version: '4.0'
+                version: '6.0'
             };
             
             try {
                 localStorage.setItem('salary_data_' + appState.storageId, JSON.stringify(data));
                 elements.recordCount.textContent = appState.records.length;
+                
+                // 更新全部周期总实发工资
+                updateTotalAllReal();
             } catch (error) {
                 console.error('本地存储失败:', error);
             }
@@ -978,6 +1010,98 @@
             }
         }
         
+        // 计算全部周期总实发工资
+        function calculateTotalAllReal() {
+            if (appState.records.length === 0) {
+                return 0;
+            }
+            
+            // 计算所有记录的总和
+            const totalAmount = appState.records.reduce((sum, record) => {
+                return sum + record.total;
+            }, 0);
+            
+            return totalAmount;
+        }
+        
+        // 更新全部周期总实发工资显示
+        function updateTotalAllReal() {
+            const totalAmount = calculateTotalAllReal();
+            elements.totalAllReal.textContent = `¥${totalAmount.toFixed(2)}`;
+        }
+        
+        // 型号管理
+        function savePrice() {
+            const name = document.getElementById('work-name').value.trim();
+            const price = parseFloat(document.getElementById('work-price').value);
+            
+            if (!name || isNaN(price) || price <= 0) {
+                showToast('请输入有效的名称和单价', true);
+                return;
+            }
+            
+            const index = appState.priceList.findIndex(item => item.name === name);
+            if (index >= 0) {
+                appState.priceList[index].price = price;
+            } else {
+                appState.priceList.push({ name, price });
+            }
+            
+            document.getElementById('work-name').value = '';
+            document.getElementById('work-price').value = '';
+            
+            renderPriceList();
+            saveLocalData();
+            showToast('型号已保存');
+        }
+        
+        function renderPriceList() {
+            const container = elements.priceList;
+            
+            if (appState.priceList.length === 0) {
+                container.innerHTML = '<div style="text-align: center; padding: 20px; color: #999; grid-column: 1/-1;">暂无型号数据</div>';
+                return;
+            }
+            
+            container.innerHTML = appState.priceList.map((item, index) => `
+                <div class="price-item">
+                    <div class="price-info">
+                        <div class="price-name">${item.name}</div>
+                        <div class="price-value">¥${item.price.toFixed(2)}</div>
+                    </div>
+                    <div class="price-actions">
+                        <button class="btn btn-sm" onclick="editPrice(${index})" style="background: #6c757d; padding: 4px 8px;">编辑</button>
+                        <button class="btn btn-sm" onclick="deletePrice(${index})" style="background: #dc3545; padding: 4px 8px;">删除</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function editPrice(index) {
+            const item = appState.priceList[index];
+            document.getElementById('work-name').value = item.name;
+            document.getElementById('work-price').value = item.price;
+        }
+        
+        function deletePrice(index) {
+            if (confirm(`确定要删除"${appState.priceList[index].name}"吗？`)) {
+                appState.priceList.splice(index, 1);
+                renderPriceList();
+                saveLocalData();
+                showToast('型号已删除');
+            }
+        }
+        
+        function autoPrice() {
+            const work = document.getElementById('work-text').value.trim();
+            const item = appState.priceList.find(p => p.name === work);
+            if (item) {
+                document.getElementById('unit-price').value = item.price;
+            } else {
+                document.getElementById('unit-price').value = '';
+            }
+        }
+        
         // 云端同步 - 多云端支持
         async function syncToCloud() {
             if (!appState.storageId) {
@@ -993,7 +1117,7 @@
                     price_list: appState.priceList,
                     records: appState.records,
                     synced_at: new Date().toISOString(),
-                    version: '4.0'
+                    version: '6.0'
                 };
                 
                 // 尝试使用当前选中的提供商
@@ -1316,78 +1440,6 @@
             }
         }
         
-        // 型号管理
-        function savePrice() {
-            const name = document.getElementById('work-name').value.trim();
-            const price = parseFloat(document.getElementById('work-price').value);
-            
-            if (!name || isNaN(price) || price <= 0) {
-                showToast('请输入有效的名称和单价', true);
-                return;
-            }
-            
-            const index = appState.priceList.findIndex(item => item.name === name);
-            if (index >= 0) {
-                appState.priceList[index].price = price;
-            } else {
-                appState.priceList.push({ name, price });
-            }
-            
-            document.getElementById('work-name').value = '';
-            document.getElementById('work-price').value = '';
-            
-            renderPriceList();
-            saveLocalData();
-            showToast('型号已保存');
-        }
-        
-        function renderPriceList() {
-            const container = elements.priceList;
-            
-            if (appState.priceList.length === 0) {
-                container.innerHTML = '<div style="text-align: center; padding: 20px; color: #999;">暂无型号数据</div>';
-                return;
-            }
-            
-            container.innerHTML = appState.priceList.map((item, index) => `
-                <div class="price-item">
-                    <div>
-                        <div class="price-name">${item.name}</div>
-                        <div class="price-value">¥${item.price.toFixed(2)}</div>
-                    </div>
-                    <div class="price-actions">
-                        <button class="btn btn-sm" onclick="editPrice(${index})" style="background: #6c757d; padding: 4px 8px;">编辑</button>
-                        <button class="btn btn-sm" onclick="deletePrice(${index})" style="background: #dc3545; padding: 4px 8px;">删除</button>
-                    </div>
-                </div>
-            `).join('');
-        }
-        
-        function editPrice(index) {
-            const item = appState.priceList[index];
-            document.getElementById('work-name').value = item.name;
-            document.getElementById('work-price').value = item.price;
-        }
-        
-        function deletePrice(index) {
-            if (confirm(`确定要删除"${appState.priceList[index].name}"吗？`)) {
-                appState.priceList.splice(index, 1);
-                renderPriceList();
-                saveLocalData();
-                showToast('型号已删除');
-            }
-        }
-        
-        function autoPrice() {
-            const work = document.getElementById('work-text').value.trim();
-            const item = appState.priceList.find(p => p.name === work);
-            if (item) {
-                document.getElementById('unit-price').value = item.price;
-            } else {
-                document.getElementById('unit-price').value = '';
-            }
-        }
-        
         // 保存记录
         function saveRecord() {
             const date = document.getElementById('record-date').value;
@@ -1529,6 +1581,9 @@
             elements.totalIns.textContent = `¥${insurance.toFixed(2)}`;
             elements.totalReal.textContent = `¥${shifa.toFixed(2)}`;
             
+            // 更新全部周期总实发工资
+            updateTotalAllReal();
+            
             elements.currentCycleName.textContent = cycle.title;
             elements.currentCycleCount.textContent = list.length;
         }
@@ -1640,7 +1695,7 @@
                 records: appState.records,
                 storageId: appState.storageId,
                 exported: new Date().toISOString(),
-                version: '4.0'
+                version: '6.0'
             };
             
             const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
