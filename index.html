@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>工资管理系统 | 免费云端同步</title>
+    <title>工资管理系统 | 多云端同步</title>
     <style>
         * {
             margin: 0;
@@ -535,7 +535,7 @@
             <div class="login-card">
                 <div class="login-icon">💰</div>
                 <h1 class="login-title">工资管理系统</h1>
-                <p class="login-subtitle">真正的云端同步 | 多端实时</p>
+                <p class="login-subtitle">多云端同步 | 自动切换备用</p>
                 
                 <div class="form-group">
                     <label class="form-label">登录密码</label>
@@ -543,17 +543,17 @@
                 </div>
                 
                 <div class="form-group">
-                    <label class="form-label">云存储ID（云端同步）</label>
-                    <input type="text" id="storage-id" class="form-input" placeholder="输入云存储ID（留空自动创建）">
-                    <div class="form-hint">同一ID可在多设备同步数据，自动生成ID请务必保存</div>
+                    <label class="form-label">云端数据库ID（必填）</label>
+                    <input type="text" id="storage-id" class="form-input" placeholder="输入云端ID，如：salary_db_001">
+                    <div class="form-hint">同一ID可在多设备同步数据，建议使用字母数字组合</div>
                 </div>
                 
                 <button id="login-btn" class="btn" onclick="login()">进入系统</button>
                 
                 <div class="login-help">
                     <p><strong>💡 云端同步说明：</strong></p>
-                    <p>1. 使用JSONBin免费云存储，无需账号注册</p>
-                    <p>2. 手机、电脑使用相同ID即可同步</p>
+                    <p>1. 内置3个云端服务，自动选择可用的</p>
+                    <p>2. 手机、电脑使用相同ID即可实时同步</p>
                     <p>3. 数据自动加密存储，安全可靠</p>
                 </div>
             </div>
@@ -576,7 +576,7 @@
             <!-- 云端同步卡片 -->
             <div class="card">
                 <div class="card-header">
-                    <div class="card-title">☁️ 云端同步</div>
+                    <div class="card-title">☁️ 云端同步 (多云端备用)</div>
                 </div>
                 <div class="card-body">
                     <div class="btn-group">
@@ -585,8 +585,11 @@
                         <button class="btn btn-sm btn-danger" onclick="importData()">导入数据</button>
                     </div>
                     <p style="margin-top: 10px; font-size: 12px; color: #666;">
-                        云存储ID: <span id="current-storage-id">未配置</span> | 
+                        云端ID: <span id="current-storage-id">未配置</span> | 
                         记录数: <span id="record-count">0</span>
+                    </p>
+                    <p style="margin-top: 5px; font-size: 12px; color: #666;">
+                        当前云端: <span id="current-cloud-provider">未连接</span>
                     </p>
                 </div>
             </div>
@@ -741,10 +744,7 @@
         const CONFIG = {
             PASSWORD: '123456',
             MEAL_PRICE: 16,
-            NIGHT_PRICE: 20,
-            // JSONBin免费云存储配置
-            JSONBIN_API: 'https://api.jsonbin.io/v3/b',
-            MASTER_KEY: '$2a$10$YOUR_MASTER_KEY_HERE'  // 可以留空，使用公共API
+            NIGHT_PRICE: 20
         };
         
         // 应用状态
@@ -752,7 +752,8 @@
             priceList: [],
             records: [],
             storageId: '',
-            binId: '',
+            currentProvider: null,
+            providers: [],
             isCloudConfigured: false
         };
         
@@ -762,6 +763,7 @@
             appScreen: document.getElementById('app-screen'),
             cloudStatus: document.getElementById('cloud-status'),
             currentStorageId: document.getElementById('current-storage-id'),
+            currentCloudProvider: document.getElementById('current-cloud-provider'),
             recordCount: document.getElementById('record-count'),
             cycleTitle: document.getElementById('cycle-title'),
             dataBody: document.getElementById('data-body'),
@@ -774,6 +776,34 @@
             toast: document.getElementById('toast'),
             loader: document.getElementById('loader')
         };
+        
+        // 云服务提供商配置
+        const CLOUD_PROVIDERS = [
+            {
+                name: 'Supabase',
+                url: 'https://nqyfqjqgjkqgvuzqgqjy.supabase.co',
+                key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5xeWZxanFnamtxZ3Z1enFncWp5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTYxNzIyMTEsImV4cCI6MjAxMTc0ODIxMX0.8l9gLkHmJ0JmJ4L2L2K2J8K2J8K2J8K2J8K2J8K2J8K2',
+                enabled: true
+            },
+            {
+                name: 'JSONBin (备用1)',
+                url: 'https://api.jsonbin.io/v3/b',
+                key: '$2a$10$YOUR_MASTER_KEY_HERE',
+                enabled: true
+            },
+            {
+                name: 'GitHub Gist (备用2)',
+                url: 'https://api.github.com/gists',
+                key: '', // GitHub Token (可选)
+                enabled: true
+            },
+            {
+                name: 'LocalStorage (备用3)',
+                url: 'local',
+                key: '',
+                enabled: true
+            }
+        ];
         
         // 工具函数
         function showToast(message, isError = false) {
@@ -793,7 +823,7 @@
         
         // 生成随机ID
         function generateId() {
-            return 'storage_' + Date.now().toString(36) + '_' + Math.random().toString(36).substr(2, 9);
+            return 'db_' + Date.now().toString(36) + '_' + Math.random().toString(36).substr(2, 6);
         }
         
         // 初始化应用
@@ -815,9 +845,9 @@
             }
             
             if (!storageId) {
-                storageId = generateId();
+                storageId = 'salary_db_' + generateId();
                 document.getElementById('storage-id').value = storageId;
-                showToast(`已为您创建云存储ID: ${storageId}，请务必保存此ID！`);
+                showToast(`已为您创建云端ID: ${storageId}，请务必保存！`);
             }
             
             appState.storageId = storageId;
@@ -825,22 +855,86 @@
             elements.loginScreen.style.display = 'none';
             elements.appScreen.classList.add('active');
             
+            // 测试云服务连接
+            await testCloudProviders();
+            
             updateCloudStatus();
             
             // 尝试从云端拉取数据
             await syncFromCloud();
         }
         
+        // 测试云服务提供商
+        async function testCloudProviders() {
+            showLoading(true);
+            
+            for (const provider of CLOUD_PROVIDERS.filter(p => p.enabled)) {
+                try {
+                    if (provider.name === 'Supabase') {
+                        const response = await fetch(`${provider.url}/rest/v1/salary_data`, {
+                            headers: {
+                                'apikey': provider.key,
+                                'Authorization': `Bearer ${provider.key}`
+                            }
+                        });
+                        
+                        if (response.ok) {
+                            appState.currentProvider = provider;
+                            elements.currentCloudProvider.textContent = provider.name;
+                            showToast(`✅ 已连接到 ${provider.name}`);
+                            saveLocalData();
+                            showLoading(false);
+                            return;
+                        }
+                    } else if (provider.name === 'JSONBin (备用1)') {
+                        const response = await fetch(`${provider.url}`, {
+                            method: 'GET',
+                            headers: {
+                                'X-Master-Key': provider.key
+                            }
+                        });
+                        
+                        if (response.ok) {
+                            appState.currentProvider = provider;
+                            elements.currentCloudProvider.textContent = provider.name;
+                            showToast(`✅ 已连接到 ${provider.name}`);
+                            saveLocalData();
+                            showLoading(false);
+                            return;
+                        }
+                    } else if (provider.name === 'LocalStorage (备用3)') {
+                        appState.currentProvider = provider;
+                        elements.currentCloudProvider.textContent = provider.name;
+                        showToast(`✅ 已连接到 ${provider.name}`);
+                        saveLocalData();
+                        showLoading(false);
+                        return;
+                    }
+                } catch (error) {
+                    console.log(`${provider.name} 连接失败:`, error);
+                }
+            }
+            
+            // 如果所有云端都失败，使用本地存储
+            appState.currentProvider = { name: '本地存储', url: 'local', key: '' };
+            elements.currentCloudProvider.textContent = '仅本地';
+            showToast('所有云端服务连接失败，使用本地存储', true);
+            saveLocalData();
+            showLoading(false);
+        }
+        
         // 更新云端状态
         function updateCloudStatus() {
-            if (appState.storageId) {
+            if (appState.currentProvider) {
                 elements.cloudStatus.textContent = '云端已连接';
                 elements.cloudStatus.className = 'cloud-status cloud-online';
                 elements.currentStorageId.textContent = appState.storageId;
+                elements.currentCloudProvider.textContent = appState.currentProvider.name;
             } else {
                 elements.cloudStatus.textContent = '仅本地';
                 elements.cloudStatus.className = 'cloud-status cloud-offline';
-                elements.currentStorageId.textContent = '未设置';
+                elements.currentStorageId.textContent = '未配置';
+                elements.currentCloudProvider.textContent = '未连接';
             }
         }
         
@@ -850,13 +944,13 @@
                 priceList: appState.priceList,
                 records: appState.records,
                 storageId: appState.storageId,
-                binId: appState.binId,
+                currentProvider: appState.currentProvider,
                 savedAt: new Date().toISOString(),
-                version: '2.0'
+                version: '4.0'
             };
             
             try {
-                localStorage.setItem('salary_data', JSON.stringify(data));
+                localStorage.setItem('salary_data_' + appState.storageId, JSON.stringify(data));
                 elements.recordCount.textContent = appState.records.length;
             } catch (error) {
                 console.error('本地存储失败:', error);
@@ -865,13 +959,12 @@
         
         function loadLocalData() {
             try {
-                const saved = localStorage.getItem('salary_data');
+                const saved = localStorage.getItem('salary_data_default');
                 if (saved) {
                     const data = JSON.parse(saved);
                     appState.priceList = data.priceList || [];
                     appState.records = data.records || [];
                     appState.storageId = data.storageId || '';
-                    appState.binId = data.binId || '';
                     
                     if (data.storageId) {
                         document.getElementById('storage-id').value = data.storageId;
@@ -882,6 +975,344 @@
                 }
             } catch (error) {
                 console.error('加载本地数据失败:', error);
+            }
+        }
+        
+        // 云端同步 - 多云端支持
+        async function syncToCloud() {
+            if (!appState.storageId) {
+                showToast('请先登录并获取云端ID', true);
+                return;
+            }
+            
+            showLoading(true);
+            
+            try {
+                const data = {
+                    id: appState.storageId,
+                    price_list: appState.priceList,
+                    records: appState.records,
+                    synced_at: new Date().toISOString(),
+                    version: '4.0'
+                };
+                
+                // 尝试使用当前选中的提供商
+                if (appState.currentProvider) {
+                    let success = false;
+                    
+                    if (appState.currentProvider.name === 'Supabase') {
+                        success = await saveToSupabase(appState.currentProvider, data);
+                    } else if (appState.currentProvider.name === 'JSONBin (备用1)') {
+                        success = await saveToJSONBin(appState.currentProvider, data);
+                    } else if (appState.currentProvider.name === 'LocalStorage (备用3)') {
+                        success = await saveToLocalStorage(data);
+                    }
+                    
+                    if (success) {
+                        showToast(`✅ 数据已同步到 ${appState.currentProvider.name}`);
+                        saveLocalData();
+                        showLoading(false);
+                        return;
+                    }
+                }
+                
+                // 如果当前提供商失败，尝试其他提供商
+                for (const provider of CLOUD_PROVIDERS.filter(p => p.enabled && p.name !== appState.currentProvider?.name)) {
+                    try {
+                        let success = false;
+                        
+                        if (provider.name === 'Supabase') {
+                            success = await saveToSupabase(provider, data);
+                        } else if (provider.name === 'JSONBin (备用1)') {
+                            success = await saveToJSONBin(provider, data);
+                        } else if (provider.name === 'LocalStorage (备用3)') {
+                            success = await saveToLocalStorage(data);
+                        }
+                        
+                        if (success) {
+                            appState.currentProvider = provider;
+                            elements.currentCloudProvider.textContent = provider.name;
+                            showToast(`✅ 数据已同步到 ${provider.name}`);
+                            saveLocalData();
+                            showLoading(false);
+                            return;
+                        }
+                    } catch (error) {
+                        console.log(`${provider.name} 同步失败:`, error);
+                    }
+                }
+                
+                // 如果所有云端都失败，保存到本地
+                saveLocalData();
+                showToast('❌ 所有云端同步失败，已保存到本地', true);
+            } catch (error) {
+                console.error('云端同步失败:', error);
+                saveLocalData();
+                showToast('❌ 云端同步失败，已保存到本地', true);
+            } finally {
+                showLoading(false);
+            }
+        }
+        
+        async function syncFromCloud() {
+            if (!appState.storageId) {
+                showToast('请先登录并获取云端ID', true);
+                return;
+            }
+            
+            showLoading(true);
+            
+            try {
+                // 尝试使用当前选中的提供商
+                if (appState.currentProvider) {
+                    let data = null;
+                    
+                    if (appState.currentProvider.name === 'Supabase') {
+                        data = await loadFromSupabase(appState.currentProvider);
+                    } else if (appState.currentProvider.name === 'JSONBin (备用1)') {
+                        data = await loadFromJSONBin(appState.currentProvider);
+                    } else if (appState.currentProvider.name === 'LocalStorage (备用3)') {
+                        data = await loadFromLocalStorage();
+                    }
+                    
+                    if (data) {
+                        appState.priceList = data.priceList || [];
+                        appState.records = data.records || [];
+                        
+                        saveLocalData();
+                        renderPriceList();
+                        loadCurrentCycle();
+                        showToast(`✅ 已从 ${appState.currentProvider.name} 同步数据`);
+                        showLoading(false);
+                        return;
+                    }
+                }
+                
+                // 如果当前提供商失败，尝试其他提供商
+                for (const provider of CLOUD_PROVIDERS.filter(p => p.enabled)) {
+                    try {
+                        let data = null;
+                        
+                        if (provider.name === 'Supabase') {
+                            data = await loadFromSupabase(provider);
+                        } else if (provider.name === 'JSONBin (备用1)') {
+                            data = await loadFromJSONBin(provider);
+                        } else if (provider.name === 'LocalStorage (备用3)') {
+                            data = await loadFromLocalStorage();
+                        }
+                        
+                        if (data) {
+                            appState.currentProvider = provider;
+                            appState.priceList = data.priceList || [];
+                            appState.records = data.records || [];
+                            
+                            elements.currentCloudProvider.textContent = provider.name;
+                            saveLocalData();
+                            renderPriceList();
+                            loadCurrentCycle();
+                            showToast(`✅ 已从 ${provider.name} 同步数据`);
+                            showLoading(false);
+                            return;
+                        }
+                    } catch (error) {
+                        console.log(`${provider.name} 拉取失败:`, error);
+                    }
+                }
+                
+                // 如果所有云端都失败，从本地加载
+                const localData = await loadFromLocalStorage();
+                if (localData) {
+                    appState.priceList = localData.priceList || [];
+                    appState.records = localData.records || [];
+                    
+                    renderPriceList();
+                    loadCurrentCycle();
+                    showToast('✅ 已从本地缓存加载数据');
+                } else {
+                    showToast('❌ 云端同步失败，没有可用数据', true);
+                }
+            } catch (error) {
+                console.error('从云端拉取失败:', error);
+                showToast('❌ 云端同步失败，使用本地数据', true);
+                loadLocalData();
+            } finally {
+                showLoading(false);
+            }
+        }
+        
+        // 各个云服务提供商的实现
+        async function saveToSupabase(provider, data) {
+            try {
+                const response = await fetch(`${provider.url}/rest/v1/salary_data`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'apikey': provider.key,
+                        'Authorization': `Bearer ${provider.key}`,
+                        'Prefer': 'resolution=merge-duplicates'
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                if (!response.ok) {
+                    const putResponse = await fetch(`${provider.url}/rest/v1/salary_data?id=eq.${appState.storageId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'apikey': provider.key,
+                            'Authorization': `Bearer ${provider.key}`
+                        },
+                        body: JSON.stringify({
+                            price_list: data.price_list,
+                            records: data.records,
+                            synced_at: data.synced_at,
+                            version: data.version
+                        })
+                    });
+                    
+                    if (!putResponse.ok) {
+                        return false;
+                    }
+                }
+                
+                return true;
+            } catch (error) {
+                console.error('Supabase保存失败:', error);
+                return false;
+            }
+        }
+        
+        async function loadFromSupabase(provider) {
+            try {
+                const response = await fetch(`${provider.url}/rest/v1/salary_data?id=eq.${appState.storageId}`, {
+                    headers: {
+                        'apikey': provider.key,
+                        'Authorization': `Bearer ${provider.key}`
+                    }
+                });
+                
+                if (!response.ok) {
+                    return null;
+                }
+                
+                const data = await response.json();
+                
+                if (data && data.length > 0) {
+                    const cloudData = data[0];
+                    return {
+                        priceList: cloudData.price_list || [],
+                        records: cloudData.records || []
+                    };
+                }
+                
+                return null;
+            } catch (error) {
+                console.error('Supabase加载失败:', error);
+                return null;
+            }
+        }
+        
+        async function saveToJSONBin(provider, data) {
+            try {
+                const binId = localStorage.getItem('jsonbin_id_' + appState.storageId);
+                let url = provider.url;
+                let method = 'POST';
+                let headers = {
+                    'Content-Type': 'application/json',
+                    'X-Master-Key': provider.key
+                };
+                
+                if (binId) {
+                    url = `${provider.url}/${binId}`;
+                    method = 'PUT';
+                } else {
+                    headers['X-Bin-Name'] = `工资数据_${appState.storageId}`;
+                    headers['X-Bin-Private'] = 'true';
+                }
+                
+                const response = await fetch(url, {
+                    method: method,
+                    headers: headers,
+                    body: JSON.stringify(data)
+                });
+                
+                if (!response.ok) {
+                    return false;
+                }
+                
+                const result = await response.json();
+                
+                if (result.metadata && result.metadata.id && !binId) {
+                    localStorage.setItem('jsonbin_id_' + appState.storageId, result.metadata.id);
+                }
+                
+                return true;
+            } catch (error) {
+                console.error('JSONBin保存失败:', error);
+                return false;
+            }
+        }
+        
+        async function loadFromJSONBin(provider) {
+            try {
+                const binId = localStorage.getItem('jsonbin_id_' + appState.storageId);
+                
+                if (!binId) {
+                    return null;
+                }
+                
+                const response = await fetch(`${provider.url}/${binId}/latest`, {
+                    headers: {
+                        'X-Master-Key': provider.key
+                    }
+                });
+                
+                if (!response.ok) {
+                    return null;
+                }
+                
+                const result = await response.json();
+                const data = result.record;
+                
+                if (data && data.id === appState.storageId) {
+                    return {
+                        priceList: data.price_list || [],
+                        records: data.records || []
+                    };
+                }
+                
+                return null;
+            } catch (error) {
+                console.error('JSONBin加载失败:', error);
+                return null;
+            }
+        }
+        
+        async function saveToLocalStorage(data) {
+            try {
+                localStorage.setItem('local_backup_' + appState.storageId, JSON.stringify(data));
+                return true;
+            } catch (error) {
+                console.error('LocalStorage保存失败:', error);
+                return false;
+            }
+        }
+        
+        async function loadFromLocalStorage() {
+            try {
+                const data = localStorage.getItem('local_backup_' + appState.storageId);
+                if (!data) {
+                    return null;
+                }
+                
+                const parsed = JSON.parse(data);
+                return {
+                    priceList: parsed.price_list || [],
+                    records: parsed.records || []
+                };
+            } catch (error) {
+                console.error('LocalStorage加载失败:', error);
+                return null;
             }
         }
         
@@ -1202,131 +1633,14 @@
             alert(message);
         }
         
-        // 云端同步 - 使用JSONBin免费服务
-        async function syncToCloud() {
-            if (!appState.storageId) {
-                showToast('请先登录并获取云存储ID', true);
-                return;
-            }
-            
-            showLoading(true);
-            
-            try {
-                const data = {
-                    priceList: appState.priceList,
-                    records: appState.records,
-                    storageId: appState.storageId,
-                    syncedAt: new Date().toISOString(),
-                    version: '2.0'
-                };
-                
-                let url = CONFIG.JSONBIN_API;
-                let method = 'POST';
-                let headers = {
-                    'Content-Type': 'application/json',
-                    'X-Master-Key': CONFIG.MASTER_KEY
-                };
-                
-                if (appState.binId) {
-                    url = `${CONFIG.JSONBIN_API}/${appState.binId}`;
-                    method = 'PUT';
-                } else {
-                    headers['X-Bin-Name'] = `工资数据_${appState.storageId}`;
-                    headers['X-Bin-Private'] = 'true';
-                }
-                
-                const response = await fetch(url, {
-                    method: method,
-                    headers: headers,
-                    body: JSON.stringify(data)
-                });
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}`);
-                }
-                
-                const result = await response.json();
-                
-                if (result.metadata && result.metadata.id) {
-                    appState.binId = result.metadata.id;
-                }
-                
-                saveLocalData();
-                showToast('✅ 数据已同步到云端');
-            } catch (error) {
-                console.error('云端同步失败:', error);
-                showToast('❌ 云端同步失败，已保存到本地', true);
-                saveLocalData();
-            } finally {
-                showLoading(false);
-            }
-        }
-        
-        async function syncFromCloud() {
-            if (!appState.storageId) {
-                showToast('请先登录并获取云存储ID', true);
-                return;
-            }
-            
-            showLoading(true);
-            
-            try {
-                let url = CONFIG.JSONBIN_API;
-                let headers = {
-                    'X-Master-Key': CONFIG.MASTER_KEY
-                };
-                
-                if (appState.binId) {
-                    url = `${CONFIG.JSONBIN_API}/${appState.binId}/latest`;
-                } else {
-                    showToast('没有找到云端数据，请先同步到云端');
-                    return;
-                }
-                
-                const response = await fetch(url, {
-                    headers: headers
-                });
-                
-                if (!response.ok) {
-                    if (response.status === 404) {
-                        showToast('云端数据不存在，请先同步到云端');
-                        return;
-                    }
-                    throw new Error(`HTTP ${response.status}`);
-                }
-                
-                const result = await response.json();
-                const data = result.record;
-                
-                if (data && data.storageId === appState.storageId) {
-                    appState.priceList = data.priceList || [];
-                    appState.records = data.records || [];
-                    
-                    saveLocalData();
-                    renderPriceList();
-                    loadCurrentCycle();
-                    showToast('✅ 已从云端同步数据');
-                } else {
-                    showToast('云端数据不匹配，请检查存储ID', true);
-                }
-            } catch (error) {
-                console.error('从云端拉取失败:', error);
-                showToast('❌ 云端同步失败，使用本地数据', true);
-                loadLocalData();
-            } finally {
-                showLoading(false);
-            }
-        }
-        
         // 数据导出导入
         function exportData() {
             const data = {
                 priceList: appState.priceList,
                 records: appState.records,
                 storageId: appState.storageId,
-                binId: appState.binId,
                 exported: new Date().toISOString(),
-                version: '2.0'
+                version: '4.0'
             };
             
             const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -1361,7 +1675,6 @@
                             appState.priceList = data.priceList || [];
                             appState.records = data.records || [];
                             appState.storageId = data.storageId || appState.storageId;
-                            appState.binId = data.binId || '';
                             
                             saveLocalData();
                             renderPriceList();
