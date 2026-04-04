@@ -10,28 +10,35 @@ body {background:#f4f7fa;padding:12px;font-size:14px}
 .container {max-width:800px;margin:0 auto}
 .card {background:#fff;border-radius:14px;padding:16px;margin-bottom:12px;box-shadow:0 2px 10px rgba(0,0,0,0.04)}
 h3 {font-size:16px;font-weight:600;margin-bottom:12px;color:#222}
-input {width:100%;padding:10px;border:1px solid #e6eebf;border-radius:10px;margin:5px 0;font-size:14px}
+input {width:100%;padding:10px;border:1px solid #e6e8eb;border-radius:10px;margin:5px 0;font-size:14px}
 .row {display:flex;gap:8px}
 .row > div {flex:1}
 button {width:100%;padding:11px;background:#007bff;color:#fff;border:none;border-radius:10px;margin-top:8px;font-weight:500}
 .btn-red {background:#ff4444}
-.btn-sm {padding:3px 6px;font-size:12px}
+/* 删除按钮统一尺寸：中等偏小 */
+.btn-sm {
+  padding: 4px 8px;
+  font-size: 12px;
+  min-width: 40px;
+  text-align: center;
+}
 .table {width:100%;border-collapse:collapse;margin-top:10px;font-size:12px}
-.table th,.table td {padding:7px 4px;text-align:center;border-bottom:1px solid #f0f0f0}
+.table th, .table td {padding:7px 4px;text-align:center;border-bottom:1px solid #f0f0f0}
 .table th {background:#f0f7ff;color:#007bff}
-.total{margin-top:10px;padding:10px;background:#e8f3ff;border-radius:10px;font-weight:600;color:#007bff}
-.total2{margin-top:6px;padding:10px;background:#fff3cd;border-radius:10px;font-weight:600;color:#d9706}
+.total {margin-top:10px;padding:10px;background:#e8f3ff;border-radius:10px;font-weight:600;color:#007bff}
+.total2 {margin-top:6px;padding:10px;background:#fff3cd;border-radius:10px;font-weight:600;color:#d97706}
 
-#login-modal{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:9999}
-#login-modal.hidden{display:none!important}
-#main{display:none}
-#main.visible{display:block}
-.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#222;color:#fff;padding:8px 14px;border-radius:20px;opacity:0;transition:.3s}
-.toast.show{opacity:1}
+#login-modal {position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:9999}
+#login-modal.hidden {display:none!important}
+#main {display:none}
+#main.visible {display:block}
+.toast {position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#222;color:#fff;padding:8px 14px;border-radius:20px;opacity:0;transition:.3s}
+.toast.show {opacity:1}
 
-.price-grid{display:grid;grid-template-columns:1fr 1fr auto;gap:6px;margin-top:10px}
-.price-item{display:flex;align-items:center;gap:6px;background:#f8f9fa;padding:8px;border-radius:8px}
-.price-item span{flex:1}
+/* 型号单价 3 列布局 */
+.price-grid {display:grid;grid-template-columns:1fr 1fr auto;gap:6px;margin-top:10px}
+.price-item {display:flex;align-items:center;gap:6px;background:#f8f9fa;padding:8px;border-radius:8px}
+.price-item span {flex:1}
 </style>
 </head>
 <body>
@@ -46,6 +53,7 @@ button {width:100%;padding:11px;background:#007bff;color:#fff;border:none;border
 
 <div class="container" id="main">
 
+<!-- 型号单价（3列，按钮统一小尺寸） -->
 <div class="card">
   <h3>📦 型号 / 单价管理</h3>
   <div class="row">
@@ -56,6 +64,7 @@ button {width:100%;padding:11px;background:#007bff;color:#fff;border:none;border
   <div class="price-grid" id="priceList"></div>
 </div>
 
+<!-- 录入 -->
 <div class="card">
   <h3>📝 录入工资记录</h3>
   <input type="date" id="recordDate">
@@ -81,11 +90,13 @@ button {width:100%;padding:11px;background:#007bff;color:#fff;border:none;border
   <button onclick="saveRecord()">保存记录</button>
 </div>
 
+<!-- 保险 -->
 <div class="card">
   <h3>🛡️ 保险扣除（每月）</h3>
   <input id="insurance" type="number" placeholder="保险金额" value="0">
 </div>
 
+<!-- 查询 -->
 <div class="card">
   <h3>📅 查询历史月份工资</h3>
   <input type="month" id="selectMonth" onchange="loadSelectMonth()">
@@ -94,6 +105,7 @@ button {width:100%;padding:11px;background:#007bff;color:#fff;border:none;border
   </div>
 </div>
 
+<!-- 明细（新增奖金列） -->
 <div class="card">
   <h3 id="cycleTitle">📊 工资明细</h3>
   <div style="overflow-x:auto">
@@ -101,7 +113,7 @@ button {width:100%;padding:11px;background:#007bff;color:#fff;border:none;border
       <thead>
         <tr>
           <th>日期</th><th>姓名</th><th>工序</th><th>数量</th><th>计件</th>
-          <th>工时</th><th>计时</th><th>餐补</th><th>夜宵</th><th>小计</th><th>操作</th>
+          <th>工时</th><th>计时</th><th>餐补</th><th>夜宵</th><th>奖金</th><th>小计</th><th>操作</th>
         </tr>
       </thead>
       <tbody id="dataBody"></tbody>
@@ -238,7 +250,7 @@ function loadSelectMonth(){
   renderList(getCycleByDisplayYearMonth(y,m))
 }
 
-// ========== 渲染明细 ==========
+// ========== 渲染明细（显示奖金） ==========
 function renderList(cycle){
   $("cycleTitle").innerText = "📊 工资明细（"+cycle.title+"）"
   let list = records.filter(r=>r.date >= cycle.start && r.date <= cycle.end)
@@ -257,6 +269,7 @@ function renderList(cycle){
       <td>${r.time.toFixed(1)}</td>
       <td>${r.meal}</td>
       <td>${r.night}</td>
+      <td>${r.bonus.toFixed(1)}</td>
       <td>${r.total.toFixed(1)}</td>
       <td><button class="btn-sm btn-red" onclick="delRecord(${idx})">删</button></td>
     </tr>`
@@ -265,7 +278,7 @@ function renderList(cycle){
   let ins = parseFloat($("insurance").value) || 0
   let real = Math.max(totalYing - ins, 0)
   $("totalYing").innerText = `应发合计：${totalYing.toFixed(2)}`
-  $("totalIns").innerText  = `扣除保险：${ins.toFixed(2)}`
+  $("totalIns").innerText = `扣除保险：${ins.toFixed(2)}`
   $("totalReal").innerText = `实发工资：${real.toFixed(2)}`
 }
 
@@ -288,7 +301,7 @@ function saveRecord(){
   let nightDays = parseInt($("nightDays").value) || 0
   let meal = mealDays * MEAL_PRICE
   let night = nightDays * NIGHT_PRICE
-  let bonus = parseInt($("bonus").value) || 0
+  let bonus = parseFloat($("bonus").value) || 0
 
   let total = piece + time + meal + night + bonus
 
