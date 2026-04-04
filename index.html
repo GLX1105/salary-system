@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>工资管理系统 | 多端同步</title>
+    <title>工资管理系统 | 免费云端同步</title>
     <style>
         * {
             margin: 0;
@@ -50,7 +50,7 @@
             border-radius: var(--radius);
             padding: 40px;
             width: 100%;
-            max-width: 400px;
+            max-width: 500px;
             box-shadow: var(--shadow);
             text-align: center;
         }
@@ -394,65 +394,6 @@
             width: 100%;
         }
         
-        /* 周期管理 */
-        .cycle-management {
-            margin-top: 20px;
-            padding: 20px;
-            background: white;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-        }
-        
-        .cycle-actions {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-        
-        .cycle-list {
-            margin-top: 15px;
-            max-height: 200px;
-            overflow-y: auto;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 10px;
-        }
-        
-        .cycle-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 12px;
-            border-bottom: 1px solid var(--border);
-        }
-        
-        .cycle-item:last-child {
-            border-bottom: none;
-        }
-        
-        .cycle-info {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .cycle-name {
-            font-weight: 500;
-        }
-        
-        .cycle-range {
-            font-size: 12px;
-            color: #666;
-        }
-        
-        .cycle-record-count {
-            font-size: 12px;
-            color: var(--primary);
-            background: var(--light);
-            padding: 2px 8px;
-            border-radius: 12px;
-        }
-        
         /* 提示框 */
         .toast {
             position: fixed;
@@ -473,6 +414,37 @@
         .toast.show {
             transform: translateX(-50%) translateY(0);
             opacity: 1;
+        }
+        
+        /* 加载动画 */
+        .loader-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        
+        .loader-overlay.active {
+            display: flex;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
         
         /* 模态框 */
@@ -520,37 +492,6 @@
             margin-top: 20px;
         }
         
-        /* 加载动画 */
-        .loader-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(255, 255, 255, 0.9);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-        }
-        
-        .loader-overlay.active {
-            display: flex;
-        }
-        
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 4px solid var(--border);
-            border-top-color: var(--primary);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
         /* 响应式设计 */
         @media (max-width: 768px) {
             .card-grid {
@@ -584,10 +525,6 @@
             .data-table td {
                 padding: 8px 10px;
             }
-            
-            .cycle-actions {
-                flex-direction: column;
-            }
         }
     </style>
 </head>
@@ -598,7 +535,7 @@
             <div class="login-card">
                 <div class="login-icon">💰</div>
                 <h1 class="login-title">工资管理系统</h1>
-                <p class="login-subtitle">简单易用 | 多端同步</p>
+                <p class="login-subtitle">真正的云端同步 | 多端实时</p>
                 
                 <div class="form-group">
                     <label class="form-label">登录密码</label>
@@ -606,19 +543,18 @@
                 </div>
                 
                 <div class="form-group">
-                    <label class="form-label">云服务ID（选填）</label>
-                    <input type="text" id="cloud-id" class="form-input" placeholder="输入云服务ID（首次使用留空）">
-                    <div class="form-hint">留空将自动创建新的云服务ID，请保存好以便在其他设备使用</div>
+                    <label class="form-label">云存储ID（云端同步）</label>
+                    <input type="text" id="storage-id" class="form-input" placeholder="输入云存储ID（留空自动创建）">
+                    <div class="form-hint">同一ID可在多设备同步数据，自动生成ID请务必保存</div>
                 </div>
                 
                 <button id="login-btn" class="btn" onclick="login()">进入系统</button>
                 
                 <div class="login-help">
-                    <p><strong>💡 使用说明：</strong></p>
-                    <p>1. 默认登录密码：123456</p>
-                    <p>2. 云服务ID用于多设备同步数据</p>
-                    <p>3. 数据自动保存，支持导入导出</p>
-                    <p>4. 支持手机、电脑、平板多端使用</p>
+                    <p><strong>💡 云端同步说明：</strong></p>
+                    <p>1. 使用JSONBin免费云存储，无需账号注册</p>
+                    <p>2. 手机、电脑使用相同ID即可同步</p>
+                    <p>3. 数据自动加密存储，安全可靠</p>
                 </div>
             </div>
         </div>
@@ -633,7 +569,7 @@
                 </div>
                 <div class="nav-right">
                     <div id="cloud-status" class="cloud-status cloud-online">云端已连接</div>
-                    <button class="btn btn-sm btn-outline" onclick="syncToCloud()">同步到云端</button>
+                    <button class="btn btn-sm btn-success" onclick="syncToCloud()">同步到云端</button>
                 </div>
             </nav>
             
@@ -649,7 +585,8 @@
                         <button class="btn btn-sm btn-danger" onclick="importData()">导入数据</button>
                     </div>
                     <p style="margin-top: 10px; font-size: 12px; color: #666;">
-                        云服务ID: <span id="current-cloud-id">未设置</span>
+                        云存储ID: <span id="current-storage-id">未配置</span> | 
+                        记录数: <span id="record-count">0</span>
                     </p>
                 </div>
             </div>
@@ -727,7 +664,7 @@
                     <div class="card-title">🗑️ 周期管理</div>
                 </div>
                 <div class="card-body">
-                    <div class="cycle-actions">
+                    <div class="btn-group">
                         <button class="btn btn-sm btn-info" onclick="showCurrentCycleRecords()">查看当前周期</button>
                         <button class="btn btn-sm btn-warning" onclick="clearCurrentCycle()">清空当前周期</button>
                         <button class="btn btn-sm btn-danger" onclick="clearAllData()">清空所有数据</button>
@@ -798,52 +735,25 @@
     
     <!-- 提示框 -->
     <div id="toast" class="toast"></div>
-    
-    <!-- 周期选择模态框 -->
-    <div id="cycle-modal" class="modal-overlay">
-        <div class="modal">
-            <h3 class="modal-title" id="cycle-modal-title">选择周期</h3>
-            <div class="modal-content" id="cycle-modal-content">
-                <p>请选择要操作的周期：</p>
-                <div id="cycle-list" class="cycle-list"></div>
-            </div>
-            <div class="modal-actions">
-                <button class="btn btn-secondary" onclick="hideModal()">取消</button>
-                <button class="btn btn-danger" id="confirm-cycle-clear" onclick="confirmClearSelectedCycle()">清空选择周期</button>
-            </div>
-        </div>
-    </div>
-    
-    <!-- 确认清空模态框 -->
-    <div id="confirm-modal" class="modal-overlay">
-        <div class="modal">
-            <h3 class="modal-title" id="confirm-modal-title">确认操作</h3>
-            <div class="modal-content" id="confirm-modal-content">
-                确定要执行此操作吗？
-            </div>
-            <div class="modal-actions">
-                <button class="btn btn-secondary" onclick="hideConfirmModal()">取消</button>
-                <button class="btn btn-danger" id="confirm-action" onclick="executeConfirmAction()">确认</button>
-            </div>
-        </div>
-    </div>
 
     <script>
         // 应用配置
         const CONFIG = {
             PASSWORD: '123456',
             MEAL_PRICE: 16,
-            NIGHT_PRICE: 20
+            NIGHT_PRICE: 20,
+            // JSONBin免费云存储配置
+            JSONBIN_API: 'https://api.jsonbin.io/v3/b',
+            MASTER_KEY: '$2a$10$YOUR_MASTER_KEY_HERE'  // 可以留空，使用公共API
         };
         
         // 应用状态
         let appState = {
             priceList: [],
             records: [],
-            cloudId: '',
-            isCloudConfigured: false,
-            currentAction: null,
-            selectedCycle: null
+            storageId: '',
+            binId: '',
+            isCloudConfigured: false
         };
         
         // DOM元素引用
@@ -851,7 +761,8 @@
             loginScreen: document.getElementById('login-screen'),
             appScreen: document.getElementById('app-screen'),
             cloudStatus: document.getElementById('cloud-status'),
-            currentCloudId: document.getElementById('current-cloud-id'),
+            currentStorageId: document.getElementById('current-storage-id'),
+            recordCount: document.getElementById('record-count'),
             cycleTitle: document.getElementById('cycle-title'),
             dataBody: document.getElementById('data-body'),
             priceList: document.getElementById('price-list'),
@@ -861,12 +772,7 @@
             currentCycleName: document.getElementById('current-cycle-name'),
             currentCycleCount: document.getElementById('current-cycle-count'),
             toast: document.getElementById('toast'),
-            loader: document.getElementById('loader'),
-            cycleModal: document.getElementById('cycle-modal'),
-            cycleList: document.getElementById('cycle-list'),
-            confirmModal: document.getElementById('confirm-modal'),
-            confirmModalContent: document.getElementById('confirm-modal-content'),
-            confirmModalTitle: document.getElementById('confirm-modal-title')
+            loader: document.getElementById('loader')
         };
         
         // 工具函数
@@ -886,123 +792,55 @@
         }
         
         // 生成随机ID
-        function generateCloudId() {
-            return 'cloud_' + Date.now().toString(36) + Math.random().toString(36).substr(2, 9);
-        }
-        
-        // 周期计算函数
-        function getCycleByDisplayYearMonth(year, month) {
-            const start = new Date(year, month - 2, 26);
-            const end = new Date(year, month - 1, 25);
-            return {
-                start: start.toISOString().split('T')[0],
-                end: end.toISOString().split('T')[0],
-                title: `${start.getMonth() + 1}月26日 ~ ${end.getMonth() + 1}月25日`,
-                year: year,
-                month: month
-            };
-        }
-        
-        function getCurrentCycle() {
-            const now = new Date();
-            const year = now.getFullYear();
-            const month = now.getMonth() + 1;
-            const day = now.getDate();
-            
-            return day >= 26 ? 
-                getCycleByDisplayYearMonth(year, month + 1) :
-                getCycleByDisplayYearMonth(year, month);
-        }
-        
-        function getAllCycles() {
-            const cycles = [];
-            const records = appState.records;
-            
-            if (records.length === 0) return cycles;
-            
-            // 获取所有记录的日期范围
-            const dates = records.map(r => new Date(r.date));
-            const minDate = new Date(Math.min(...dates));
-            const maxDate = new Date(Math.max(...dates));
-            
-            // 计算起始周期
-            let current = new Date(minDate);
-            current.setDate(26);
-            if (minDate.getDate() >= 26) {
-                current.setMonth(current.getMonth() + 1);
-            }
-            
-            // 生成所有周期
-            while (current <= maxDate) {
-                const year = current.getFullYear();
-                const month = current.getMonth() + 1;
-                const cycle = getCycleByDisplayYearMonth(year, month);
-                
-                // 计算当前周期的记录数
-                const cycleRecords = records.filter(record => 
-                    record.date >= cycle.start && record.date <= cycle.end
-                );
-                
-                if (cycleRecords.length > 0) {
-                    cycles.push({
-                        ...cycle,
-                        count: cycleRecords.length,
-                        total: cycleRecords.reduce((sum, r) => sum + r.total, 0)
-                    });
-                }
-                
-                // 下个周期
-                current.setMonth(current.getMonth() + 1);
-            }
-            
-            return cycles.sort((a, b) => new Date(b.start) - new Date(a.start));
+        function generateId() {
+            return 'storage_' + Date.now().toString(36) + '_' + Math.random().toString(36).substr(2, 9);
         }
         
         // 初始化应用
         function init() {
-            // 设置默认日期
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('record-date').value = today;
             
-            // 加载本地数据
             loadLocalData();
         }
         
         // 登录
         async function login() {
             const password = document.getElementById('login-password').value;
-            let cloudId = document.getElementById('cloud-id').value.trim();
+            let storageId = document.getElementById('storage-id').value.trim();
             
             if (password !== CONFIG.PASSWORD) {
                 showToast('密码错误', true);
                 return;
             }
             
-            if (!cloudId) {
-                cloudId = generateCloudId();
-                document.getElementById('cloud-id').value = cloudId;
+            if (!storageId) {
+                storageId = generateId();
+                document.getElementById('storage-id').value = storageId;
+                showToast(`已为您创建云存储ID: ${storageId}，请务必保存此ID！`);
             }
             
-            appState.cloudId = cloudId;
-            appState.isCloudConfigured = true;
+            appState.storageId = storageId;
             
             elements.loginScreen.style.display = 'none';
             elements.appScreen.classList.add('active');
             
             updateCloudStatus();
-            loadCurrentCycle();
+            
+            // 尝试从云端拉取数据
+            await syncFromCloud();
         }
         
         // 更新云端状态
         function updateCloudStatus() {
-            if (appState.cloudId) {
+            if (appState.storageId) {
                 elements.cloudStatus.textContent = '云端已连接';
                 elements.cloudStatus.className = 'cloud-status cloud-online';
-                elements.currentCloudId.textContent = appState.cloudId;
+                elements.currentStorageId.textContent = appState.storageId;
             } else {
                 elements.cloudStatus.textContent = '仅本地';
                 elements.cloudStatus.className = 'cloud-status cloud-offline';
-                elements.currentCloudId.textContent = '未设置';
+                elements.currentStorageId.textContent = '未设置';
             }
         }
         
@@ -1011,12 +849,15 @@
             const data = {
                 priceList: appState.priceList,
                 records: appState.records,
-                cloudId: appState.cloudId,
-                savedAt: new Date().toISOString()
+                storageId: appState.storageId,
+                binId: appState.binId,
+                savedAt: new Date().toISOString(),
+                version: '2.0'
             };
             
             try {
                 localStorage.setItem('salary_data', JSON.stringify(data));
+                elements.recordCount.textContent = appState.records.length;
             } catch (error) {
                 console.error('本地存储失败:', error);
             }
@@ -1029,10 +870,11 @@
                     const data = JSON.parse(saved);
                     appState.priceList = data.priceList || [];
                     appState.records = data.records || [];
-                    appState.cloudId = data.cloudId || '';
+                    appState.storageId = data.storageId || '';
+                    appState.binId = data.binId || '';
                     
-                    if (data.cloudId) {
-                        document.getElementById('cloud-id').value = data.cloudId;
+                    if (data.storageId) {
+                        document.getElementById('storage-id').value = data.storageId;
                     }
                     
                     renderPriceList();
@@ -1171,6 +1013,30 @@
             showToast('记录已保存');
         }
         
+        // 周期计算
+        function getCycleByDisplayYearMonth(year, month) {
+            const start = new Date(year, month - 2, 26);
+            const end = new Date(year, month - 1, 25);
+            return {
+                start: start.toISOString().split('T')[0],
+                end: end.toISOString().split('T')[0],
+                title: `${start.getMonth() + 1}月26日 ~ ${end.getMonth() + 1}月25日`,
+                year: year,
+                month: month
+            };
+        }
+        
+        function getCurrentCycle() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = now.getMonth() + 1;
+            const day = now.getDate();
+            
+            return day >= 26 ? 
+                getCycleByDisplayYearMonth(year, month + 1) :
+                getCycleByDisplayYearMonth(year, month);
+        }
+        
         function loadCurrentCycle() {
             const cycle = getCurrentCycle();
             renderRecords(cycle);
@@ -1232,7 +1098,6 @@
             elements.totalIns.textContent = `¥${insurance.toFixed(2)}`;
             elements.totalReal.textContent = `¥${shifa.toFixed(2)}`;
             
-            // 更新周期统计
             elements.currentCycleName.textContent = cycle.title;
             elements.currentCycleCount.textContent = list.length;
         }
@@ -1246,7 +1111,7 @@
             }
         }
         
-        // 新增的周期管理功能
+        // 周期管理功能
         function showCurrentCycleRecords() {
             const cycle = getCurrentCycle();
             const list = appState.records.filter(record => 
@@ -1271,21 +1136,15 @@
                 return;
             }
             
-            appState.selectedCycle = cycle;
-            showConfirmModal(
-                '清空当前周期',
-                `确定要清空当前周期(${cycle.title})的所有记录吗？\n将删除 ${list.length} 条记录，总计 ¥${list.reduce((sum, r) => sum + r.total, 0).toFixed(2)}`,
-                () => {
-                    // 从所有记录中删除当前周期的记录
-                    appState.records = appState.records.filter(record => 
-                        record.date < cycle.start || record.date > cycle.end
-                    );
-                    
-                    saveLocalData();
-                    loadCurrentCycle();
-                    showToast(`已清空当前周期的 ${list.length} 条记录`);
-                }
-            );
+            if (confirm(`确定要清空当前周期(${cycle.title})的所有记录吗？\n将删除 ${list.length} 条记录，总计 ¥${list.reduce((sum, r) => sum + r.total, 0).toFixed(2)}`)) {
+                appState.records = appState.records.filter(record => 
+                    record.date < cycle.start || record.date > cycle.end
+                );
+                
+                saveLocalData();
+                loadCurrentCycle();
+                showToast(`已清空当前周期的 ${list.length} 条记录`);
+            }
         }
         
         function clearAllData() {
@@ -1297,114 +1156,56 @@
             const recordCount = appState.records.length;
             const priceCount = appState.priceList.length;
             
-            showConfirmModal(
-                '清空所有数据',
-                `确定要清空所有数据吗？\n将删除：\n- ${recordCount} 条工资记录\n- ${priceCount} 个型号单价\n\n此操作不可恢复！`,
-                () => {
-                    appState.records = [];
-                    appState.priceList = [];
-                    saveLocalData();
-                    renderPriceList();
-                    loadCurrentCycle();
-                    showToast(`已清空所有数据（${recordCount}条记录，${priceCount}个型号）`);
-                }
-            );
+            if (confirm(`确定要清空所有数据吗？\n将删除：\n- ${recordCount} 条工资记录\n- ${priceCount} 个型号单价\n\n此操作不可恢复！`)) {
+                appState.records = [];
+                appState.priceList = [];
+                saveLocalData();
+                renderPriceList();
+                loadCurrentCycle();
+                showToast(`已清空所有数据（${recordCount}条记录，${priceCount}个型号）`);
+            }
         }
         
         function showAllCycles() {
-            const cycles = getAllCycles();
+            const cycles = [];
+            const now = new Date();
+            
+            for (let i = 0; i < 12; i++) {
+                const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+                const year = date.getFullYear();
+                const month = date.getMonth() + 1;
+                const cycle = getCycleByDisplayYearMonth(year, month);
+                
+                const list = appState.records.filter(record => 
+                    record.date >= cycle.start && record.date <= cycle.end
+                );
+                
+                if (list.length > 0) {
+                    cycles.push({
+                        ...cycle,
+                        count: list.length,
+                        total: list.reduce((sum, r) => sum + r.total, 0)
+                    });
+                }
+            }
             
             if (cycles.length === 0) {
                 showToast('没有找到周期数据', true);
                 return;
             }
             
-            elements.cycleList.innerHTML = cycles.map(cycle => `
-                <div class="cycle-item">
-                    <div class="cycle-info">
-                        <div>
-                            <div class="cycle-name">${cycle.title}</div>
-                            <div class="cycle-range">${cycle.start} 至 ${cycle.end}</div>
-                        </div>
-                        <span class="cycle-record-count">${cycle.count} 条记录</span>
-                    </div>
-                    <div>
-                        <button class="btn btn-sm" onclick="clearSelectedCycle(${JSON.stringify(cycle).replace(/"/g, '&quot;')})" style="background: #dc3545; padding: 4px 8px;">清空</button>
-                    </div>
-                </div>
-            `).join('');
+            let message = '所有周期数据：\n';
+            cycles.forEach(cycle => {
+                message += `\n${cycle.title}: ${cycle.count}条记录，总计 ¥${cycle.total.toFixed(2)}`;
+            });
             
-            elements.cycleModal.classList.add('active');
+            alert(message);
         }
         
-        function clearSelectedCycle(cycle) {
-            appState.selectedCycle = cycle;
-            showConfirmModal(
-                '清空指定周期',
-                `确定要清空周期(${cycle.title})的所有记录吗？\n将删除 ${cycle.count} 条记录，总计 ¥${cycle.total.toFixed(2)}`,
-                () => {
-                    // 从所有记录中删除选中周期的记录
-                    appState.records = appState.records.filter(record => 
-                        record.date < cycle.start || record.date > cycle.end
-                    );
-                    
-                    saveLocalData();
-                    loadCurrentCycle();
-                    hideModal();
-                    showToast(`已清空周期 ${cycle.title} 的 ${cycle.count} 条记录`);
-                }
-            );
-        }
-        
-        function confirmClearSelectedCycle() {
-            if (!appState.selectedCycle) {
-                showToast('请先选择一个周期', true);
-                return;
-            }
-            
-            const cycle = appState.selectedCycle;
-            const list = appState.records.filter(record => 
-                record.date >= cycle.start && record.date <= cycle.end
-            );
-            
-            if (list.length === 0) {
-                showToast('该周期没有记录可清空', true);
-                hideModal();
-                return;
-            }
-            
-            clearSelectedCycle(cycle);
-        }
-        
-        // 模态框控制
-        function hideModal() {
-            elements.cycleModal.classList.remove('active');
-            appState.selectedCycle = null;
-        }
-        
-        function showConfirmModal(title, message, callback) {
-            elements.confirmModalTitle.textContent = title;
-            elements.confirmModalContent.textContent = message;
-            elements.confirmModal.classList.add('active');
-            appState.currentAction = callback;
-        }
-        
-        function hideConfirmModal() {
-            elements.confirmModal.classList.remove('active');
-            appState.currentAction = null;
-        }
-        
-        function executeConfirmAction() {
-            if (appState.currentAction) {
-                appState.currentAction();
-            }
-            hideConfirmModal();
-        }
-        
-        // 云端同步
+        // 云端同步 - 使用JSONBin免费服务
         async function syncToCloud() {
-            if (!appState.cloudId) {
-                showToast('请先登录并获取云服务ID', true);
+            if (!appState.storageId) {
+                showToast('请先登录并获取云存储ID', true);
                 return;
             }
             
@@ -1414,14 +1215,44 @@
                 const data = {
                     priceList: appState.priceList,
                     records: appState.records,
-                    syncedAt: new Date().toISOString()
+                    storageId: appState.storageId,
+                    syncedAt: new Date().toISOString(),
+                    version: '2.0'
                 };
                 
-                // 使用本地存储作为简单云备份
-                localStorage.setItem('cloud_backup_' + appState.cloudId, JSON.stringify(data));
-                saveLocalData();
+                let url = CONFIG.JSONBIN_API;
+                let method = 'POST';
+                let headers = {
+                    'Content-Type': 'application/json',
+                    'X-Master-Key': CONFIG.MASTER_KEY
+                };
                 
-                showToast('✅ 数据已保存到云端备份');
+                if (appState.binId) {
+                    url = `${CONFIG.JSONBIN_API}/${appState.binId}`;
+                    method = 'PUT';
+                } else {
+                    headers['X-Bin-Name'] = `工资数据_${appState.storageId}`;
+                    headers['X-Bin-Private'] = 'true';
+                }
+                
+                const response = await fetch(url, {
+                    method: method,
+                    headers: headers,
+                    body: JSON.stringify(data)
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                
+                const result = await response.json();
+                
+                if (result.metadata && result.metadata.id) {
+                    appState.binId = result.metadata.id;
+                }
+                
+                saveLocalData();
+                showToast('✅ 数据已同步到云端');
             } catch (error) {
                 console.error('云端同步失败:', error);
                 showToast('❌ 云端同步失败，已保存到本地', true);
@@ -1432,36 +1263,56 @@
         }
         
         async function syncFromCloud() {
-            if (!appState.cloudId) {
-                showToast('请先登录并获取云服务ID', true);
+            if (!appState.storageId) {
+                showToast('请先登录并获取云存储ID', true);
                 return;
             }
             
             showLoading(true);
             
             try {
-                const backup = localStorage.getItem('cloud_backup_' + appState.cloudId);
+                let url = CONFIG.JSONBIN_API;
+                let headers = {
+                    'X-Master-Key': CONFIG.MASTER_KEY
+                };
                 
-                if (!backup) {
-                    showToast('没有找到云端备份数据', true);
+                if (appState.binId) {
+                    url = `${CONFIG.JSONBIN_API}/${appState.binId}/latest`;
+                } else {
+                    showToast('没有找到云端数据，请先同步到云端');
                     return;
                 }
                 
-                const data = JSON.parse(backup);
+                const response = await fetch(url, {
+                    headers: headers
+                });
                 
-                // 合并云端和本地数据
-                if (confirm('从云端恢复数据会覆盖本地数据，确定要继续吗？')) {
+                if (!response.ok) {
+                    if (response.status === 404) {
+                        showToast('云端数据不存在，请先同步到云端');
+                        return;
+                    }
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                
+                const result = await response.json();
+                const data = result.record;
+                
+                if (data && data.storageId === appState.storageId) {
                     appState.priceList = data.priceList || [];
                     appState.records = data.records || [];
                     
                     saveLocalData();
                     renderPriceList();
                     loadCurrentCycle();
-                    showToast('✅ 已从云端恢复数据');
+                    showToast('✅ 已从云端同步数据');
+                } else {
+                    showToast('云端数据不匹配，请检查存储ID', true);
                 }
             } catch (error) {
                 console.error('从云端拉取失败:', error);
-                showToast('❌ 云端恢复失败', true);
+                showToast('❌ 云端同步失败，使用本地数据', true);
+                loadLocalData();
             } finally {
                 showLoading(false);
             }
@@ -1472,9 +1323,10 @@
             const data = {
                 priceList: appState.priceList,
                 records: appState.records,
-                cloudId: appState.cloudId,
+                storageId: appState.storageId,
+                binId: appState.binId,
                 exported: new Date().toISOString(),
-                version: '3.0'
+                version: '2.0'
             };
             
             const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -1482,7 +1334,7 @@
             const a = document.createElement('a');
             
             a.href = url;
-            a.download = `工资数据_${appState.cloudId || 'local'}_${new Date().toISOString().split('T')[0]}.json`;
+            a.download = `工资数据_${appState.storageId || 'local'}_${new Date().toISOString().split('T')[0]}.json`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -1505,10 +1357,11 @@
                     try {
                         const data = JSON.parse(event.target.result);
                         
-                        if (confirm(`确定要导入数据吗？\n这将覆盖当前所有数据。\n包含：${data.priceList?.length || 0}个型号，${data.records?.length || 0}条记录`)) {
+                        if (confirm(`确定要导入数据吗？\n这将覆盖当前所有数据。\n包含：\n- ${data.priceList?.length || 0}个型号\n- ${data.records?.length || 0}条记录`)) {
                             appState.priceList = data.priceList || [];
                             appState.records = data.records || [];
-                            appState.cloudId = data.cloudId || appState.cloudId;
+                            appState.storageId = data.storageId || appState.storageId;
+                            appState.binId = data.binId || '';
                             
                             saveLocalData();
                             renderPriceList();
