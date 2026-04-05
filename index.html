@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>个人收支管理系统 - 删除功能修复版</title>
+    <title>个人收支管理系统 - 布局优化版</title>
     <style>
         * {
             margin: 0;
@@ -609,7 +609,7 @@
             <div class="nav-left">
                 <div class="nav-icon">💰</div>
                 <div>
-                    <div class="nav-title">个人收支管理系统 - 删除功能修复版</div>
+                    <div class="nav-title">个人收支管理系统 - 布局优化版</div>
                     <div class="nav-subtitle">澳门 & 粤港 - 下家总和减去上家总和=我的收支</div>
                 </div>
             </div>
@@ -872,40 +872,7 @@
             const today = new Date().toISOString().split('T')[0];
             elements.recordDate.value = today;
             
-            // 初始化事件监听
-            setupEventListeners();
-            
             loadLocalData();
-        }
-        
-        // 设置事件监听器
-        function setupEventListeners() {
-            // 使用事件委托处理删除按钮点击
-            document.addEventListener('click', function(event) {
-                // 检查点击的元素是否是删除按钮
-                if (event.target.classList.contains('action-delete')) {
-                    const button = event.target;
-                    const recordId = button.getAttribute('data-id');
-                    
-                    if (recordId) {
-                        deleteRecord(recordId);
-                    } else {
-                        // 如果找不到data-id，尝试从最近的tr元素获取
-                        const row = button.closest('tr');
-                        if (row) {
-                            const rowId = row.getAttribute('data-id');
-                            if (rowId) {
-                                deleteRecord(rowId);
-                            }
-                        }
-                    }
-                }
-            });
-            
-            // 阻止表单默认提交行为
-            document.addEventListener('submit', function(event) {
-                event.preventDefault();
-            });
         }
         
         // 选择分类
@@ -937,7 +904,7 @@
             const data = {
                 records: appState.records,
                 savedAt: new Date().toISOString(),
-                version: '16.0'
+                version: '15.0'
             };
             
             try {
@@ -1010,7 +977,7 @@
             }
             
             const record = {
-                id: 'record_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+                id: Date.now() + '_' + Math.random().toString(36).substr(2, 9),
                 date,
                 name,
                 category,
@@ -1060,7 +1027,7 @@
                 const categoryLabel = getCategoryLabel(record.category, record.subtype);
                 
                 html += `
-                    <tr data-id="${record.id}">
+                    <tr>
                         <td><strong>${record.name}</strong></td>
                         <td>
                             <span class="category-badge ${record.subtype ? record.category + '-' + record.subtype : record.category}">
@@ -1077,7 +1044,7 @@
                         </td>
                         <td>${record.note || '-'}</td>
                         <td>
-                            <button class="action-btn action-delete" data-id="${record.id}">删除</button>
+                            <button class="action-btn action-delete" onclick="deleteRecord('${record.id}')">删除</button>
                         </td>
                     </tr>
                 `;
@@ -1469,7 +1436,7 @@
                 const categoryLabel = getCategoryLabel(record.category, record.subtype);
                 
                 html += `
-                    <tr data-id="${record.id}">
+                    <tr>
                         <td>${record.date}</td>
                         <td><strong>${record.name}</strong></td>
                         <td>
@@ -1487,7 +1454,7 @@
                         </td>
                         <td>${record.note || '-'}</td>
                         <td>
-                            <button class="action-btn action-delete" data-id="${record.id}">删除</button>
+                            <button class="action-btn action-delete" onclick="deleteRecord('${record.id}')">删除</button>
                         </td>
                     </tr>
                 `;
@@ -1625,43 +1592,25 @@
             `;
         }
         
-        // 删除记录 - 改进版
+        // 删除记录
         function deleteRecord(recordId) {
-            if (!recordId) {
-                showToast('删除失败：无效的记录ID', true);
-                return;
-            }
-            
-            // 显示确认对话框
             if (!confirm('确定要删除这条记录吗？此操作不可恢复！')) {
                 return;
             }
             
-            // 查找记录索引
             const index = appState.records.findIndex(record => record.id === recordId);
-            
-            if (index === -1) {
-                showToast('删除失败：记录不存在', true);
-                return;
+            if (index !== -1) {
+                appState.records.splice(index, 1);
+                saveLocalData();
+                updatePersonFilter();
+                loadRecords();
+                loadTodayRecords();
+                loadMyIncomeStats();
+                
+                showToast('记录已删除');
+            } else {
+                showToast('删除失败，记录不存在', true);
             }
-            
-            // 删除记录
-            appState.records.splice(index, 1);
-            
-            // 保存到本地存储
-            saveLocalData();
-            
-            // 更新界面
-            updatePersonFilter();
-            loadRecords();
-            loadTodayRecords();
-            loadMyIncomeStats();
-            
-            // 显示成功消息
-            showToast('✅ 记录已删除');
-            
-            // 添加一些调试信息到控制台
-            console.log(`已删除记录，ID: ${recordId}，剩余记录数: ${appState.records.length}`);
         }
         
         // 清除当月记录
@@ -1734,7 +1683,7 @@
             const data = {
                 records: appState.records,
                 exportedAt: new Date().toISOString(),
-                version: '16.0'
+                version: '15.0'
             };
             
             const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -1766,4 +1715,27 @@
                     try {
                         const data = JSON.parse(event.target.result);
                         
-                        if (confirm(`确定要导入数据吗？\n这将覆盖当前所有数据。\n包含：${data.records?.
+                        if (confirm(`确定要导入数据吗？\n这将覆盖当前所有数据。\n包含：${data.records?.length || 0}条记录`)) {
+                            appState.records = data.records || [];
+                            saveLocalData();
+                            updatePersonFilter();
+                            loadRecords();
+                            loadTodayRecords();
+                            loadMyIncomeStats();
+                            showToast('✅ 数据导入成功');
+                        }
+                    } catch (error) {
+                        showToast('❌ 文件格式错误', true);
+                    }
+                };
+                reader.readAsText(file);
+            };
+            
+            input.click();
+        }
+        
+        // 初始化应用
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
