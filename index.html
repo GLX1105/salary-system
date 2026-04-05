@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>个人收支管理系统 - 布局优化版</title>
+    <title>个人收支管理系统 - 利润计算版</title>
     <style>
         * {
             margin: 0;
@@ -18,6 +18,7 @@
             --income: #2ecc71;
             --expense: #e74c3c;
             --warning: #f39c12;
+            --profit: #9b59b6;
             --cloud: #9b59b6;
             --category3: #e67e22;
             --category4: #34495e;
@@ -75,7 +76,7 @@
             margin-top: 1px;
         }
         
-        /* 主网格布局 - 调整为左栏1/3，右栏2/3 */
+        /* 主网格布局 */
         .main-grid {
             display: grid;
             grid-template-columns: 1fr 2fr;
@@ -100,8 +101,8 @@
             background: linear-gradient(135deg, var(--primary), var(--primary-dark));
         }
         
-        .card-header.cloud {
-            background: linear-gradient(135deg, var(--cloud), #8e44ad);
+        .card-header.profit {
+            background: linear-gradient(135deg, var(--profit), #8e44ad);
         }
         
         .card-title {
@@ -146,7 +147,6 @@
             box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.1);
         }
         
-        /* 调整表单行布局，适应较窄的宽度 */
         .form-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -154,7 +154,7 @@
             margin-bottom: 8px;
         }
         
-        /* 分类选择器 - 澳门上家和下家在同一行 */
+        /* 分类选择器 */
         .category-selector {
             display: flex;
             flex-direction: column;
@@ -287,12 +287,12 @@
             background: #e67e22;
         }
         
-        .btn-cloud {
-            background: var(--cloud);
+        .btn-profit {
+            background: var(--profit);
             color: white;
         }
         
-        .btn-cloud:hover {
+        .btn-profit:hover {
             background: #8e44ad;
         }
         
@@ -319,7 +319,7 @@
         .data-table {
             width: 100%;
             border-collapse: collapse;
-            min-width: 600px;
+            min-width: 700px;
         }
         
         .data-table thead {
@@ -361,6 +361,11 @@
         .type-expense {
             background: rgba(231, 76, 60, 0.1);
             color: var(--expense);
+        }
+        
+        .type-profit {
+            background: rgba(155, 89, 182, 0.1);
+            color: var(--profit);
         }
         
         /* 筛选器 */
@@ -433,7 +438,7 @@
         }
         
         .stat-profit {
-            color: var(--primary);
+            color: var(--profit);
         }
         
         .stat-details {
@@ -504,6 +509,12 @@
             border: 1px dashed var(--expense);
         }
         
+        .category-badge.my-profit {
+            background: rgba(155, 89, 182, 0.2);
+            color: var(--profit);
+            border: 1px dashed var(--profit);
+        }
+        
         /* 空状态 */
         .empty-state {
             text-align: center;
@@ -512,7 +523,7 @@
             font-size: 11px;
         }
         
-        /* 我的收支特别标记 */
+        /* 特别标记 */
         .my-income-row {
             background: rgba(46, 204, 113, 0.05) !important;
             border-left: 3px solid var(--income);
@@ -521,6 +532,11 @@
         .my-expense-row {
             background: rgba(231, 76, 60, 0.05) !important;
             border-left: 3px solid var(--expense);
+        }
+        
+        .my-profit-row {
+            background: rgba(155, 89, 182, 0.05) !important;
+            border-left: 3px solid var(--profit);
         }
         
         /* 收入支出提示样式 */
@@ -532,6 +548,12 @@
         
         .expense-hint {
             color: var(--expense);
+            font-weight: 600;
+            font-size: 10px;
+        }
+        
+        .profit-hint {
+            color: var(--profit);
             font-weight: 600;
             font-size: 10px;
         }
@@ -576,7 +598,6 @@
             }
         }
         
-        /* 小屏幕设备适配 */
         @media (max-width: 480px) {
             .stat-card {
                 padding: 6px;
@@ -609,8 +630,8 @@
             <div class="nav-left">
                 <div class="nav-icon">💰</div>
                 <div>
-                    <div class="nav-title">个人收支管理系统 - 布局优化版</div>
-                    <div class="nav-subtitle">澳门 & 粤港 - 下家总和减去上家总和=我的收支</div>
+                    <div class="nav-title">个人收支管理系统 - 利润计算版</div>
+                    <div class="nav-subtitle">澳门 & 粤港 - 下家总和减去上家总和=我的收支 | 利润=粤港上家×10%</div>
                 </div>
             </div>
             <div class="btn-group">
@@ -623,7 +644,7 @@
         
         <!-- 主内容区域 -->
         <div class="main-grid">
-            <!-- 左栏：录入和管理 (现在占1/3) -->
+            <!-- 左栏：录入和管理 -->
             <div>
                 <!-- 录入卡片 -->
                 <div class="card">
@@ -631,7 +652,7 @@
                         <div class="card-title">📝 录入收支记录</div>
                     </div>
                     <div class="card-body">
-                        <!-- 分类选择 - 澳门上家和下家在同一行 -->
+                        <!-- 分类选择 -->
                         <div class="category-selector">
                             <div>
                                 <div class="category-label">澳门分类：</div>
@@ -721,7 +742,10 @@
                         </div>
                     </div>
                 </div>
-                
+            </div>
+            
+            <!-- 右栏：查看和统计 -->
+            <div>
                 <!-- 当天我的收支统计 -->
                 <div class="card">
                     <div class="card-header primary">
@@ -733,10 +757,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
-            
-            <!-- 右栏：查看和统计 (现在占2/3) -->
-            <div>
+                
                 <!-- 查看记录 -->
                 <div class="card">
                     <div class="card-header primary">
@@ -763,6 +784,7 @@
                                     <option value="guangdong-up">粤港上家</option>
                                     <option value="guangdong-down">粤港下家</option>
                                     <option value="my-income">我的收支</option>
+                                    <option value="my-profit">我的利润</option>
                                 </select>
                             </div>
                             <div class="filter-group">
@@ -904,7 +926,7 @@
             const data = {
                 records: appState.records,
                 savedAt: new Date().toISOString(),
-                version: '15.0'
+                version: '16.0'
             };
             
             try {
@@ -1078,8 +1100,15 @@
             // 粤港我的收支 = 粤港下家总和 - 粤港上家总和
             const guangdongMyIncome = guangdongDownTotal.profit - guangdongUpTotal.profit;
             
+            // 计算利润 = 粤港上家的收支 × 10%
+            const guangdongUpProfit = guangdongUpTotal.profit;
+            const myProfit = guangdongUpProfit * 0.1;
+            
             // 总我的收支
             const totalMyIncome = macauMyIncome + guangdongMyIncome;
+            
+            // 包含利润的总计
+            const totalWithProfit = totalMyIncome + myProfit;
             
             renderMyIncomeStats({
                 macau: {
@@ -1092,7 +1121,9 @@
                     down: guangdongDownTotal,
                     my: guangdongMyIncome
                 },
-                total: totalMyIncome
+                profit: myProfit,
+                total: totalMyIncome,
+                totalWithProfit: totalWithProfit
             }, today);
         }
         
@@ -1170,6 +1201,31 @@
                 </div>
             `;
             
+            // 利润卡片
+            const profitIsIncome = stats.profit >= 0;
+            const profitColorClass = profitIsIncome ? 'stat-income' : 'stat-expense';
+            const profitHintClass = profitIsIncome ? 'income-hint' : 'expense-hint';
+            const profitHintText = profitIsIncome ? `收入 ¥${Math.abs(stats.profit).toFixed(2)}` : `支出 ¥${Math.abs(stats.profit).toFixed(2)}`;
+            
+            container.innerHTML += `
+                <div class="stat-card" style="border: 2px solid ${profitIsIncome ? 'var(--income)' : 'var(--expense)'}">
+                    <div class="stat-header">
+                        <div class="stat-title" style="color: ${profitIsIncome ? 'var(--income)' : 'var(--expense)'}">💰 我的利润</div>
+                        <div class="stat-amount ${profitColorClass}">
+                            ${profitIsIncome ? '+' : ''}¥${Math.abs(stats.profit).toFixed(2)}
+                        </div>
+                    </div>
+                    <div class="${profitHintClass}" style="margin-top: 5px; font-weight: 700;">
+                        ${profitHintText}
+                    </div>
+                    <div class="stat-details">
+                        计算公式：粤港上家 × 10%<br>
+                        粤港上家：${stats.guangdong.up.profit >= 0 ? '+' : ''}¥${Math.abs(stats.guangdong.up.profit).toFixed(2)}<br>
+                        利润计算：${stats.guangdong.up.profit >= 0 ? '+' : ''}¥${Math.abs(stats.guangdong.up.profit).toFixed(2)} × 10%
+                    </div>
+                </div>
+            `;
+            
             // 总计我的收支卡片
             const totalIsIncome = stats.total >= 0;
             const totalColorClass = totalIsIncome ? 'stat-income' : 'stat-expense';
@@ -1191,6 +1247,31 @@
                         日期：${date}<br>
                         澳门：${macauIsIncome ? '+' : ''}¥${Math.abs(stats.macau.my).toFixed(2)}<br>
                         粤港：${guangdongIsIncome ? '+' : ''}¥${Math.abs(stats.guangdong.my).toFixed(2)}
+                    </div>
+                </div>
+            `;
+            
+            // 包含利润的总计卡片
+            const totalWithProfitIsIncome = stats.totalWithProfit >= 0;
+            const totalWithProfitColorClass = totalWithProfitIsIncome ? 'stat-income' : 'stat-expense';
+            const totalWithProfitHintClass = totalWithProfitIsIncome ? 'income-hint' : 'expense-hint';
+            const totalWithProfitHintText = totalWithProfitIsIncome ? `收入 ¥${Math.abs(stats.totalWithProfit).toFixed(2)}` : `支出 ¥${Math.abs(stats.totalWithProfit).toFixed(2)}`;
+            
+            container.innerHTML += `
+                <div class="stat-card" style="background: linear-gradient(135deg, ${totalWithProfitIsIncome ? 'rgba(46, 204, 113, 0.1)' : 'rgba(231, 76, 60, 0.1)'}, white);">
+                    <div class="stat-header">
+                        <div class="stat-title">总计（含利润）</div>
+                        <div class="stat-amount ${totalWithProfitColorClass}">
+                            ${totalWithProfitIsIncome ? '+' : ''}¥${Math.abs(stats.totalWithProfit).toFixed(2)}
+                        </div>
+                    </div>
+                    <div class="${totalWithProfitHintClass}" style="margin-top: 5px; font-weight: 700;">
+                        ${totalWithProfitHintText}
+                    </div>
+                    <div class="stat-details">
+                        我的收支：${totalIsIncome ? '+' : ''}¥${Math.abs(stats.total).toFixed(2)}<br>
+                        我的利润：${profitIsIncome ? '+' : ''}¥${Math.abs(stats.profit).toFixed(2)}<br>
+                        计算公式：我的收支 + 我的利润
                     </div>
                 </div>
             `;
@@ -1266,6 +1347,10 @@
                     // 计算我的收支记录
                     renderMyIncomeRecords(filteredRecords, viewMode);
                     return;
+                } else if (filterCategory === 'my-profit') {
+                    // 计算我的利润记录
+                    renderMyProfitRecords(filteredRecords, viewMode);
+                    return;
                 } else if (filterCategory.includes('-')) {
                     // 处理上下家筛选
                     const [category, subtype] = filterCategory.split('-');
@@ -1286,8 +1371,8 @@
             renderSummaryStats(filteredRecords, viewMode, filterCategory);
         }
         
-        // 渲染我的收支记录
-        function renderMyIncomeRecords(records, viewMode) {
+        // 渲染我的利润记录
+        function renderMyProfitRecords(records, viewMode) {
             const tbody = elements.recordsBody;
             const container = elements.summaryStats;
             
@@ -1300,64 +1385,48 @@
                 recordsByDate[record.date].push(record);
             });
             
-            // 计算每天的我的收支
-            const myIncomeRecords = [];
+            // 计算每天的我的利润
+            const myProfitRecords = [];
             
             Object.keys(recordsByDate).forEach(date => {
                 const dateRecords = recordsByDate[date];
                 
-                // 计算澳门收支
-                const macauUpRecords = dateRecords.filter(r => r.category === 'macau' && r.subtype === 'up');
-                const macauDownRecords = dateRecords.filter(r => r.category === 'macau' && r.subtype === 'down');
-                
-                const macauUpTotal = calculateStats(macauUpRecords);
-                const macauDownTotal = calculateStats(macauDownRecords);
-                
-                // 澳门我的收支 = 澳门下家总和 - 澳门上家总和
-                const macauMyIncome = macauDownTotal.profit - macauUpTotal.profit;
-                
-                // 计算粤港收支
+                // 计算粤港上家收支
                 const guangdongUpRecords = dateRecords.filter(r => r.category === 'guangdong' && r.subtype === 'up');
-                const guangdongDownRecords = dateRecords.filter(r => r.category === 'guangdong' && r.subtype === 'down');
-                
                 const guangdongUpTotal = calculateStats(guangdongUpRecords);
-                const guangdongDownTotal = calculateStats(guangdongDownRecords);
                 
-                // 粤港我的收支 = 粤港下家总和 - 粤港上家总和
-                const guangdongMyIncome = guangdongDownTotal.profit - guangdongUpTotal.profit;
+                // 我的利润 = 粤港上家收支 × 10%
+                const myProfit = guangdongUpTotal.profit * 0.1;
                 
-                // 总我的收支
-                const totalMyIncome = macauMyIncome + guangdongMyIncome;
-                
-                if (totalMyIncome !== 0) {
-                    myIncomeRecords.push({
+                if (myProfit !== 0) {
+                    myProfitRecords.push({
                         date,
-                        name: '我的收支',
-                        category: 'my-income',
-                        type: totalMyIncome >= 0 ? 'income' : 'expense',
-                        amount: totalMyIncome,
-                        note: `澳门:${macauMyIncome >= 0 ? '+' : ''}${macauMyIncome.toFixed(2)} 粤港:${guangdongMyIncome >= 0 ? '+' : ''}${guangdongMyIncome.toFixed(2)}`,
+                        name: '我的利润',
+                        category: 'my-profit',
+                        type: myProfit >= 0 ? 'income' : 'expense',
+                        amount: myProfit,
+                        note: `粤港上家：${guangdongUpTotal.profit >= 0 ? '+' : ''}${guangdongUpTotal.profit.toFixed(2)} × 10%`,
                         isVirtual: true
                     });
                 }
             });
             
             // 按日期排序
-            myIncomeRecords.sort((a, b) => b.date.localeCompare(a.date));
+            myProfitRecords.sort((a, b) => b.date.localeCompare(a.date));
             
-            if (myIncomeRecords.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" class="empty-state">暂无我的收支记录</td></tr>';
+            if (myProfitRecords.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="empty-state">暂无利润记录</td></tr>';
                 container.innerHTML = '';
                 return;
             }
             
             let html = '';
             
-            myIncomeRecords.forEach(record => {
+            myProfitRecords.forEach(record => {
                 const isIncome = record.amount > 0;
-                const rowClass = isIncome ? 'my-income-row' : 'my-expense-row';
-                const badgeClass = isIncome ? 'my-income' : 'my-expense';
-                const badgeText = isIncome ? '我的收入' : '我的支出';
+                const rowClass = 'my-profit-row';
+                const badgeClass = 'my-profit';
+                const badgeText = '我的利润';
                 const hintClass = isIncome ? 'income-hint' : 'expense-hint';
                 const hintText = isIncome ? `收入 ¥${Math.abs(record.amount).toFixed(2)}` : `支出 ¥${Math.abs(record.amount).toFixed(2)}`;
                 
@@ -1389,9 +1458,170 @@
             tbody.innerHTML = html;
             
             // 计算统计
+            const myProfitStats = calculateStats(myProfitRecords);
+            const timeLabel = viewMode === 'today' ? '当天' : viewMode === 'month' ? '本月' : viewMode === 'year' ? '本年' : '累计';
+            const isIncome = myProfitStats.profit >= 0;
+            const hintClass = isIncome ? 'income-hint' : 'expense-hint';
+            
+            container.innerHTML = `
+                <div class="stat-card" style="border: 2px solid ${isIncome ? 'var(--income)' : 'var(--expense)'}">
+                    <div class="stat-header">
+                        <div class="stat-title" style="color: ${isIncome ? 'var(--income)' : 'var(--expense)'}">我的利润 ${timeLabel}统计</div>
+                        <div class="stat-amount ${isIncome ? 'stat-income' : 'stat-expense'}">
+                            ${isIncome ? '+' : ''}¥${Math.abs(myProfitStats.profit).toFixed(2)}
+                        </div>
+                    </div>
+                    <div class="${hintClass}" style="margin-top: 5px; font-weight: 700;">
+                        ${isIncome ? '收入' : '支出'} ¥${Math.abs(myProfitStats.profit).toFixed(2)}
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px;">
+                        <div>
+                            <div class="stat-label">总收入</div>
+                            <div class="stat-amount stat-income">+¥${myProfitStats.income.toFixed(2)}</div>
+                        </div>
+                        <div>
+                            <div class="stat-label">总支出</div>
+                            <div class="stat-amount stat-expense">-¥${myProfitStats.expense.toFixed(2)}</div>
+                        </div>
+                    </div>
+                    <div class="stat-details">记录数：${myProfitStats.count}天</div>
+                </div>
+            `;
+        }
+        
+        // 渲染我的收支记录
+        function renderMyIncomeRecords(records, viewMode) {
+            const tbody = elements.recordsBody;
+            const container = elements.summaryStats;
+            
+            // 按日期分组
+            const recordsByDate = {};
+            records.forEach(record => {
+                if (!recordsByDate[record.date]) {
+                    recordsByDate[record.date] = [];
+                }
+                recordsByDate[record.date].push(record);
+            });
+            
+            // 计算每天的我的收支和我的利润
+            const myIncomeRecords = [];
+            const myProfitRecords = [];
+            
+            Object.keys(recordsByDate).forEach(date => {
+                const dateRecords = recordsByDate[date];
+                
+                // 计算澳门收支
+                const macauUpRecords = dateRecords.filter(r => r.category === 'macau' && r.subtype === 'up');
+                const macauDownRecords = dateRecords.filter(r => r.category === 'macau' && r.subtype === 'down');
+                
+                const macauUpTotal = calculateStats(macauUpRecords);
+                const macauDownTotal = calculateStats(macauDownRecords);
+                
+                // 澳门我的收支 = 澳门下家总和 - 澳门上家总和
+                const macauMyIncome = macauDownTotal.profit - macauUpTotal.profit;
+                
+                // 计算粤港收支
+                const guangdongUpRecords = dateRecords.filter(r => r.category === 'guangdong' && r.subtype === 'up');
+                const guangdongDownRecords = dateRecords.filter(r => r.category === 'guangdong' && r.subtype === 'down');
+                
+                const guangdongUpTotal = calculateStats(guangdongUpRecords);
+                const guangdongDownTotal = calculateStats(guangdongDownRecords);
+                
+                // 粤港我的收支 = 粤港下家总和 - 粤港上家总和
+                const guangdongMyIncome = guangdongDownTotal.profit - guangdongUpTotal.profit;
+                
+                // 总我的收支
+                const totalMyIncome = macauMyIncome + guangdongMyIncome;
+                
+                // 我的利润 = 粤港上家收支 × 10%
+                const myProfit = guangdongUpTotal.profit * 0.1;
+                
+                if (totalMyIncome !== 0) {
+                    myIncomeRecords.push({
+                        date,
+                        name: '我的收支',
+                        category: 'my-income',
+                        type: totalMyIncome >= 0 ? 'income' : 'expense',
+                        amount: totalMyIncome,
+                        note: `澳门:${macauMyIncome >= 0 ? '+' : ''}${macauMyIncome.toFixed(2)} 粤港:${guangdongMyIncome >= 0 ? '+' : ''}${guangdongMyIncome.toFixed(2)}`,
+                        isVirtual: true
+                    });
+                }
+                
+                if (myProfit !== 0) {
+                    myProfitRecords.push({
+                        date,
+                        name: '我的利润',
+                        category: 'my-profit',
+                        type: myProfit >= 0 ? 'income' : 'expense',
+                        amount: myProfit,
+                        note: `粤港上家：${guangdongUpTotal.profit >= 0 ? '+' : ''}${guangdongUpTotal.profit.toFixed(2)} × 10%`,
+                        isVirtual: true
+                    });
+                }
+            });
+            
+            // 合并记录并按日期排序
+            const allRecords = [...myIncomeRecords, ...myProfitRecords];
+            allRecords.sort((a, b) => {
+                if (a.date === b.date) {
+                    // 同一日期，我的收支排前面
+                    if (a.name === '我的收支') return -1;
+                    if (b.name === '我的收支') return 1;
+                    return 0;
+                }
+                return b.date.localeCompare(a.date);
+            });
+            
+            if (allRecords.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="empty-state">暂无我的收支记录</td></tr>';
+                container.innerHTML = '';
+                return;
+            }
+            
+            let html = '';
+            
+            allRecords.forEach(record => {
+                const isIncome = record.amount > 0;
+                const rowClass = record.name === '我的利润' ? 'my-profit-row' : (isIncome ? 'my-income-row' : 'my-expense-row');
+                const badgeClass = record.name === '我的利润' ? 'my-profit' : (isIncome ? 'my-income' : 'my-expense');
+                const badgeText = record.name;
+                const hintClass = isIncome ? 'income-hint' : 'expense-hint';
+                const hintText = isIncome ? `收入 ¥${Math.abs(record.amount).toFixed(2)}` : `支出 ¥${Math.abs(record.amount).toFixed(2)}`;
+                
+                html += `
+                    <tr class="${rowClass}">
+                        <td>${record.date}</td>
+                        <td><strong>${record.name}</strong></td>
+                        <td>
+                            <span class="category-badge ${badgeClass}">
+                                ${badgeText}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="type-badge ${record.name === '我的利润' ? 'type-profit' : (isIncome ? 'type-income' : 'type-expense')}">
+                                ${record.name === '我的利润' ? '利润' : (isIncome ? '收入' : '支出')}
+                            </span>
+                        </td>
+                        <td class="${isIncome ? 'stat-income' : 'stat-expense'}">
+                            ${isIncome ? '+' : ''}¥${Math.abs(record.amount).toFixed(2)}
+                        </td>
+                        <td>${record.note || '-'}</td>
+                        <td>
+                            <span style="color: #7f8c8d; font-size: 9px;">计算得出</span>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            tbody.innerHTML = html;
+            
+            // 计算统计
             const myIncomeStats = calculateStats(myIncomeRecords);
+            const myProfitStats = calculateStats(myProfitRecords);
             const timeLabel = viewMode === 'today' ? '当天' : viewMode === 'month' ? '本月' : viewMode === 'year' ? '本年' : '累计';
             const isIncome = myIncomeStats.profit >= 0;
+            const isProfitIncome = myProfitStats.profit >= 0;
             const hintClass = isIncome ? 'income-hint' : 'expense-hint';
             
             container.innerHTML = `
@@ -1416,6 +1646,29 @@
                         </div>
                     </div>
                     <div class="stat-details">记录数：${myIncomeStats.count}天</div>
+                </div>
+                
+                <div class="stat-card" style="border: 2px solid ${isProfitIncome ? 'var(--income)' : 'var(--expense)'}">
+                    <div class="stat-header">
+                        <div class="stat-title" style="color: ${isProfitIncome ? 'var(--income)' : 'var(--expense)'}">我的利润 ${timeLabel}统计</div>
+                        <div class="stat-amount ${isProfitIncome ? 'stat-income' : 'stat-expense'}">
+                            ${isProfitIncome ? '+' : ''}¥${Math.abs(myProfitStats.profit).toFixed(2)}
+                        </div>
+                    </div>
+                    <div class="${isProfitIncome ? 'income-hint' : 'expense-hint'}" style="margin-top: 5px; font-weight: 700;">
+                        ${isProfitIncome ? '收入' : '支出'} ¥${Math.abs(myProfitStats.profit).toFixed(2)}
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px;">
+                        <div>
+                            <div class="stat-label">总收入</div>
+                            <div class="stat-amount stat-income">+¥${myProfitStats.income.toFixed(2)}</div>
+                        </div>
+                        <div>
+                            <div class="stat-label">总支出</div>
+                            <div class="stat-amount stat-expense">-¥${myProfitStats.expense.toFixed(2)}</div>
+                        </div>
+                    </div>
+                    <div class="stat-details">记录数：${myProfitStats.count}天</div>
                 </div>
             `;
         }
@@ -1490,6 +1743,9 @@
             const macauMyIncome = macauDownTotal.profit - macauUpTotal.profit;
             const guangdongMyIncome = guangdongDownTotal.profit - guangdongUpTotal.profit;
             
+            // 计算利润
+            const myProfit = guangdongUpTotal.profit * 0.1;
+            
             container.innerHTML = '';
             
             // 澳门统计卡片
@@ -1499,243 +1755,4 @@
                 
                 container.innerHTML += `
                     <div class="stat-card">
-                        <div class="stat-header">
-                            <div class="stat-title">澳门 ${timeLabel}统计</div>
-                            <div class="stat-amount ${macauIsIncome ? 'stat-income' : 'stat-expense'}">
-                                ${macauIsIncome ? '+' : ''}¥${Math.abs(macauMyIncome).toFixed(2)}
-                            </div>
-                        </div>
-                        <div class="${macauHintClass}" style="margin-bottom: 6px;">
-                            ${macauIsIncome ? '收入' : '支出'} ¥${Math.abs(macauMyIncome).toFixed(2)}
-                        </div>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 6px;">
-                            <div>
-                                <div class="stat-label">上家</div>
-                                <div class="stat-amount ${macauUpTotal.profit >= 0 ? 'stat-income' : 'stat-expense'}">
-                                    ${macauUpTotal.profit >= 0 ? '+' : ''}¥${Math.abs(macauUpTotal.profit).toFixed(2)}
-                                </div>
-                            </div>
-                            <div>
-                                <div class="stat-label">下家</div>
-                                <div class="stat-amount ${macauDownTotal.profit >= 0 ? 'stat-income' : 'stat-expense'}">
-                                    ${macauDownTotal.profit >= 0 ? '+' : ''}¥${Math.abs(macauDownTotal.profit).toFixed(2)}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="stat-details">记录数：${macauUpTotal.count + macauDownTotal.count}条</div>
-                    </div>
-                `;
-            }
-            
-            // 粤港统计卡片
-            if (filterCategory === 'all' || filterCategory.includes('guangdong')) {
-                const guangdongIsIncome = guangdongMyIncome >= 0;
-                const guangdongHintClass = guangdongIsIncome ? 'income-hint' : 'expense-hint';
-                
-                container.innerHTML += `
-                    <div class="stat-card">
-                        <div class="stat-header">
-                            <div class="stat-title">粤港 ${timeLabel}统计</div>
-                            <div class="stat-amount ${guangdongIsIncome ? 'stat-income' : 'stat-expense'}">
-                                ${guangdongIsIncome ? '+' : ''}¥${Math.abs(guangdongMyIncome).toFixed(2)}
-                            </div>
-                        </div>
-                        <div class="${guangdongHintClass}" style="margin-bottom: 6px;">
-                            ${guangdongIsIncome ? '收入' : '支出'} ¥${Math.abs(guangdongMyIncome).toFixed(2)}
-                        </div>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 6px;">
-                            <div>
-                                <div class="stat-label">上家</div>
-                                <div class="stat-amount ${guangdongUpTotal.profit >= 0 ? 'stat-income' : 'stat-expense'}">
-                                    ${guangdongUpTotal.profit >= 0 ? '+' : ''}¥${Math.abs(guangdongUpTotal.profit).toFixed(2)}
-                                </div>
-                            </div>
-                            <div>
-                                <div class="stat-label">下家</div>
-                                <div class="stat-amount ${guangdongDownTotal.profit >= 0 ? 'stat-income' : 'stat-expense'}">
-                                    ${guangdongDownTotal.profit >= 0 ? '+' : ''}¥${Math.abs(guangdongDownTotal.profit).toFixed(2)}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="stat-details">记录数：${guangdongUpTotal.count + guangdongDownTotal.count}条</div>
-                    </div>
-                `;
-            }
-            
-            // 总统计卡片
-            const allIsIncome = allStats.profit >= 0;
-            const allHintClass = allIsIncome ? 'income-hint' : 'expense-hint';
-            
-            container.innerHTML += `
-                <div class="stat-card">
-                    <div class="stat-header">
-                        <div class="stat-title">总计 ${timeLabel}统计</div>
-                        <div class="stat-amount ${allIsIncome ? 'stat-income' : 'stat-expense'}">
-                            ${allIsIncome ? '+' : ''}¥${Math.abs(allStats.profit).toFixed(2)}
-                        </div>
-                    </div>
-                    <div class="${allHintClass}" style="margin-bottom: 6px;">
-                        ${allIsIncome ? '收入' : '支出'} ¥${Math.abs(allStats.profit).toFixed(2)}
-                    </div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px;">
-                        <div>
-                            <div class="stat-label">总收入</div>
-                            <div class="stat-amount stat-income">+¥${allStats.income.toFixed(2)}</div>
-                        </div>
-                        <div>
-                            <div class="stat-label">总支出</div>
-                            <div class="stat-amount stat-expense">-¥${allStats.expense.toFixed(2)}</div>
-                        </div>
-                    </div>
-                    <div class="stat-details">记录总数：${allStats.count}条</div>
-                </div>
-            `;
-        }
-        
-        // 删除记录
-        function deleteRecord(recordId) {
-            if (!confirm('确定要删除这条记录吗？此操作不可恢复！')) {
-                return;
-            }
-            
-            const index = appState.records.findIndex(record => record.id === recordId);
-            if (index !== -1) {
-                appState.records.splice(index, 1);
-                saveLocalData();
-                updatePersonFilter();
-                loadRecords();
-                loadTodayRecords();
-                loadMyIncomeStats();
-                
-                showToast('记录已删除');
-            } else {
-                showToast('删除失败，记录不存在', true);
-            }
-        }
-        
-        // 清除当月记录
-        function clearCurrentMonth() {
-            if (appState.records.length === 0) {
-                showToast('没有数据可清除', true);
-                return;
-            }
-            
-            const now = new Date();
-            const currentYear = now.getFullYear();
-            const currentMonth = now.getMonth() + 1;
-            
-            const monthRecords = appState.records.filter(record => {
-                const recordDate = new Date(record.date);
-                const recordYear = recordDate.getFullYear();
-                const recordMonth = recordDate.getMonth() + 1;
-                return recordYear === currentYear && recordMonth === currentMonth;
-            });
-            
-            if (monthRecords.length === 0) {
-                showToast('本月没有记录可清除', true);
-                return;
-            }
-            
-            if (confirm(`确定要清除本月的所有记录吗？\n将删除 ${monthRecords.length} 条记录\n此操作不可恢复！`)) {
-                appState.records = appState.records.filter(record => {
-                    const recordDate = new Date(record.date);
-                    const recordYear = recordDate.getFullYear();
-                    const recordMonth = recordDate.getMonth() + 1;
-                    return !(recordYear === currentYear && recordMonth === currentMonth);
-                });
-                
-                saveLocalData();
-                updatePersonFilter();
-                loadRecords();
-                loadTodayRecords();
-                loadMyIncomeStats();
-                
-                showToast(`✅ 已清除本月 ${monthRecords.length} 条记录`);
-            }
-        }
-        
-        // 清空数据
-        function clearAllData() {
-            if (appState.records.length === 0) {
-                showToast('没有数据可清空', true);
-                return;
-            }
-            
-            if (confirm(`确定要清空所有数据吗？\n将删除 ${appState.records.length} 条记录\n此操作不可恢复！`)) {
-                appState.records = [];
-                saveLocalData();
-                updatePersonFilter();
-                loadRecords();
-                loadTodayRecords();
-                loadMyIncomeStats();
-                
-                showToast('✅ 数据已清空');
-            }
-        }
-        
-        // 导出数据
-        function exportData() {
-            if (appState.records.length === 0) {
-                showToast('没有数据可导出', true);
-                return;
-            }
-            
-            const data = {
-                records: appState.records,
-                exportedAt: new Date().toISOString(),
-                version: '15.0'
-            };
-            
-            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            
-            a.href = url;
-            a.download = `收支数据_${new Date().toISOString().split('T')[0]}.json`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            
-            showToast('✅ 数据已导出');
-        }
-        
-        // 导入数据
-        function importData() {
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.accept = '.json';
-            
-            input.onchange = (e) => {
-                const file = e.target.files[0];
-                if (!file) return;
-                
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                    try {
-                        const data = JSON.parse(event.target.result);
-                        
-                        if (confirm(`确定要导入数据吗？\n这将覆盖当前所有数据。\n包含：${data.records?.length || 0}条记录`)) {
-                            appState.records = data.records || [];
-                            saveLocalData();
-                            updatePersonFilter();
-                            loadRecords();
-                            loadTodayRecords();
-                            loadMyIncomeStats();
-                            showToast('✅ 数据导入成功');
-                        }
-                    } catch (error) {
-                        showToast('❌ 文件格式错误', true);
-                    }
-                };
-                reader.readAsText(file);
-            };
-            
-            input.click();
-        }
-        
-        // 初始化应用
-        window.addEventListener('DOMContentLoaded', init);
-    </script>
-</body>
-</html>
+                        <div class="sta
