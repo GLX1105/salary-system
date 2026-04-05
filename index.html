@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>个人收支管理系统 - 利润计算版</title>
+    <title>个人收支管理系统 - 时间筛选版</title>
     <style>
         * {
             margin: 0;
@@ -621,7 +621,7 @@
             <div class="nav-left">
                 <div class="nav-icon">💰</div>
                 <div>
-                    <div class="nav-title">个人收支管理系统 - 利润计算版</div>
+                    <div class="nav-title">个人收支管理系统 - 时间筛选版</div>
                     <div class="nav-subtitle">澳门 & 粤港 - 下家总和减去上家总和=我的收支 | 粤港上家利润10%</div>
                 </div>
             </div>
@@ -756,15 +756,30 @@
                         <div class="card-title">📈 查看详细记录</div>
                     </div>
                     <div class="card-body">
-                        <!-- 筛选器 -->
+                        <!-- 筛选器 - 已修改为年份和月份筛选 -->
                         <div class="filter-row">
                             <div class="filter-group">
-                                <label class="filter-label">查看模式：</label>
-                                <select id="view-mode" class="filter-select" onchange="loadRecords()">
-                                    <option value="all">全部记录</option>
-                                    <option value="today">当天记录</option>
-                                    <option value="month">本月记录</option>
-                                    <option value="year">本年记录</option>
+                                <label class="filter-label">选择年份：</label>
+                                <select id="select-year" class="filter-select" onchange="loadRecords()">
+                                    <option value="all">全部年份</option>
+                                </select>
+                            </div>
+                            <div class="filter-group">
+                                <label class="filter-label">选择月份：</label>
+                                <select id="select-month" class="filter-select" onchange="loadRecords()">
+                                    <option value="all">全部月份</option>
+                                    <option value="1">1月</option>
+                                    <option value="2">2月</option>
+                                    <option value="3">3月</option>
+                                    <option value="4">4月</option>
+                                    <option value="5">5月</option>
+                                    <option value="6">6月</option>
+                                    <option value="7">7月</option>
+                                    <option value="8">8月</option>
+                                    <option value="9">9月</option>
+                                    <option value="10">10月</option>
+                                    <option value="11">11月</option>
+                                    <option value="12">12月</option>
                                 </select>
                             </div>
                             <div class="filter-group">
@@ -839,7 +854,8 @@
             recordsBody: document.getElementById('records-body'),
             summaryStats: document.getElementById('summary-stats'),
             myIncomeStats: document.getElementById('my-income-stats'),
-            viewMode: document.getElementById('view-mode'),
+            selectYear: document.getElementById('select-year'),
+            selectMonth: document.getElementById('select-month'),
             filterCategory: document.getElementById('filter-category'),
             filterPerson: document.getElementById('filter-person')
         };
@@ -918,7 +934,7 @@
             const data = {
                 records: appState.records,
                 savedAt: new Date().toISOString(),
-                version: '16.0'
+                version: '18.0'
             };
             
             try {
@@ -936,6 +952,7 @@
                     appState.records = data.records || [];
                     
                     updatePersonFilter();
+                    updateYearFilter();
                     loadRecords();
                     loadTodayRecords();
                     loadMyIncomeStats();
@@ -943,6 +960,30 @@
             } catch (error) {
                 console.error('加载本地数据失败:', error);
             }
+        }
+        
+        // 更新年份筛选器
+        function updateYearFilter() {
+            const yearSelect = elements.selectYear;
+            yearSelect.innerHTML = '<option value="all">全部年份</option>';
+            
+            const years = new Set();
+            appState.records.forEach(record => {
+                if (record.date) {
+                    const year = record.date.split('-')[0];
+                    years.add(year);
+                }
+            });
+            
+            // 将年份排序（从大到小）
+            const sortedYears = Array.from(years).sort((a, b) => b - a);
+            
+            sortedYears.forEach(year => {
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = `${year}年`;
+                yearSelect.appendChild(option);
+            });
         }
         
         // 更新人员筛选器
@@ -1018,6 +1059,7 @@
             
             saveLocalData();
             updatePersonFilter();
+            updateYearFilter();
             loadRecords();
             loadTodayRecords();
             loadMyIncomeStats();
@@ -1281,33 +1323,28 @@
         
         // 加载记录
         function loadRecords() {
-            const viewMode = elements.viewMode.value;
+            const selectedYear = elements.selectYear.value;
+            const selectedMonth = elements.selectMonth.value;
             const filterCategory = elements.filterCategory.value;
             const filterPerson = elements.filterPerson.value;
             
-            const now = new Date();
-            const currentYear = now.getFullYear();
-            const currentMonth = now.getMonth() + 1;
-            const today = new Date().toISOString().split('T')[0];
-            
             let filteredRecords = appState.records;
             
-            // 按时间筛选
-            if (viewMode !== 'all') {
+            // 按年份筛选
+            if (selectedYear !== 'all') {
                 filteredRecords = filteredRecords.filter(record => {
-                    if (viewMode === 'today') {
-                        return record.date === today;
-                    } else if (viewMode === 'month') {
-                        const recordDate = new Date(record.date);
-                        const recordYear = recordDate.getFullYear();
-                        const recordMonth = recordDate.getMonth() + 1;
-                        return recordYear === currentYear && recordMonth === currentMonth;
-                    } else if (viewMode === 'year') {
-                        const recordDate = new Date(record.date);
-                        const recordYear = recordDate.getFullYear();
-                        return recordYear === currentYear;
-                    }
-                    return true;
+                    if (!record.date) return false;
+                    const year = record.date.split('-')[0];
+                    return year === selectedYear;
+                });
+            }
+            
+            // 按月份筛选
+            if (selectedMonth !== 'all') {
+                filteredRecords = filteredRecords.filter(record => {
+                    if (!record.date) return false;
+                    const month = record.date.split('-')[1];
+                    return month === selectedMonth.toString().padStart(2, '0');
                 });
             }
             
@@ -1315,7 +1352,7 @@
             if (filterCategory !== 'all') {
                 if (filterCategory === 'my-income') {
                     // 计算我的收支记录
-                    renderMyIncomeRecords(filteredRecords, viewMode);
+                    renderMyIncomeRecords(filteredRecords, selectedYear, selectedMonth);
                     return;
                 } else if (filterCategory.includes('-')) {
                     // 处理上下家筛选
@@ -1334,11 +1371,11 @@
             }
             
             renderRecordsTable(filteredRecords);
-            renderSummaryStats(filteredRecords, viewMode, filterCategory);
+            renderSummaryStats(filteredRecords, selectedYear, selectedMonth, filterCategory);
         }
         
         // 渲染我的收支记录
-        function renderMyIncomeRecords(records, viewMode) {
+        function renderMyIncomeRecords(records, selectedYear, selectedMonth) {
             const tbody = elements.recordsBody;
             const container = elements.summaryStats;
             
@@ -1445,7 +1482,7 @@
             
             // 计算统计
             const myIncomeStats = calculateStats(myIncomeRecords);
-            const timeLabel = viewMode === 'today' ? '当天' : viewMode === 'month' ? '本月' : viewMode === 'year' ? '本年' : '累计';
+            const timeLabel = selectedYear === 'all' ? '全部' : `${selectedYear}年${selectedMonth === 'all' ? '' : selectedMonth + '月'}`;
             const isIncome = myIncomeStats.profit >= 0;
             const hintClass = isIncome ? 'income-hint' : 'expense-hint';
             
@@ -1527,7 +1564,7 @@
         }
         
         // 渲染统计卡片
-        function renderSummaryStats(records, viewMode, filterCategory) {
+        function renderSummaryStats(records, selectedYear, selectedMonth, filterCategory) {
             const container = elements.summaryStats;
             
             // 按分类分开统计
@@ -1539,7 +1576,7 @@
             
             const allRecords = records;
             
-            const timeLabel = viewMode === 'today' ? '当天' : viewMode === 'month' ? '本月' : viewMode === 'year' ? '本年' : '累计';
+            const timeLabel = selectedYear === 'all' ? '全部' : `${selectedYear}年${selectedMonth === 'all' ? '' : selectedMonth + '月'}`;
             
             const macauUpTotal = calculateStats(macauUpRecords);
             const macauDownTotal = calculateStats(macauDownRecords);
@@ -1674,6 +1711,7 @@
                 appState.records.splice(index, 1);
                 saveLocalData();
                 updatePersonFilter();
+                updateYearFilter();
                 loadRecords();
                 loadTodayRecords();
                 loadMyIncomeStats();
@@ -1717,6 +1755,7 @@
                 
                 saveLocalData();
                 updatePersonFilter();
+                updateYearFilter();
                 loadRecords();
                 loadTodayRecords();
                 loadMyIncomeStats();
@@ -1736,6 +1775,7 @@
                 appState.records = [];
                 saveLocalData();
                 updatePersonFilter();
+                updateYearFilter();
                 loadRecords();
                 loadTodayRecords();
                 loadMyIncomeStats();
@@ -1754,7 +1794,7 @@
             const data = {
                 records: appState.records,
                 exportedAt: new Date().toISOString(),
-                version: '16.0'
+                version: '18.0'
             };
             
             const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -1790,6 +1830,7 @@
                             appState.records = data.records || [];
                             saveLocalData();
                             updatePersonFilter();
+                            updateYearFilter();
                             loadRecords();
                             loadTodayRecords();
                             loadMyIncomeStats();
