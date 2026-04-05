@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>个人收支管理系统 - 密码保护版</title>
+    <title>个人收支管理系统 - 利润计算版</title>
     <style>
         * {
             margin: 0;
@@ -548,90 +548,6 @@
             font-size: 10px;
         }
         
-        /* 密码保护层 */
-        .password-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-        }
-        
-        .password-container {
-            background: white;
-            border-radius: var(--radius);
-            padding: 20px;
-            box-shadow: var(--shadow);
-            text-align: center;
-            width: 90%;
-            max-width: 300px;
-        }
-        
-        .password-icon {
-            font-size: 40px;
-            margin-bottom: 10px;
-            color: var(--primary);
-        }
-        
-        .password-title {
-            font-size: 18px;
-            font-weight: 600;
-            color: var(--dark);
-            margin-bottom: 8px;
-        }
-        
-        .password-subtitle {
-            font-size: 12px;
-            color: #7f8c8d;
-            margin-bottom: 16px;
-        }
-        
-        .password-input {
-            width: 100%;
-            padding: 10px 12px;
-            border: 1px solid var(--border);
-            border-radius: 5px;
-            font-size: 14px;
-            margin-bottom: 12px;
-            text-align: center;
-            letter-spacing: 3px;
-        }
-        
-        .password-input:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.1);
-        }
-        
-        .password-btn {
-            width: 100%;
-            padding: 10px;
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-        
-        .password-btn:hover {
-            background: var(--primary-dark);
-        }
-        
-        .password-error {
-            font-size: 12px;
-            color: var(--expense);
-            margin-top: 8px;
-            display: none;
-        }
-        
         /* 响应式设计 */
         @media (max-width: 900px) {
             .main-grid {
@@ -699,218 +615,203 @@
     </style>
 </head>
 <body>
-    <!-- 密码保护层 -->
-    <div id="password-overlay" class="password-overlay">
-        <div class="password-container">
-            <div class="password-icon">🔐</div>
-            <div class="password-title">个人收支管理系统</div>
-            <div class="password-subtitle">请输入密码访问</div>
-            <input type="password" id="password-input" class="password-input" placeholder="输入密码" maxlength="6">
-            <button class="password-btn" onclick="checkPassword()">进入系统</button>
-            <div id="password-error" class="password-error">密码错误，请重新输入</div>
-        </div>
-    </div>
-    
-    <!-- 主内容区域（默认隐藏） -->
-    <div id="main-content" style="display: none;">
-        <div class="container">
-            <!-- 导航栏 -->
-            <nav class="navbar">
-                <div class="nav-left">
-                    <div class="nav-icon">💰</div>
-                    <div>
-                        <div class="nav-title">个人收支管理系统 - 密码保护版</div>
-                        <div class="nav-subtitle">澳门 & 粤港 - 下家总和减去上家总和=我的收支 | 粤港上家利润10%</div>
-                    </div>
-                </div>
-                <div class="btn-group">
-                    <button class="btn btn-outline btn-sm" onclick="exportData()">导出数据</button>
-                    <button class="btn btn-outline btn-sm" onclick="importData()">导入数据</button>
-                    <button class="btn btn-warning btn-sm" onclick="clearCurrentMonth()">清除当月</button>
-                    <button class="btn btn-danger btn-sm" onclick="clearAllData()">清空数据</button>
-                </div>
-            </nav>
-            
-            <!-- 主内容区域 -->
-            <div class="main-grid">
-                <!-- 左栏：录入和管理 (现在占1/3) -->
+    <div class="container">
+        <!-- 导航栏 -->
+        <nav class="navbar">
+            <div class="nav-left">
+                <div class="nav-icon">💰</div>
                 <div>
-                    <!-- 录入卡片 -->
-                    <div class="card">
-                        <div class="card-header primary">
-                            <div class="card-title">📝 录入收支记录</div>
+                    <div class="nav-title">个人收支管理系统 - 利润计算版</div>
+                    <div class="nav-subtitle">澳门 & 粤港 - 下家总和减去上家总和=我的收支 | 粤港上家利润10%</div>
+                </div>
+            </div>
+            <div class="btn-group">
+                <button class="btn btn-outline btn-sm" onclick="exportData()">导出数据</button>
+                <button class="btn btn-outline btn-sm" onclick="importData()">导入数据</button>
+                <button class="btn btn-warning btn-sm" onclick="clearCurrentMonth()">清除当月</button>
+                <button class="btn btn-danger btn-sm" onclick="clearAllData()">清空数据</button>
+            </div>
+        </nav>
+        
+        <!-- 主内容区域 -->
+        <div class="main-grid">
+            <!-- 左栏：录入和管理 (现在占1/3) -->
+            <div>
+                <!-- 录入卡片 -->
+                <div class="card">
+                    <div class="card-header primary">
+                        <div class="card-title">📝 录入收支记录</div>
+                    </div>
+                    <div class="card-body">
+                        <!-- 分类选择 - 澳门上家和下家在同一行 -->
+                        <div class="category-selector">
+                            <div>
+                                <div class="category-label">澳门分类：</div>
+                                <div class="category-group">
+                                    <button class="category-btn macau-up active" onclick="selectCategory('macau', 'up')">
+                                        <span>⬆️ 澳门上家</span>
+                                    </button>
+                                    <button class="category-btn macau-down" onclick="selectCategory('macau', 'down')">
+                                        <span>⬇️ 澳门下家</span>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <div class="category-label">粤港分类：</div>
+                                <div class="category-group">
+                                    <button class="category-btn guangdong-up" onclick="selectCategory('guangdong', 'up')">
+                                        <span>⬆️ 粤港上家</span>
+                                    </button>
+                                    <button class="category-btn guangdong-down" onclick="selectCategory('guangdong', 'down')">
+                                        <span>⬇️ 粤港下家</span>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
-                        <div class="card-body">
-                            <!-- 分类选择 - 澳门上家和下家在同一行 -->
-                            <div class="category-selector">
-                                <div>
-                                    <div class="category-label">澳门分类：</div>
-                                    <div class="category-group">
-                                        <button class="category-btn macau-up active" onclick="selectCategory('macau', 'up')">
-                                            <span>⬆️ 澳门上家</span>
-                                        </button>
-                                        <button class="category-btn macau-down" onclick="selectCategory('macau', 'down')">
-                                            <span>⬇️ 澳门下家</span>
-                                        </button>
-                                    </div>
-                                </div>
-                                
-                                <div>
-                                    <div class="category-label">粤港分类：</div>
-                                    <div class="category-group">
-                                        <button class="category-btn guangdong-up" onclick="selectCategory('guangdong', 'up')">
-                                            <span>⬆️ 粤港上家</span>
-                                        </button>
-                                        <button class="category-btn guangdong-down" onclick="selectCategory('guangdong', 'down')">
-                                            <span>⬇️ 粤港下家</span>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label class="form-label">姓名</label>
-                                    <input type="text" id="person-name" placeholder="输入姓名" class="form-input">
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">日期</label>
-                                    <input type="date" id="record-date" class="form-input">
-                                </div>
-                            </div>
-                            
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label class="form-label">金额</label>
-                                    <input type="number" id="record-amount" placeholder="输入金额" class="form-input" step="0.01">
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">类型</label>
-                                    <select id="record-type" class="form-input">
-                                        <option value="income">收入</option>
-                                        <option value="expense">支出</option>
-                                    </select>
-                                </div>
-                            </div>
-                            
+                        
+                        <div class="form-row">
                             <div class="form-group">
-                                <label class="form-label">特码</label>
-                                <input type="text" id="record-note" placeholder="输入特码（可选）" class="form-input">
+                                <label class="form-label">姓名</label>
+                                <input type="text" id="person-name" placeholder="输入姓名" class="form-input">
                             </div>
-                            
-                            <div class="btn-group">
-                                <button class="btn btn-success" onclick="saveRecord()">保存记录</button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- 当天收支记录表格 -->
-                    <div class="card">
-                        <div class="card-header primary">
-                            <div class="card-title">📊 当天收支记录</div>
-                        </div>
-                        <div class="card-body">
-                            <div class="table-container">
-                                <table class="data-table">
-                                    <thead>
-                                        <tr>
-                                            <th>姓名/类型</th>
-                                            <th>分类</th>
-                                            <th>类型</th>
-                                            <th>金额</th>
-                                            <th>利润</th>
-                                            <th>特码</th>
-                                            <th>操作</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="today-records-body">
-                                        <tr>
-                                            <td colspan="7" class="empty-state">暂无当天记录</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                            <div class="form-group">
+                                <label class="form-label">日期</label>
+                                <input type="date" id="record-date" class="form-input">
                             </div>
                         </div>
-                    </div>
-                    
-                    <!-- 当天我的收支统计 -->
-                    <div class="card">
-                        <div class="card-header primary">
-                            <div class="card-title">💰 当天我的收支统计</div>
-                        </div>
-                        <div class="card-body">
-                            <div id="my-income-stats" class="stats-grid">
-                                <!-- 我的收支统计卡片会动态显示在这里 -->
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">金额</label>
+                                <input type="number" id="record-amount" placeholder="输入金额" class="form-input" step="0.01">
                             </div>
+                            <div class="form-group">
+                                <label class="form-label">类型</label>
+                                <select id="record-type" class="form-input">
+                                    <option value="income">收入</option>
+                                    <option value="expense">支出</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">特码</label>
+                            <input type="text" id="record-note" placeholder="输入特码（可选）" class="form-input">
+                        </div>
+                        
+                        <div class="btn-group">
+                            <button class="btn btn-success" onclick="saveRecord()">保存记录</button>
                         </div>
                     </div>
                 </div>
                 
-                <!-- 右栏：查看和统计 (现在占2/3) -->
-                <div>
-                    <!-- 查看记录 -->
-                    <div class="card">
-                        <div class="card-header primary">
-                            <div class="card-title">📈 查看详细记录</div>
+                <!-- 当天收支记录表格 -->
+                <div class="card">
+                    <div class="card-header primary">
+                        <div class="card-title">📊 当天收支记录</div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>姓名/类型</th>
+                                        <th>分类</th>
+                                        <th>类型</th>
+                                        <th>金额</th>
+                                        <th>利润</th>
+                                        <th>特码</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="today-records-body">
+                                    <tr>
+                                        <td colspan="7" class="empty-state">暂无当天记录</td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
-                        <div class="card-body">
-                            <!-- 筛选器 -->
-                            <div class="filter-row">
-                                <div class="filter-group">
-                                    <label class="filter-label">查看模式：</label>
-                                    <select id="view-mode" class="filter-select" onchange="loadRecords()">
-                                        <option value="all">全部记录</option>
-                                        <option value="today">当天记录</option>
-                                        <option value="month">本月记录</option>
-                                        <option value="year">本年记录</option>
-                                    </select>
-                                </div>
-                                <div class="filter-group">
-                                    <label class="filter-label">筛选分类：</label>
-                                    <select id="filter-category" class="filter-select" onchange="loadRecords()">
-                                        <option value="all">全部分类</option>
-                                        <option value="macau-up">澳门上家</option>
-                                        <option value="macau-down">澳门下家</option>
-                                        <option value="guangdong-up">粤港上家</option>
-                                        <option value="guangdong-down">粤港下家</option>
-                                        <option value="my-income">我的收支</option>
-                                    </select>
-                                </div>
-                                <div class="filter-group">
-                                    <label class="filter-label">筛选姓名：</label>
-                                    <select id="filter-person" class="filter-select" onchange="loadRecords()">
-                                        <option value="all">全部人员</option>
-                                    </select>
-                                </div>
+                    </div>
+                </div>
+                
+                <!-- 当天我的收支统计 -->
+                <div class="card">
+                    <div class="card-header primary">
+                        <div class="card-title">💰 当天我的收支统计</div>
+                    </div>
+                    <div class="card-body">
+                        <div id="my-income-stats" class="stats-grid">
+                            <!-- 我的收支统计卡片会动态显示在这里 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 右栏：查看和统计 (现在占2/3) -->
+            <div>
+                <!-- 查看记录 -->
+                <div class="card">
+                    <div class="card-header primary">
+                        <div class="card-title">📈 查看详细记录</div>
+                    </div>
+                    <div class="card-body">
+                        <!-- 筛选器 -->
+                        <div class="filter-row">
+                            <div class="filter-group">
+                                <label class="filter-label">查看模式：</label>
+                                <select id="view-mode" class="filter-select" onchange="loadRecords()">
+                                    <option value="all">全部记录</option>
+                                    <option value="today">当天记录</option>
+                                    <option value="month">本月记录</option>
+                                    <option value="year">本年记录</option>
+                                </select>
                             </div>
-                            
-                            <!-- 表格 -->
-                            <div class="table-container">
-                                <table class="data-table">
-                                    <thead>
-                                        <tr>
-                                            <th>日期</th>
-                                            <th>姓名/类型</th>
-                                            <th>分类</th>
-                                            <th>类型</th>
-                                            <th>金额</th>
-                                            <th>利润</th>
-                                            <th>特码</th>
-                                            <th>操作</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="records-body">
-                                        <tr>
-                                            <td colspan="8" class="empty-state">暂无记录</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                            <div class="filter-group">
+                                <label class="filter-label">筛选分类：</label>
+                                <select id="filter-category" class="filter-select" onchange="loadRecords()">
+                                    <option value="all">全部分类</option>
+                                    <option value="macau-up">澳门上家</option>
+                                    <option value="macau-down">澳门下家</option>
+                                    <option value="guangdong-up">粤港上家</option>
+                                    <option value="guangdong-down">粤港下家</option>
+                                    <option value="my-income">我的收支</option>
+                                </select>
                             </div>
-                            
-                            <!-- 统计卡片 -->
-                            <div id="summary-stats" class="stats-grid">
-                                <!-- 统计卡片会动态显示在这里 -->
+                            <div class="filter-group">
+                                <label class="filter-label">筛选姓名：</label>
+                                <select id="filter-person" class="filter-select" onchange="loadRecords()">
+                                    <option value="all">全部人员</option>
+                                </select>
                             </div>
+                        </div>
+                        
+                        <!-- 表格 -->
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>日期</th>
+                                        <th>姓名/类型</th>
+                                        <th>分类</th>
+                                        <th>类型</th>
+                                        <th>金额</th>
+                                        <th>利润</th>
+                                        <th>特码</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="records-body">
+                                    <tr>
+                                        <td colspan="8" class="empty-state">暂无记录</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <!-- 统计卡片 -->
+                        <div id="summary-stats" class="stats-grid">
+                            <!-- 统计卡片会动态显示在这里 -->
                         </div>
                     </div>
                 </div>
@@ -924,16 +825,11 @@
             records: [],
             selectedCategory: 'macau',
             selectedSubtype: 'up',
-            selectedPerson: null,
-            isAuthenticated: false
+            selectedPerson: null
         };
         
         // DOM元素引用
         const elements = {
-            passwordOverlay: document.getElementById('password-overlay'),
-            passwordInput: document.getElementById('password-input'),
-            passwordError: document.getElementById('password-error'),
-            mainContent: document.getElementById('main-content'),
             personName: document.getElementById('person-name'),
             recordDate: document.getElementById('record-date'),
             recordType: document.getElementById('record-type'),
@@ -947,52 +843,6 @@
             filterCategory: document.getElementById('filter-category'),
             filterPerson: document.getElementById('filter-person')
         };
-        
-        // 密码验证
-        function checkPassword() {
-            const password = elements.passwordInput.value.trim();
-            const correctPassword = "160601";
-            
-            if (password === correctPassword) {
-                // 密码正确，显示主内容
-                appState.isAuthenticated = true;
-                elements.passwordOverlay.style.display = 'none';
-                elements.mainContent.style.display = 'block';
-                
-                // 初始化应用
-                init();
-                
-                // 保存认证状态到sessionStorage
-                sessionStorage.setItem('finance_auth', 'true');
-            } else {
-                // 密码错误
-                elements.passwordError.style.display = 'block';
-                elements.passwordInput.value = '';
-                elements.passwordInput.focus();
-            }
-        }
-        
-        // 检查是否有保存的认证状态
-        function checkAuth() {
-            const isAuthenticated = sessionStorage.getItem('finance_auth') === 'true';
-            
-            if (isAuthenticated) {
-                appState.isAuthenticated = true;
-                elements.passwordOverlay.style.display = 'none';
-                elements.mainContent.style.display = 'block';
-                init();
-            } else {
-                // 监听回车键
-                elements.passwordInput.addEventListener('keypress', function(event) {
-                    if (event.key === 'Enter') {
-                        checkPassword();
-                    }
-                });
-                
-                // 聚焦到密码输入框
-                elements.passwordInput.focus();
-            }
-        }
         
         // 工具函数
         function showToast(message, isError = false) {
@@ -1033,18 +883,8 @@
         
         // 初始化应用
         function init() {
-            if (!appState.isAuthenticated) {
-                return;
-            }
-            
-            // 设置当天日期
-            const today = new Date();
-            const year = today.getFullYear();
-            const month = String(today.getMonth() + 1).padStart(2, '0');
-            const day = String(today.getDate()).padStart(2, '0');
-            const todayStr = `${year}-${month}-${day}`;
-            
-            elements.recordDate.value = todayStr;
+            const today = new Date().toISOString().split('T')[0];
+            elements.recordDate.value = today;
             
             loadLocalData();
         }
@@ -1078,7 +918,7 @@
             const data = {
                 records: appState.records,
                 savedAt: new Date().toISOString(),
-                version: '17.0'
+                version: '16.0'
             };
             
             try {
@@ -1135,11 +975,6 @@
         
         // 保存记录
         function saveRecord() {
-            if (!appState.isAuthenticated) {
-                showToast('请先登录系统', true);
-                return;
-            }
-            
             const name = elements.personName.value.trim();
             const date = elements.recordDate.value;
             const amount = parseFloat(elements.recordAmount.value);
@@ -1192,15 +1027,8 @@
         
         // 加载当天记录
         function loadTodayRecords() {
-            if (!appState.isAuthenticated) return;
-            
-            const today = new Date();
-            const year = today.getFullYear();
-            const month = String(today.getMonth() + 1).padStart(2, '0');
-            const day = String(today.getDate()).padStart(2, '0');
-            const todayStr = `${year}-${month}-${day}`;
-            
-            const todayRecords = appState.records.filter(record => record.date === todayStr);
+            const today = new Date().toISOString().split('T')[0];
+            const todayRecords = appState.records.filter(record => record.date === today);
             
             renderTodayRecordsTable(todayRecords);
         }
@@ -1222,6 +1050,8 @@
                 const profit = calculateProfit(record);
                 const isProfit = profit >= 0;
                 const profitClass = isProfit ? 'stat-profit' : 'stat-expense';
+                const profitHintClass = isProfit ? 'profit-hint' : 'expense-hint';
+                const profitText = isProfit ? `收入 ¥${Math.abs(profit).toFixed(2)}` : `支出 ¥${Math.abs(profit).toFixed(2)}`;
                 
                 html += `
                     <tr>
@@ -1255,15 +1085,8 @@
         
         // 加载我的收支统计
         function loadMyIncomeStats() {
-            if (!appState.isAuthenticated) return;
-            
-            const today = new Date();
-            const year = today.getFullYear();
-            const month = String(today.getMonth() + 1).padStart(2, '0');
-            const day = String(today.getDate()).padStart(2, '0');
-            const todayStr = `${year}-${month}-${day}`;
-            
-            const todayRecords = appState.records.filter(record => record.date === todayStr);
+            const today = new Date().toISOString().split('T')[0];
+            const todayRecords = appState.records.filter(record => record.date === today);
             
             // 计算澳门收支
             const macauUpRecords = todayRecords.filter(r => r.category === 'macau' && r.subtype === 'up');
@@ -1304,7 +1127,7 @@
                 },
                 guangdongUpProfit: guangdongUpProfit,
                 total: totalMyIncome
-            }, todayStr);
+            }, today);
         }
         
         // 计算粤港上家总利润
@@ -1458,8 +1281,6 @@
         
         // 加载记录
         function loadRecords() {
-            if (!appState.isAuthenticated) return;
-            
             const viewMode = elements.viewMode.value;
             const filterCategory = elements.filterCategory.value;
             const filterPerson = elements.filterPerson.value;
@@ -1467,12 +1288,7 @@
             const now = new Date();
             const currentYear = now.getFullYear();
             const currentMonth = now.getMonth() + 1;
-            
-            const today = new Date();
-            const year = today.getFullYear();
-            const month = String(today.getMonth() + 1).padStart(2, '0');
-            const day = String(today.getDate()).padStart(2, '0');
-            const todayStr = `${year}-${month}-${day}`;
+            const today = new Date().toISOString().split('T')[0];
             
             let filteredRecords = appState.records;
             
@@ -1480,7 +1296,7 @@
             if (viewMode !== 'all') {
                 filteredRecords = filteredRecords.filter(record => {
                     if (viewMode === 'today') {
-                        return record.date === todayStr;
+                        return record.date === today;
                     } else if (viewMode === 'month') {
                         const recordDate = new Date(record.date);
                         const recordYear = recordDate.getFullYear();
@@ -1676,6 +1492,8 @@
                 const profit = calculateProfit(record);
                 const isProfit = profit >= 0;
                 const profitClass = isProfit ? 'stat-profit' : 'stat-expense';
+                const profitHintClass = isProfit ? 'profit-hint' : 'expense-hint';
+                const profitText = isProfit ? `收入 ¥${Math.abs(profit).toFixed(2)}` : `支出 ¥${Math.abs(profit).toFixed(2)}`;
                 
                 html += `
                     <tr>
@@ -1847,11 +1665,6 @@
         
         // 删除记录
         function deleteRecord(recordId) {
-            if (!appState.isAuthenticated) {
-                showToast('请先登录系统', true);
-                return;
-            }
-            
             if (!confirm('确定要删除这条记录吗？此操作不可恢复！')) {
                 return;
             }
@@ -1861,4 +1674,139 @@
                 appState.records.splice(index, 1);
                 saveLocalData();
                 updatePersonFilter();
-                load
+                loadRecords();
+                loadTodayRecords();
+                loadMyIncomeStats();
+                
+                showToast('记录已删除');
+            } else {
+                showToast('删除失败，记录不存在', true);
+            }
+        }
+        
+        // 清除当月记录
+        function clearCurrentMonth() {
+            if (appState.records.length === 0) {
+                showToast('没有数据可清除', true);
+                return;
+            }
+            
+            const now = new Date();
+            const currentYear = now.getFullYear();
+            const currentMonth = now.getMonth() + 1;
+            
+            const monthRecords = appState.records.filter(record => {
+                const recordDate = new Date(record.date);
+                const recordYear = recordDate.getFullYear();
+                const recordMonth = recordDate.getMonth() + 1;
+                return recordYear === currentYear && recordMonth === currentMonth;
+            });
+            
+            if (monthRecords.length === 0) {
+                showToast('本月没有记录可清除', true);
+                return;
+            }
+            
+            if (confirm(`确定要清除本月的所有记录吗？\n将删除 ${monthRecords.length} 条记录\n此操作不可恢复！`)) {
+                appState.records = appState.records.filter(record => {
+                    const recordDate = new Date(record.date);
+                    const recordYear = recordDate.getFullYear();
+                    const recordMonth = recordDate.getMonth() + 1;
+                    return !(recordYear === currentYear && recordMonth === currentMonth);
+                });
+                
+                saveLocalData();
+                updatePersonFilter();
+                loadRecords();
+                loadTodayRecords();
+                loadMyIncomeStats();
+                
+                showToast(`✅ 已清除本月 ${monthRecords.length} 条记录`);
+            }
+        }
+        
+        // 清空数据
+        function clearAllData() {
+            if (appState.records.length === 0) {
+                showToast('没有数据可清空', true);
+                return;
+            }
+            
+            if (confirm(`确定要清空所有数据吗？\n将删除 ${appState.records.length} 条记录\n此操作不可恢复！`)) {
+                appState.records = [];
+                saveLocalData();
+                updatePersonFilter();
+                loadRecords();
+                loadTodayRecords();
+                loadMyIncomeStats();
+                
+                showToast('✅ 数据已清空');
+            }
+        }
+        
+        // 导出数据
+        function exportData() {
+            if (appState.records.length === 0) {
+                showToast('没有数据可导出', true);
+                return;
+            }
+            
+            const data = {
+                records: appState.records,
+                exportedAt: new Date().toISOString(),
+                version: '16.0'
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            
+            a.href = url;
+            a.download = `收支数据_${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showToast('✅ 数据已导出');
+        }
+        
+        // 导入数据
+        function importData() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            
+            input.onchange = (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    try {
+                        const data = JSON.parse(event.target.result);
+                        
+                        if (confirm(`确定要导入数据吗？\n这将覆盖当前所有数据。\n包含：${data.records?.length || 0}条记录`)) {
+                            appState.records = data.records || [];
+                            saveLocalData();
+                            updatePersonFilter();
+                            loadRecords();
+                            loadTodayRecords();
+                            loadMyIncomeStats();
+                            showToast('✅ 数据导入成功');
+                        }
+                    } catch (error) {
+                        showToast('❌ 文件格式错误', true);
+                    }
+                };
+                reader.readAsText(file);
+            };
+            
+            input.click();
+        }
+        
+        // 初始化应用
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
