@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>个人收支管理系统 - 加密版</title>
+    <title>个人收支管理系统 - 中国时区版</title>
     <style>
+        /* 所有样式保持不变 */
         * {
             margin: 0;
             padding: 0;
@@ -28,6 +29,8 @@
             --shadow: 0 3px 8px rgba(0, 0, 0, 0.06);
             --radius: 6px;
             --transition: all 0.2s ease;
+            --recycle: #95a5a6;
+            --recycle-hover: #7f8c8d;
         }
         
         body {
@@ -156,12 +159,15 @@
             justify-content: space-between;
             align-items: center;
             box-shadow: var(--shadow);
+            flex-wrap: wrap;
+            gap: 10px;
         }
         
         .nav-left {
             display: flex;
             align-items: center;
             gap: 8px;
+            flex-wrap: wrap;
         }
         
         .nav-icon {
@@ -181,7 +187,87 @@
             margin-top: 1px;
         }
         
-        /* 主网格布局 - 调整为左栏1/3，右栏2/3 */
+        /* 按钮样式美化 */
+        .btn {
+            display: inline-block;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+        
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, var(--income), #27ae60);
+            color: white;
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, var(--expense), #c0392b);
+            color: white;
+        }
+        
+        .btn-outline {
+            background: white;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+        
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-warning {
+            background: linear-gradient(135deg, var(--warning), #e67e22);
+            color: white;
+        }
+        
+        .btn-cloud {
+            background: linear-gradient(135deg, var(--cloud), #8e44ad);
+            color: white;
+        }
+        
+        .btn-recycle {
+            background: linear-gradient(135deg, var(--recycle), var(--recycle-hover));
+            color: white;
+        }
+        
+        .btn-recycle:hover {
+            background: linear-gradient(135deg, var(--recycle-hover), #6c7b7d);
+        }
+        
+        .btn-sm {
+            padding: 4px 8px;
+            font-size: 10px;
+            border-radius: 4px;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 6px;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
+        
+        /* 主网格布局 */
         .main-grid {
             display: grid;
             grid-template-columns: 1fr 2fr;
@@ -200,14 +286,21 @@
         
         .card-header {
             padding: 10px 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
         
         .card-header.primary {
             background: linear-gradient(135deg, var(--primary), var(--primary-dark));
         }
         
-        .card-header.cloud {
-            background: linear-gradient(135deg, var(--cloud), #8e44ad);
+        .card-header.warning {
+            background: linear-gradient(135deg, var(--warning), #e67e22);
+        }
+        
+        .card-header.recycle {
+            background: linear-gradient(135deg, var(--recycle), var(--recycle-hover));
         }
         
         .card-title {
@@ -221,6 +314,142 @@
         
         .card-body {
             padding: 12px;
+        }
+        
+        /* 回收站面板 */
+        .recycle-panel {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .recycle-panel.show {
+            display: flex;
+        }
+        
+        .recycle-container {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+            animation: slideIn 0.3s ease;
+        }
+        
+        .recycle-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--border);
+        }
+        
+        .recycle-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .close-btn {
+            background: var(--expense);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .recycle-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .recycle-stat {
+            background: var(--light);
+            padding: 10px;
+            border-radius: 6px;
+            text-align: center;
+            border-left: 4px solid var(--recycle);
+        }
+        
+        .recycle-stat-number {
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--recycle);
+        }
+        
+        .recycle-stat-label {
+            font-size: 11px;
+            color: #7f8c8d;
+            margin-top: 2px;
+        }
+        
+        .recycle-toolbar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .recycle-search {
+            flex: 1;
+            padding: 8px 12px;
+            border: 2px solid var(--border);
+            border-radius: 20px;
+            font-size: 11px;
+            min-width: 200px;
+        }
+        
+        /* 回收站表格 */
+        .recycle-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        
+        .recycle-table th,
+        .recycle-table td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+            font-size: 10px;
+        }
+        
+        .recycle-table th {
+            background: var(--light);
+            font-weight: 600;
+            color: var(--dark);
+            position: sticky;
+            top: 0;
+        }
+        
+        .recycle-table tr:hover {
+            background: rgba(149, 165, 166, 0.05);
+        }
+        
+        .deleted-time {
+            color: #7f8c8d;
+            font-size: 9px;
         }
         
         /* 表单样式 */
@@ -264,7 +493,7 @@
             display: none;
         }
         
-        /* 调整表单行布局，适应较窄的宽度 */
+        /* 调整表单行布局 */
         .form-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -272,7 +501,7 @@
             margin-bottom: 8px;
         }
         
-        /* 分类选择器 - 澳门上家和下家在同一行 */
+        /* 分类选择器 */
         .category-selector {
             display: flex;
             flex-direction: column;
@@ -357,92 +586,6 @@
             background: var(--category4);
             color: white;
             box-shadow: 0 4px 8px rgba(52, 73, 94, 0.3);
-        }
-        
-        /* 按钮样式美化 */
-        .btn {
-            display: inline-block;
-            padding: 10px 16px;
-            border: none;
-            border-radius: 8px;
-            font-size: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition);
-            text-align: center;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-        }
-        
-        .btn:active {
-            transform: translateY(0);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-        
-        .btn-success {
-            background: linear-gradient(135deg, var(--income), #27ae60);
-            color: white;
-        }
-        
-        .btn-success:hover {
-            background: linear-gradient(135deg, #27ae60, #229954);
-        }
-        
-        .btn-danger {
-            background: linear-gradient(135deg, var(--expense), #c0392b);
-            color: white;
-        }
-        
-        .btn-danger:hover {
-            background: linear-gradient(135deg, #c0392b, #a93226);
-        }
-        
-        .btn-outline {
-            background: white;
-            color: var(--primary);
-            border: 2px solid var(--primary);
-        }
-        
-        .btn-outline:hover {
-            background: var(--primary);
-            color: white;
-        }
-        
-        .btn-warning {
-            background: linear-gradient(135deg, var(--warning), #e67e22);
-            color: white;
-        }
-        
-        .btn-warning:hover {
-            background: linear-gradient(135deg, #e67e22, #d35400);
-        }
-        
-        .btn-cloud {
-            background: linear-gradient(135deg, var(--cloud), #8e44ad);
-            color: white;
-        }
-        
-        .btn-cloud:hover {
-            background: linear-gradient(135deg, #8e44ad, #7d3c98);
-        }
-        
-        .btn-sm {
-            padding: 6px 10px;
-            font-size: 10px;
-            border-radius: 6px;
-        }
-        
-        .btn-group {
-            display: flex;
-            gap: 8px;
-            margin-top: 12px;
-            flex-wrap: wrap;
         }
         
         /* 搜索框样式 */
@@ -664,6 +807,10 @@
             color: var(--profit);
         }
         
+        .stat-recycle {
+            color: var(--recycle);
+        }
+        
         .stat-details {
             font-size: 9px;
             color: #7f8c8d;
@@ -679,11 +826,25 @@
             font-weight: 500;
             cursor: pointer;
             transition: var(--transition);
+            margin-right: 4px;
+        }
+        
+        .action-btn.restore {
+            background: rgba(46, 204, 113, 0.1);
+            color: var(--income);
+        }
+        
+        .action-btn.restore:hover {
+            background: var(--income);
+            color: white;
+        }
+        
+        .action-btn.delete-permanent {
             background: rgba(231, 76, 60, 0.1);
             color: var(--expense);
         }
         
-        .action-btn:hover {
+        .action-btn.delete-permanent:hover {
             background: var(--expense);
             color: white;
         }
@@ -830,6 +991,21 @@
                 min-width: 300px;
                 padding: 30px 20px;
             }
+            
+            .navbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .nav-left {
+                justify-content: center;
+                text-align: center;
+                margin-bottom: 10px;
+            }
+            
+            .btn-group {
+                justify-content: center;
+            }
         }
         
         @media (max-width: 768px) {
@@ -845,18 +1021,16 @@
                 flex-direction: column;
             }
             
-            .navbar {
-                flex-direction: column;
-                gap: 6px;
-                align-items: stretch;
-            }
-            
-            .btn-group {
-                justify-content: center;
-            }
-            
             .category-group {
                 flex-direction: column;
+            }
+            
+            .recycle-toolbar {
+                flex-direction: column;
+            }
+            
+            .recycle-search {
+                min-width: auto;
             }
         }
         
@@ -880,13 +1054,18 @@
             }
             
             .btn {
-                padding: 8px 12px;
-                font-size: 11px;
+                padding: 6px 10px;
+                font-size: 10px;
             }
             
             .login-box {
                 min-width: 280px;
                 padding: 25px 15px;
+            }
+            
+            .recycle-container {
+                padding: 15px;
+                width: 95%;
             }
         }
         
@@ -914,6 +1093,10 @@
         
         .shake {
             animation: shake 0.5s ease-in-out;
+        }
+        
+        .fade-out {
+            animation: fadeOut 0.3s ease-in-out;
         }
     </style>
 </head>
@@ -949,7 +1132,7 @@
     <div class="container" id="main-app" style="display: none;">
         <!-- 撤销提示 -->
         <div class="undo-toast" id="undo-toast">
-            <span>记录已删除</span>
+            <span>记录已删除，可在回收站找回</span>
             <button class="undo-btn" onclick="undoDelete()">撤销</button>
             <span id="undo-timer">5</span>秒
         </div>
@@ -959,11 +1142,14 @@
             <div class="nav-left">
                 <div class="nav-icon">💰</div>
                 <div>
-                    <div class="nav-title">个人收支管理系统 - 加密版</div>
+                    <div class="nav-title">个人收支管理系统 - 中国时区版</div>
                     <div class="nav-subtitle">澳门 & 粤港 - 下家总和减去上家总和=我的收支 | 粤港上家利润10%</div>
                 </div>
             </div>
             <div class="btn-group">
+                <button class="btn btn-recycle btn-sm" onclick="openRecyclePanel()">
+                    🗑️ 回收站 (<span id="recycle-count">0</span>)
+                </button>
                 <button class="btn btn-outline btn-sm" onclick="exportData()">导出数据</button>
                 <button class="btn btn-outline btn-sm" onclick="importData()">导入数据</button>
                 <button class="btn btn-warning btn-sm" onclick="clearCurrentMonth()">清除当月</button>
@@ -974,7 +1160,7 @@
         
         <!-- 主内容区域 -->
         <div class="main-grid">
-            <!-- 左栏：录入和管理 (现在占1/3) -->
+            <!-- 左栏：录入和管理 -->
             <div>
                 <!-- 录入收支卡片 -->
                 <div class="card">
@@ -982,7 +1168,7 @@
                         <div class="card-title">📝 录入收支</div>
                     </div>
                     <div class="card-body">
-                        <!-- 分类选择 - 澳门上家和下家在同一行 -->
+                        <!-- 分类选择 -->
                         <div class="category-selector">
                             <div>
                                 <div class="category-label">澳门分类：</div>
@@ -1098,7 +1284,7 @@
                 </div>
             </div>
             
-            <!-- 右栏：查看和统计 (现在占2/3) -->
+            <!-- 右栏：查看和统计 -->
             <div>
                 <!-- 查看记录 -->
                 <div class="card">
@@ -1119,7 +1305,7 @@
                             <button class="btn btn-outline btn-sm" onclick="clearSelection()">取消选择</button>
                         </div>
                         
-                        <!-- 筛选器 - 已修改为年份和月份筛选 -->
+                        <!-- 筛选器 -->
                         <div class="filter-row">
                             <div class="filter-group">
                                 <label class="filter-label">选择年份：</label>
@@ -1164,7 +1350,7 @@
                             </div>
                         </div>
                         
-                        <!-- 表格 - 已添加垂直滚动条 -->
+                        <!-- 表格 -->
                         <div class="table-container" style="max-height: 400px; overflow-y: auto;">
                             <table class="data-table">
                                 <thead>
@@ -1197,21 +1383,85 @@
             </div>
         </div>
     </div>
+    
+    <!-- 回收站面板 -->
+    <div class="recycle-panel" id="recycle-panel">
+        <div class="recycle-container">
+            <div class="recycle-header">
+                <h2 class="recycle-title">🗑️ 回收站管理</h2>
+                <button class="close-btn" onclick="closeRecyclePanel()">×</button>
+            </div>
+            
+            <!-- 回收站统计 -->
+            <div class="recycle-stats">
+                <div class="recycle-stat">
+                    <div class="recycle-stat-number" id="recycle-total">0</div>
+                    <div class="recycle-stat-label">总删除记录</div>
+                </div>
+                <div class="recycle-stat">
+                    <div class="recycle-stat-number" id="recycle-today">0</div>
+                    <div class="recycle-stat-label">今日删除</div>
+                </div>
+                <div class="recycle-stat">
+                    <div class="recycle-stat-number" id="recycle-week">0</div>
+                    <div class="recycle-stat-label">本周删除</div>
+                </div>
+                <div class="recycle-stat">
+                    <div class="recycle-stat-number" id="recycle-size">0KB</div>
+                    <div class="recycle-stat-label">占用空间</div>
+                </div>
+            </div>
+            
+            <!-- 回收站工具栏 -->
+            <div class="recycle-toolbar">
+                <input type="text" class="recycle-search" id="recycle-search" placeholder="搜索已删除的记录..." oninput="searchRecycleRecords()">
+                <button class="btn btn-recycle btn-sm" onclick="selectAllRecycle()">全选</button>
+                <button class="btn btn-success btn-sm" onclick="restoreSelected()">还原选中</button>
+                <button class="btn btn-warning btn-sm" onclick="restoreAll()">还原全部</button>
+                <button class="btn btn-danger btn-sm" onclick="emptyRecycleBin()">清空回收站</button>
+            </div>
+            
+            <!-- 回收站表格 -->
+            <div class="table-container" style="max-height: 400px; overflow-y: auto;">
+                <table class="recycle-table">
+                    <thead>
+                        <tr>
+                            <th><input type="checkbox" class="checkbox" id="recycle-select-all" onchange="toggleRecycleSelectAll()"></th>
+                            <th>删除时间</th>
+                            <th>原日期</th>
+                            <th>姓名</th>
+                            <th>分类</th>
+                            <th>类型</th>
+                            <th>金额</th>
+                            <th>特码</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recycle-body">
+                        <tr>
+                            <td colspan="9" class="empty-state">回收站为空</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 
     <script>
         // 应用状态
         let appState = {
             records: [],
+            recycleBin: [], // 回收站
             selectedCategory: 'macau',
-            selectedSubtype: 'down', // 默认选择澳门下家
+            selectedSubtype: 'down',
             selectedPerson: null,
-            currentViewDate: new Date().toISOString().split('T')[0], // 当前查看的日期
-            deletedRecord: null, // 用于撤销删除
-            undoTimer: null, // 撤销定时器
-            searchTerm: '', // 搜索关键词
-            selectedRecords: new Set(), // 选中的记录ID
-            loginAttempts: 0, // 登录尝试次数
-            isLoggedIn: false // 登录状态
+            currentViewDate: getCurrentDateChina(),
+            deletedRecord: null,
+            undoTimer: null,
+            searchTerm: '',
+            selectedRecords: new Set(),
+            loginAttempts: 0,
+            isLoggedIn: false
         };
         
         // DOM元素引用
@@ -1241,11 +1491,53 @@
             batchCount: document.getElementById('batch-count'),
             selectAll: document.getElementById('select-all'),
             undoToast: document.getElementById('undo-toast'),
-            undoTimer: document.getElementById('undo-timer')
+            undoTimer: document.getElementById('undo-timer'),
+            recyclePanel: document.getElementById('recycle-panel'),
+            recycleBody: document.getElementById('recycle-body'),
+            recycleSearch: document.getElementById('recycle-search'),
+            recycleSelectAll: document.getElementById('recycle-select-all'),
+            recycleCount: document.getElementById('recycle-count'),
+            recycleTotal: document.getElementById('recycle-total'),
+            recycleToday: document.getElementById('recycle-today'),
+            recycleWeek: document.getElementById('recycle-week'),
+            recycleSize: document.getElementById('recycle-size')
         };
         
         // 正确的密码
         const CORRECT_PASSWORD = "160601";
+        
+        // 🇨🇳 中国时区时间函数
+        function getCurrentDateChina() {
+            const now = new Date();
+            // 转换为中国时区 (UTC+8)
+            const chinaTime = new Date(now.getTime() + (8 * 60 * 60 * 1000));
+            const year = chinaTime.getUTCFullYear();
+            const month = String(chinaTime.getUTCMonth() + 1).padStart(2, '0');
+            const day = String(chinaTime.getUTCDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+        
+        function formatDateChina(date) {
+            const d = new Date(date);
+            // 转换为中国时区
+            const chinaTime = new Date(d.getTime() + (8 * 60 * 60 * 1000));
+            const year = chinaTime.getUTCFullYear();
+            const month = String(chinaTime.getUTCMonth() + 1).padStart(2, '0');
+            const day = String(chinaTime.getUTCDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+        
+        function formatDateTimeChina(dateString) {
+            const date = new Date(dateString);
+            // 转换为中国时区
+            const chinaTime = new Date(date.getTime() + (8 * 60 * 60 * 1000));
+            const year = chinaTime.getUTCFullYear();
+            const month = String(chinaTime.getUTCMonth() + 1).padStart(2, '0');
+            const day = String(chinaTime.getUTCDate()).padStart(2, '0');
+            const hours = String(chinaTime.getUTCHours()).padStart(2, '0');
+            const minutes = String(chinaTime.getUTCMinutes()).padStart(2, '0');
+            return `${year}-${month}-${day} ${hours}:${minutes}`;
+        }
         
         // 工具函数
         function showToast(message, isError = false) {
@@ -1314,26 +1606,20 @@
             const password = elements.passwordInput.value;
             
             if (password === CORRECT_PASSWORD) {
-                // 密码正确，进入系统
                 appState.isLoggedIn = true;
                 appState.loginAttempts = 0;
                 
-                // 隐藏登录界面，显示主应用
                 elements.loginOverlay.classList.add('hidden');
                 setTimeout(() => {
                     elements.loginOverlay.style.display = 'none';
                     elements.mainApp.style.display = 'block';
-                    
-                    // 初始化应用
                     init();
                 }, 300);
                 
                 showToast('登录成功！');
             } else {
-                // 密码错误
                 appState.loginAttempts++;
                 
-                // 显示错误信息
                 elements.errorMessage.classList.add('show');
                 elements.passwordInput.classList.add('shake');
                 
@@ -1341,7 +1627,6 @@
                     elements.passwordInput.classList.remove('shake');
                 }, 500);
                 
-                // 更新尝试次数显示
                 const remainingAttempts = 3 - appState.loginAttempts;
                 elements.attemptsLeft.textContent = remainingAttempts;
                 
@@ -1349,14 +1634,12 @@
                     elements.attemptsWarning.style.display = 'block';
                 } else {
                     elements.attemptsWarning.innerHTML = '尝试次数过多，请刷新页面重试';
-                    elements.loginBtn.disabled = true;
                     setTimeout(() => {
                         alert('登录尝试次数过多，系统已锁定。请刷新页面重新开始。');
                     }, 1000);
                     return;
                 }
                 
-                // 清空输入框
                 elements.passwordInput.value = '';
                 elements.passwordInput.focus();
                 
@@ -1370,12 +1653,10 @@
                 appState.isLoggedIn = false;
                 appState.loginAttempts = 0;
                 
-                // 清空主应用显示
                 elements.mainApp.style.display = 'none';
                 elements.loginOverlay.style.display = 'flex';
                 elements.loginOverlay.classList.remove('hidden');
                 
-                // 清空密码输入
                 elements.passwordInput.value = '';
                 elements.errorMessage.classList.remove('show');
                 elements.attemptsWarning.style.display = 'none';
@@ -1386,20 +1667,22 @@
         
         // 初始化应用
         function init() {
-            const today = new Date().toISOString().split('T')[0];
+            // 🇨🇳 使用中国时区时间
+            const today = getCurrentDateChina();
             elements.recordDate.value = today;
             elements.viewDate.value = today;
             appState.currentViewDate = today;
             
-            // 设置默认选择澳门下家
             selectCategory('macau', 'down');
-            
             loadLocalData();
+            updateRecycleCount();
             
-            // 自动聚焦到密码输入框（如果还没登录）
             if (!appState.isLoggedIn) {
                 elements.passwordInput.focus();
             }
+            
+            // 调试信息：在控制台显示当前中国时区日期
+            console.log('当前中国时区日期设置为:', today);
         }
         
         // 监听回车键登录
@@ -1410,7 +1693,6 @@
                 }
             });
             
-            // 初始化登录界面
             init();
         });
         
@@ -1435,13 +1717,12 @@
         function validateDate() {
             const date = elements.recordDate.value;
             const errorElement = document.getElementById('date-error');
-            const selectedDate = new Date(date);
-            const today = new Date();
+            const today = getCurrentDateChina();
             
             if (!date) {
                 showError(elements.recordDate, errorElement, '请选择日期');
                 return false;
-            } else if (selectedDate > today) {
+            } else if (date > today) {
                 showError(elements.recordDate, errorElement, '不能选择未来日期');
                 return false;
             } else {
@@ -1493,12 +1774,10 @@
             appState.selectedCategory = category;
             appState.selectedSubtype = subtype;
             
-            // 更新按钮样式
             document.querySelectorAll('.category-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
             
-            // 根据选择的分类和子类型激活对应的按钮
             let activeClass = '';
             if (subtype === 'up') {
                 activeClass = `${category}-up`;
@@ -1516,8 +1795,9 @@
         function saveLocalData() {
             const data = {
                 records: appState.records,
+                recycleBin: appState.recycleBin,
                 savedAt: new Date().toISOString(),
-                version: '25.0'
+                version: '28.0'
             };
             
             try {
@@ -1533,6 +1813,23 @@
                 if (saved) {
                     const data = JSON.parse(saved);
                     appState.records = data.records || [];
+                    appState.recycleBin = data.recycleBin || [];
+                    
+                    // 确保所有日期都使用中国时区格式
+                    appState.records.forEach(record => {
+                        if (record.date) {
+                            record.date = formatDateChina(new Date(record.date));
+                        }
+                    });
+                    
+                    appState.recycleBin.forEach(record => {
+                        if (record.date) {
+                            record.date = formatDateChina(new Date(record.date));
+                        }
+                        if (record.deletedAt) {
+                            record.deletedAt = formatDateTimeChina(new Date(record.deletedAt));
+                        }
+                    });
                     
                     updatePersonFilter();
                     updateYearFilter();
@@ -1558,7 +1855,6 @@
                 }
             });
             
-            // 将年份排序（从大到小）
             const sortedYears = Array.from(years).sort((a, b) => b - a);
             
             sortedYears.forEach(year => {
@@ -1589,7 +1885,7 @@
             });
         }
         
-        // 计算利润（粤港上家总收支乘以0.1）
+        // 计算利润
         function calculateProfit(record) {
             if (record.category === 'guangdong' && record.subtype === 'up') {
                 return record.amount * 0.1;
@@ -1599,7 +1895,6 @@
         
         // 保存记录
         function saveRecord() {
-            // 数据验证
             if (!validateName() || !validateDate() || !validateAmount()) {
                 showToast('请正确填写所有必填项', true);
                 return;
@@ -1613,7 +1908,6 @@
             const category = appState.selectedCategory;
             const subtype = appState.selectedSubtype;
             
-            // 检查重复记录（同一天、同一个人、相同金额、相同分类）
             const isDuplicate = appState.records.some(record => 
                 record.date === date && 
                 record.name === name && 
@@ -1636,12 +1930,12 @@
                 subtype: subtype || '',
                 type,
                 amount: type === 'expense' ? -Math.abs(amount) : Math.abs(amount),
-                note
+                note,
+                createdAt: new Date().toISOString()
             };
             
             appState.records.unshift(record);
             
-            // 清空表单
             elements.recordAmount.value = '';
             elements.personName.value = '';
             elements.recordNote.value = '';
@@ -1658,7 +1952,8 @@
         
         // 设置日期为今天
         function setTodayDate() {
-            const today = new Date().toISOString().split('T')[0];
+            // 🇨🇳 使用中国时区
+            const today = getCurrentDateChina();
             elements.viewDate.value = today;
             appState.currentViewDate = today;
             loadDateRecords();
@@ -1686,7 +1981,6 @@
             appState.currentViewDate = selectedDate;
             let dateRecords = appState.records.filter(record => record.date === selectedDate);
             
-            // 按日期降序排序（最新日期排上面）
             dateRecords.sort((a, b) => new Date(b.date) - new Date(a.date));
             
             renderDateRecordsTable(dateRecords);
@@ -1745,43 +2039,29 @@
         function loadMyIncomeStatsForDate(date) {
             const dateRecords = appState.records.filter(record => record.date === date);
             
-            // 计算澳门收支
             const macauUpRecords = dateRecords.filter(r => r.category === 'macau' && r.subtype === 'up');
             const macauDownRecords = dateRecords.filter(r => r.category === 'macau' && r.subtype === 'down');
             
             const macauUpTotal = calculateStats(macauUpRecords);
             const macauDownTotal = calculateStats(macauDownRecords);
             
-            // 澳门我的收支 = 澳门下家总和 - 澳门上家总和
             const macauMyIncome = macauDownTotal.profit - macauUpTotal.profit;
             
-            // 计算粤港收支
             const guangdongUpRecords = dateRecords.filter(r => r.category === 'guangdong' && r.subtype === 'up');
             const guangdongDownRecords = dateRecords.filter(r => r.category === 'guangdong' && r.subtype === 'down');
             
             const guangdongUpTotal = calculateStats(guangdongUpRecords);
             const guangdongDownTotal = calculateStats(guangdongDownRecords);
             
-            // 粤港我的收支 = 粤港下家总和 - 粤港上家总和
             const guangdongMyIncome = guangdongDownTotal.profit - guangdongUpTotal.profit;
             
-            // 计算粤港上家总利润
             const guangdongUpProfit = calculateGuangdongUpProfit(guangdongUpRecords);
             
-            // 总我的收支
             const totalMyIncome = macauMyIncome + guangdongMyIncome;
             
             renderMyIncomeStats({
-                macau: {
-                    up: macauUpTotal,
-                    down: macauDownTotal,
-                    my: macauMyIncome
-                },
-                guangdong: {
-                    up: guangdongUpTotal,
-                    down: guangdongDownTotal,
-                    my: guangdongMyIncome
-                },
+                macau: { up: macauUpTotal, down: macauDownTotal, my: macauMyIncome },
+                guangdong: { up: guangdongUpTotal, down: guangdongDownTotal, my: guangdongMyIncome },
                 guangdongUpProfit: guangdongUpProfit,
                 total: totalMyIncome
             }, date);
@@ -1799,7 +2079,6 @@
         // 渲染我的收支统计
         function renderMyIncomeStats(stats, date) {
             const container = elements.myIncomeStats;
-            
             container.innerHTML = '';
             
             // 澳门我的收支卡片
@@ -1808,12 +2087,10 @@
             const macauHintClass = macauIsIncome ? 'income-hint' : 'expense-hint';
             const macauHintText = macauIsIncome ? `收入 ¥${Math.abs(stats.macau.my).toFixed(2)}` : `支出 ¥${Math.abs(stats.macau.my).toFixed(2)}`;
             
-            // 澳门上家统计
             const macauUpIsIncome = stats.macau.up.profit >= 0;
             const macauUpColorClass = macauUpIsIncome ? 'stat-income' : 'stat-expense';
             const macauUpHintText = macauUpIsIncome ? `收入 ¥${Math.abs(stats.macau.up.profit).toFixed(2)}` : `支出 ¥${Math.abs(stats.macau.up.profit).toFixed(2)}`;
             
-            // 澳门下家统计
             const macauDownIsIncome = stats.macau.down.profit >= 0;
             const macauDownColorClass = macauDownIsIncome ? 'stat-income' : 'stat-expense';
             const macauDownHintText = macauDownIsIncome ? `收入 ¥${Math.abs(stats.macau.down.profit).toFixed(2)}` : `支出 ¥${Math.abs(stats.macau.down.profit).toFixed(2)}`;
@@ -1842,17 +2119,14 @@
             const guangdongHintClass = guangdongIsIncome ? 'income-hint' : 'expense-hint';
             const guangdongHintText = guangdongIsIncome ? `收入 ¥${Math.abs(stats.guangdong.my).toFixed(2)}` : `支出 ¥${Math.abs(stats.guangdong.my).toFixed(2)}`;
             
-            // 粤港上家统计
             const guangdongUpIsIncome = stats.guangdong.up.profit >= 0;
             const guangdongUpColorClass = guangdongUpIsIncome ? 'stat-income' : 'stat-expense';
             const guangdongUpHintText = guangdongUpIsIncome ? `收入 ¥${Math.abs(stats.guangdong.up.profit).toFixed(2)}` : `支出 ¥${Math.abs(stats.guangdong.up.profit).toFixed(2)}`;
             
-            // 粤港下家统计
             const guangdongDownIsIncome = stats.guangdong.down.profit >= 0;
             const guangdongDownColorClass = guangdongDownIsIncome ? 'stat-income' : 'stat-expense';
             const guangdongDownHintText = guangdongDownIsIncome ? `收入 ¥${Math.abs(stats.guangdong.down.profit).toFixed(2)}` : `支出 ¥${Math.abs(stats.guangdong.down.profit).toFixed(2)}`;
             
-            // 粤港上家利润统计
             const guangdongUpProfitIsIncome = stats.guangdongUpProfit >= 0;
             const guangdongUpProfitColorClass = guangdongUpProfitIsIncome ? 'stat-profit' : 'stat-expense';
             const guangdongUpProfitHintClass = guangdongUpProfitIsIncome ? 'profit-hint' : 'expense-hint';
@@ -1936,7 +2210,7 @@
             }
         }
         
-        // 加载记录 - 按日期降序排列，支持搜索
+        // 加载记录
         function loadRecords() {
             const selectedYear = elements.selectYear.value;
             const selectedMonth = elements.selectMonth.value;
@@ -1945,7 +2219,6 @@
             
             let filteredRecords = appState.records;
             
-            // 按年份筛选
             if (selectedYear !== 'all') {
                 filteredRecords = filteredRecords.filter(record => {
                     if (!record.date) return false;
@@ -1954,7 +2227,6 @@
                 });
             }
             
-            // 按月份筛选
             if (selectedMonth !== 'all') {
                 filteredRecords = filteredRecords.filter(record => {
                     if (!record.date) return false;
@@ -1963,14 +2235,11 @@
                 });
             }
             
-            // 按分类筛选
             if (filterCategory !== 'all') {
                 if (filterCategory === 'my-income') {
-                    // 计算我的收支记录
                     renderMyIncomeRecords(filteredRecords, selectedYear, selectedMonth);
                     return;
                 } else if (filterCategory.includes('-')) {
-                    // 处理上下家筛选
                     const [category, subtype] = filterCategory.split('-');
                     filteredRecords = filteredRecords.filter(record => 
                         record.category === category && record.subtype === subtype
@@ -1980,12 +2249,10 @@
                 }
             }
             
-            // 按人员筛选
             if (filterPerson !== 'all') {
                 filteredRecords = filteredRecords.filter(record => record.name === filterPerson);
             }
             
-            // 搜索功能
             if (appState.searchTerm) {
                 filteredRecords = filteredRecords.filter(record => 
                     record.name.toLowerCase().includes(appState.searchTerm) ||
@@ -1993,7 +2260,6 @@
                 );
             }
             
-            // 按日期降序排序（最新日期排上面）
             filteredRecords.sort((a, b) => new Date(b.date) - new Date(a.date));
             
             renderRecordsTable(filteredRecords);
@@ -2042,7 +2308,6 @@
                 elements.batchToolbar.classList.remove('show');
             }
             
-            // 更新全选复选框状态
             const totalCheckboxes = document.querySelectorAll('#records-body input[type="checkbox"]:not(#select-all)');
             const checkedCheckboxes = document.querySelectorAll('#records-body input[type="checkbox"]:not(#select-all):checked');
             
@@ -2069,55 +2334,24 @@
             updateBatchToolbar();
         }
         
-        // 批量删除
-        function batchDelete() {
-            if (appState.selectedRecords.size === 0) {
-                showToast('请先选择要删除的记录', true);
-                return;
-            }
-            
-            if (confirm(`确定要删除选中的 ${appState.selectedRecords.size} 条记录吗？此操作不可恢复！`)) {
-                // 记录删除前的状态用于可能的撤销
-                appState.deletedRecord = {
-                    type: 'batch',
-                    records: appState.records.filter(record => appState.selectedRecords.has(record.id)),
-                    timestamp: Date.now()
-                };
-                
-                // 执行删除
-                appState.records = appState.records.filter(record => !appState.selectedRecords.has(record.id));
-                
-                // 清空选择
-                clearSelection();
-                
-                // 保存并刷新
-                saveLocalData();
-                updatePersonFilter();
-                updateYearFilter();
-                loadRecords();
-                loadDateRecords();
-                loadMyIncomeStatsForDate(appState.currentViewDate);
-                
-                showToast(`已删除 ${appState.deletedRecord.records.length} 条记录`);
-                showUndoToast();
-            }
-        }
-        
-        // 删除单条记录
+        // 删除单条记录（移到回收站）
         function deleteRecord(recordId) {
             const record = appState.records.find(r => r.id === recordId);
             if (!record) return;
             
-            if (confirm('确定要删除这条记录吗？此操作不可恢复！')) {
-                // 记录删除前的状态用于撤销
-                appState.deletedRecord = {
-                    type: 'single',
-                    record: record,
-                    timestamp: Date.now()
+            if (confirm('确定要删除这条记录吗？记录将移至回收站，可随时恢复。')) {
+                // 记录删除信息
+                const deletedRecord = {
+                    ...record,
+                    deletedAt: new Date().toISOString(),
+                    originalIndex: appState.records.indexOf(record)
                 };
                 
-                // 执行删除
+                // 从主记录中移除
                 appState.records = appState.records.filter(r => r.id !== recordId);
+                
+                // 添加到回收站
+                appState.recycleBin.unshift(deletedRecord);
                 
                 // 从选择中移除
                 appState.selectedRecords.delete(recordId);
@@ -2129,9 +2363,55 @@
                 loadRecords();
                 loadDateRecords();
                 loadMyIncomeStatsForDate(appState.currentViewDate);
+                updateRecycleCount();
+                renderRecycleTable();
                 
-                showToast('记录已删除');
+                showToast('记录已删除，可在回收站找回');
                 showUndoToast();
+            }
+        }
+        
+        // 批量删除
+        function batchDelete() {
+            if (appState.selectedRecords.size === 0) {
+                showToast('请先选择要删除的记录', true);
+                return;
+            }
+            
+            if (confirm(`确定要删除选中的 ${appState.selectedRecords.size} 条记录吗？记录将移至回收站。`)) {
+                // 获取选中的记录
+                const selectedRecordsData = appState.records.filter(record => 
+                    appState.selectedRecords.has(record.id)
+                );
+                
+                // 从主记录中移除
+                appState.records = appState.records.filter(record => 
+                    !appState.selectedRecords.has(record.id)
+                );
+                
+                // 添加到回收站
+                selectedRecordsData.forEach(record => {
+                    appState.recycleBin.unshift({
+                        ...record,
+                        deletedAt: new Date().toISOString(),
+                        originalIndex: appState.records.length
+                    });
+                });
+                
+                // 清空选择
+                clearSelection();
+                
+                // 保存并刷新
+                saveLocalData();
+                updatePersonFilter();
+                updateYearFilter();
+                loadRecords();
+                loadDateRecords();
+                loadMyIncomeStatsForDate(appState.currentViewDate);
+                updateRecycleCount();
+                renderRecycleTable();
+                
+                showToast(`已将 ${selectedRecordsData.length} 条记录移至回收站`);
             }
         }
         
@@ -2148,14 +2428,11 @@
                 appState.records.push(...appState.deletedRecord.records);
             }
             
-            // 重新排序
             appState.records.sort((a, b) => new Date(b.date) - new Date(a.date));
             
-            // 清除删除记录
             appState.deletedRecord = null;
             hideUndoToast();
             
-            // 保存并刷新
             saveLocalData();
             updatePersonFilter();
             updateYearFilter();
@@ -2171,7 +2448,6 @@
             const tbody = elements.recordsBody;
             const container = elements.summaryStats;
             
-            // 按日期分组
             const recordsByDate = {};
             records.forEach(record => {
                 if (!recordsByDate[record.date]) {
@@ -2180,36 +2456,29 @@
                 recordsByDate[record.date].push(record);
             });
             
-            // 计算每天的我的收支
             const myIncomeRecords = [];
             
             Object.keys(recordsByDate).forEach(date => {
                 const dateRecords = recordsByDate[date];
                 
-                // 计算澳门收支
                 const macauUpRecords = dateRecords.filter(r => r.category === 'macau' && r.subtype === 'up');
                 const macauDownRecords = dateRecords.filter(r => r.category === 'macau' && r.subtype === 'down');
                 
                 const macauUpTotal = calculateStats(macauUpRecords);
                 const macauDownTotal = calculateStats(macauDownRecords);
                 
-                // 澳门我的收支 = 澳门下家总和 - 澳门上家总和
                 const macauMyIncome = macauDownTotal.profit - macauUpTotal.profit;
                 
-                // 计算粤港收支
                 const guangdongUpRecords = dateRecords.filter(r => r.category === 'guangdong' && r.subtype === 'up');
                 const guangdongDownRecords = dateRecords.filter(r => r.category === 'guangdong' && r.subtype === 'down');
                 
                 const guangdongUpTotal = calculateStats(guangdongUpRecords);
                 const guangdongDownTotal = calculateStats(guangdongDownRecords);
                 
-                // 粤港我的收支 = 粤港下家总和 - 粤港上家总和
                 const guangdongMyIncome = guangdongDownTotal.profit - guangdongUpTotal.profit;
                 
-                // 计算粤港上家总利润
                 const guangdongUpProfit = calculateGuangdongUpProfit(guangdongUpRecords);
                 
-                // 总我的收支
                 const totalMyIncome = macauMyIncome + guangdongMyIncome;
                 
                 if (totalMyIncome !== 0) {
@@ -2225,7 +2494,6 @@
                 }
             });
             
-            // 按日期降序排序（最新日期排上面）
             myIncomeRecords.sort((a, b) => new Date(b.date) - new Date(a.date));
             
             if (myIncomeRecords.length === 0) {
@@ -2273,7 +2541,6 @@
             
             tbody.innerHTML = html;
             
-            // 计算统计
             const myIncomeStats = calculateStats(myIncomeRecords);
             const timeLabel = selectedYear === 'all' ? '全部' : `${selectedYear}年${selectedMonth === 'all' ? '' : selectedMonth + '月'}`;
             const isIncome = myIncomeStats.profit >= 0;
@@ -2305,7 +2572,7 @@
             `;
         }
         
-        // 渲染记录表格 - 按日期降序排列
+        // 渲染记录表格
         function renderRecordsTable(records) {
             const tbody = elements.recordsBody;
             
@@ -2314,7 +2581,6 @@
                 return;
             }
             
-            // 按日期降序排序（最新日期排上面）
             records.sort((a, b) => new Date(b.date) - new Date(a.date));
             
             let html = '';
@@ -2363,7 +2629,6 @@
         function renderSummaryStats(records, selectedYear, selectedMonth, filterCategory) {
             const container = elements.summaryStats;
             
-            // 按分类分开统计
             const macauUpRecords = records.filter(r => r.category === 'macau' && r.subtype === 'up');
             const macauDownRecords = records.filter(r => r.category === 'macau' && r.subtype === 'down');
             
@@ -2382,11 +2647,9 @@
             
             const allStats = calculateStats(allRecords);
             
-            // 计算我的收支
             const macauMyIncome = macauDownTotal.profit - macauUpTotal.profit;
             const guangdongMyIncome = guangdongDownTotal.profit - guangdongUpTotal.profit;
             
-            // 计算粤港上家总利润
             const guangdongUpProfit = calculateGuangdongUpProfit(guangdongUpRecords);
             
             container.innerHTML = '';
@@ -2520,6 +2783,15 @@
             }
             
             if (confirm(`确定要清除本月的所有记录吗？\n将删除 ${monthRecords.length} 条记录\n此操作不可恢复！`)) {
+                // 将要删除的记录移到回收站而不是直接删除
+                monthRecords.forEach(record => {
+                    appState.recycleBin.unshift({
+                        ...record,
+                        deletedAt: new Date().toISOString(),
+                        originalIndex: appState.records.indexOf(record)
+                    });
+                });
+                
                 appState.records = appState.records.filter(record => {
                     const recordDate = new Date(record.date);
                     const recordYear = recordDate.getFullYear();
@@ -2533,8 +2805,10 @@
                 loadRecords();
                 loadDateRecords();
                 loadMyIncomeStatsForDate(appState.currentViewDate);
+                updateRecycleCount();
+                renderRecycleTable();
                 
-                showToast(`✅ 已清除本月 ${monthRecords.length} 条记录`);
+                showToast(`已将本月 ${monthRecords.length} 条记录移至回收站`);
             }
         }
         
@@ -2546,15 +2820,27 @@
             }
             
             if (confirm(`确定要清空所有数据吗？\n将删除 ${appState.records.length} 条记录\n此操作不可恢复！`)) {
+                // 将要删除的记录移到回收站
+                appState.records.forEach(record => {
+                    appState.recycleBin.unshift({
+                        ...record,
+                        deletedAt: new Date().toISOString(),
+                        originalIndex: appState.records.indexOf(record)
+                    });
+                });
+                
                 appState.records = [];
+                
                 saveLocalData();
                 updatePersonFilter();
                 updateYearFilter();
                 loadRecords();
                 loadDateRecords();
                 loadMyIncomeStatsForDate(appState.currentViewDate);
+                updateRecycleCount();
+                renderRecycleTable();
                 
-                showToast('✅ 数据已清空');
+                showToast(`已将 ${appState.records.length} 条记录移至回收站`);
             }
         }
         
@@ -2567,8 +2853,9 @@
             
             const data = {
                 records: appState.records,
+                recycleBin: appState.recycleBin,
                 exportedAt: new Date().toISOString(),
-                version: '25.0'
+                version: '28.0'
             };
             
             const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -2576,7 +2863,7 @@
             const a = document.createElement('a');
             
             a.href = url;
-            a.download = `收支数据_${new Date().toISOString().split('T')[0]}.json`;
+            a.download = `收支数据_${getCurrentDateChina()}.json`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -2602,12 +2889,15 @@
                         
                         if (confirm(`确定要导入数据吗？\n这将覆盖当前所有数据。\n包含：${data.records?.length || 0}条记录`)) {
                             appState.records = data.records || [];
+                            appState.recycleBin = data.recycleBin || [];
                             saveLocalData();
                             updatePersonFilter();
                             updateYearFilter();
                             loadRecords();
                             loadDateRecords();
                             loadMyIncomeStatsForDate(appState.currentViewDate);
+                            updateRecycleCount();
+                            renderRecycleTable();
                             showToast('✅ 数据导入成功');
                         }
                     } catch (error) {
@@ -2618,6 +2908,270 @@
             };
             
             input.click();
+        }
+        
+        // 回收站相关功能
+        function openRecyclePanel() {
+            elements.recyclePanel.classList.add('show');
+            renderRecycleTable();
+            updateRecycleStats();
+        }
+        
+        function closeRecyclePanel() {
+            elements.recyclePanel.classList.remove('show');
+        }
+        
+        function updateRecycleCount() {
+            elements.recycleCount.textContent = appState.recycleBin.length;
+        }
+        
+        function updateRecycleStats() {
+            const total = appState.recycleBin.length;
+            const today = getCurrentDateChina();
+            const weekAgo = new Date();
+            weekAgo.setDate(weekAgo.getDate() - 7);
+            const weekAgoStr = formatDateChina(weekAgo);
+            
+            const todayCount = appState.recycleBin.filter(item => 
+                item.deletedAt.split('T')[0] === today
+            ).length;
+            
+            const weekCount = appState.recycleBin.filter(item => 
+                item.deletedAt.split('T')[0] >= weekAgoStr
+            ).length;
+            
+            const size = new Blob([JSON.stringify(appState.recycleBin)]).size;
+            const sizeKB = (size / 1024).toFixed(1);
+            
+            elements.recycleTotal.textContent = total;
+            elements.recycleToday.textContent = todayCount;
+            elements.recycleWeek.textContent = weekCount;
+            elements.recycleSize.textContent = sizeKB + 'KB';
+        }
+        
+        function renderRecycleTable() {
+            const tbody = elements.recycleBody;
+            const searchTerm = elements.recycleSearch.value.toLowerCase().trim();
+            
+            let recycleRecords = appState.recycleBin;
+            
+            // 搜索过滤
+            if (searchTerm) {
+                recycleRecords = recycleRecords.filter(record =>
+                    record.name.toLowerCase().includes(searchTerm) ||
+                    (record.note && record.note.toLowerCase().includes(searchTerm)) ||
+                    record.date.includes(searchTerm)
+                );
+            }
+            
+            if (recycleRecords.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" class="empty-state">回收站为空</td></tr>';
+                return;
+            }
+            
+            let html = '';
+            
+            recycleRecords.forEach((record, index) => {
+                const isIncome = record.amount > 0;
+                const categoryLabel = getCategoryLabel(record.category, record.subtype);
+                const deletedTime = new Date(record.deletedAt).toLocaleString('zh-CN');
+                const originalDate = record.date;
+                
+                html += `
+                    <tr>
+                        <td><input type="checkbox" class="checkbox" value="${record.id}" id="recycle-${record.id}"></td>
+                        <td><span class="deleted-time">${deletedTime}</span></td>
+                        <td>${originalDate}</td>
+                        <td><strong>${record.name}</strong></td>
+                        <td>
+                            <span class="category-badge ${record.subtype ? record.category + '-' + record.subtype : record.category}">
+                                ${categoryLabel}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="type-badge ${isIncome ? 'type-income' : 'type-expense'}">
+                                ${isIncome ? '收入' : '支出'}
+                            </span>
+                        </td>
+                        <td class="${isIncome ? 'stat-income' : 'stat-expense'}">
+                            ${isIncome ? '+' : ''}¥${Math.abs(record.amount).toFixed(2)}
+                        </td>
+                        <td>${record.note || '-'}</td>
+                        <td>
+                            <button class="action-btn restore" onclick="restoreRecord('${record.id}')">还原</button>
+                            <button class="action-btn delete-permanent" onclick="permanentDelete('${record.id}')">彻底删除</button>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            tbody.innerHTML = html;
+        }
+        
+        function searchRecycleRecords() {
+            renderRecycleTable();
+        }
+        
+        function toggleRecycleSelectAll() {
+            const checkboxes = document.querySelectorAll('#recycle-body input[type="checkbox"]:not(#recycle-select-all)');
+            const selectAllCheckbox = elements.recycleSelectAll;
+            
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = selectAllCheckbox.checked;
+            });
+        }
+        
+        function selectAllRecycle() {
+            const checkboxes = document.querySelectorAll('#recycle-body input[type="checkbox"]:not(#recycle-select-all)');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = true;
+            });
+        }
+        
+        function restoreRecord(recordId) {
+            const recordIndex = appState.recycleBin.findIndex(r => r.id === recordId);
+            if (recordIndex === -1) return;
+            
+            const record = appState.recycleBin[recordIndex];
+            
+            // 恢复到主记录
+            appState.records.unshift({
+                id: record.id,
+                date: record.date,
+                name: record.name,
+                category: record.category,
+                subtype: record.subtype,
+                type: record.type,
+                amount: record.amount,
+                note: record.note,
+                createdAt: record.createdAt
+            });
+            
+            // 从回收站移除
+            appState.recycleBin.splice(recordIndex, 1);
+            
+            saveLocalData();
+            updatePersonFilter();
+            updateYearFilter();
+            loadRecords();
+            loadDateRecords();
+            loadMyIncomeStatsForDate(appState.currentViewDate);
+            updateRecycleCount();
+            renderRecycleTable();
+            updateRecycleStats();
+            
+            showToast('记录已还原');
+        }
+        
+        function restoreSelected() {
+            const checkboxes = document.querySelectorAll('#recycle-body input[type="checkbox"]:not(#recycle-select-all):checked');
+            if (checkboxes.length === 0) {
+                showToast('请先选择要还原的记录', true);
+                return;
+            }
+            
+            const recordIds = Array.from(checkboxes).map(cb => cb.value);
+            
+            // 恢复选中的记录
+            recordIds.forEach(recordId => {
+                const recordIndex = appState.recycleBin.findIndex(r => r.id === recordId);
+                if (recordIndex !== -1) {
+                    const record = appState.recycleBin[recordIndex];
+                    appState.records.unshift({
+                        id: record.id,
+                        date: record.date,
+                        name: record.name,
+                        category: record.category,
+                        subtype: record.subtype,
+                        type: record.type,
+                        amount: record.amount,
+                        note: record.note,
+                        createdAt: record.createdAt
+                    });
+                    appState.recycleBin.splice(recordIndex, 1);
+                }
+            });
+            
+            saveLocalData();
+            updatePersonFilter();
+            updateYearFilter();
+            loadRecords();
+            loadDateRecords();
+            loadMyIncomeStatsForDate(appState.currentViewDate);
+            updateRecycleCount();
+            renderRecycleTable();
+            updateRecycleStats();
+            
+            showToast(`已还原 ${recordIds.length} 条记录`);
+        }
+        
+        function restoreAll() {
+            if (appState.recycleBin.length === 0) {
+                showToast('回收站为空', true);
+                return;
+            }
+            
+            if (confirm(`确定要还原回收站中的所有 ${appState.recycleBin.length} 条记录吗？`)) {
+                // 将所有记录恢复到主记录
+                appState.recycleBin.forEach(record => {
+                    appState.records.unshift({
+                        id: record.id,
+                        date: record.date,
+                        name: record.name,
+                        category: record.category,
+                        subtype: record.subtype,
+                        type: record.type,
+                        amount: record.amount,
+                        note: record.note,
+                        createdAt: record.createdAt
+                    });
+                });
+                
+                appState.recycleBin = [];
+                
+                saveLocalData();
+                updatePersonFilter();
+                updateYearFilter();
+                loadRecords();
+                loadDateRecords();
+                loadMyIncomeStatsForDate(appState.currentViewDate);
+                updateRecycleCount();
+                renderRecycleTable();
+                updateRecycleStats();
+                
+                showToast(`已还原所有 ${appState.records.length} 条记录`);
+            }
+        }
+        
+        function permanentDelete(recordId) {
+            if (confirm('确定要彻底删除这条记录吗？此操作不可恢复！')) {
+                appState.recycleBin = appState.recycleBin.filter(r => r.id !== recordId);
+                
+                saveLocalData();
+                updateRecycleCount();
+                renderRecycleTable();
+                updateRecycleStats();
+                
+                showToast('记录已彻底删除');
+            }
+        }
+        
+        function emptyRecycleBin() {
+            if (appState.recycleBin.length === 0) {
+                showToast('回收站已经为空', true);
+                return;
+            }
+            
+            if (confirm(`确定要清空回收站吗？将永久删除 ${appState.recycleBin.length} 条记录！`)) {
+                appState.recycleBin = [];
+                
+                saveLocalData();
+                updateRecycleCount();
+                renderRecycleTable();
+                updateRecycleStats();
+                
+                showToast('回收站已清空');
+            }
         }
     </script>
 </body>
