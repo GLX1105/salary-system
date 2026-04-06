@@ -970,7 +970,7 @@
             const data = {
                 records: appState.records,
                 savedAt: new Date().toISOString(),
-                version: '21.0'
+                version: '22.0'
             };
             
             try {
@@ -1119,6 +1119,9 @@
             
             appState.currentViewDate = selectedDate;
             const dateRecords = appState.records.filter(record => record.date === selectedDate);
+            
+            // 按日期降序排序（最新日期排上面）
+            dateRecords.sort((a, b) => new Date(b.date) - new Date(a.date));
             
             renderDateRecordsTable(dateRecords);
             loadMyIncomeStatsForDate(selectedDate);
@@ -1367,7 +1370,7 @@
             }
         }
         
-        // 加载记录
+        // 加载记录 - 修改后按日期降序排列
         function loadRecords() {
             const selectedYear = elements.selectYear.value;
             const selectedMonth = elements.selectMonth.value;
@@ -1415,6 +1418,9 @@
             if (filterPerson !== 'all') {
                 filteredRecords = filteredRecords.filter(record => record.name === filterPerson);
             }
+            
+            // 按日期降序排序（最新日期排上面）
+            filteredRecords.sort((a, b) => new Date(b.date) - new Date(a.date));
             
             renderRecordsTable(filteredRecords);
             renderSummaryStats(filteredRecords, selectedYear, selectedMonth, filterCategory);
@@ -1479,8 +1485,8 @@
                 }
             });
             
-            // 按日期排序
-            myIncomeRecords.sort((a, b) => b.date.localeCompare(a.date));
+            // 按日期降序排序（最新日期排上面）
+            myIncomeRecords.sort((a, b) => new Date(b.date) - new Date(a.date));
             
             if (myIncomeRecords.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="8" class="empty-state">暂无我的收支记录</td></tr>';
@@ -1558,7 +1564,7 @@
             `;
         }
         
-        // 渲染记录表格
+        // 渲染记录表格 - 修改后按日期降序排列
         function renderRecordsTable(records) {
             const tbody = elements.recordsBody;
             
@@ -1566,6 +1572,9 @@
                 tbody.innerHTML = '<tr><td colspan="8" class="empty-state">暂无记录</td></tr>';
                 return;
             }
+            
+            // 按日期降序排序（最新日期排上面）
+            records.sort((a, b) => new Date(b.date) - new Date(a.date));
             
             let html = '';
             
@@ -1838,7 +1847,7 @@
             const data = {
                 records: appState.records,
                 exportedAt: new Date().toISOString(),
-                version: '21.0'
+                version: '22.0'
             };
             
             const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
