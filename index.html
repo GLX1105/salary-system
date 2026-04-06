@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>个人收支管理系统 - 时间筛选版</title>
+    <title>个人收支管理系统 - 日期选择版</title>
     <style>
         * {
             margin: 0;
@@ -312,6 +312,8 @@
         /* 表格样式 */
         .table-container {
             overflow-x: auto;
+            overflow-y: auto;
+            max-height: 400px;
             margin-top: 10px;
             border-radius: 5px;
             border: 1px solid var(--border);
@@ -325,6 +327,9 @@
         
         .data-table thead {
             background: #f8f9fa;
+            position: sticky;
+            top: 0;
+            z-index: 10;
         }
         
         .data-table th {
@@ -390,6 +395,28 @@
         }
         
         .filter-select {
+            padding: 4px 6px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-size: 10px;
+            background: white;
+        }
+        
+        /* 日期选择组 */
+        .date-selector {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 10px;
+        }
+        
+        .date-selector label {
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--dark);
+        }
+        
+        .date-selector input {
             padding: 4px 6px;
             border: 1px solid var(--border);
             border-radius: 4px;
@@ -621,7 +648,7 @@
             <div class="nav-left">
                 <div class="nav-icon">💰</div>
                 <div>
-                    <div class="nav-title">个人收支管理系统 - 时间筛选版</div>
+                    <div class="nav-title">个人收支管理系统 - 日期选择版</div>
                     <div class="nav-subtitle">澳门 & 粤港 - 下家总和减去上家总和=我的收支 | 粤港上家利润10%</div>
                 </div>
             </div>
@@ -706,13 +733,20 @@
                     </div>
                 </div>
                 
-                <!-- 当天收支记录表格 -->
+                <!-- 日期收支记录表格 -->
                 <div class="card">
                     <div class="card-header primary">
-                        <div class="card-title">📊 当天收支记录</div>
+                        <div class="card-title">📊 日期收支记录</div>
                     </div>
                     <div class="card-body">
-                        <div class="table-container">
+                        <!-- 日期选择器 -->
+                        <div class="date-selector">
+                            <label for="view-date">选择日期：</label>
+                            <input type="date" id="view-date" onchange="loadDateRecords()">
+                            <button class="btn btn-outline btn-sm" onclick="setTodayDate()" style="padding: 2px 6px; font-size: 9px;">今天</button>
+                        </div>
+                        
+                        <div class="table-container" style="max-height: 200px;">
                             <table class="data-table">
                                 <thead>
                                     <tr>
@@ -725,9 +759,9 @@
                                         <th>操作</th>
                                     </tr>
                                 </thead>
-                                <tbody id="today-records-body">
+                                <tbody id="date-records-body">
                                     <tr>
-                                        <td colspan="7" class="empty-state">暂无当天记录</td>
+                                        <td colspan="7" class="empty-state">请选择日期查看记录</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -738,7 +772,7 @@
                 <!-- 当天我的收支统计 -->
                 <div class="card">
                     <div class="card-header primary">
-                        <div class="card-title">💰 当天我的收支统计</div>
+                        <div class="card-title">💰 选中日期我的收支统计</div>
                     </div>
                     <div class="card-body">
                         <div id="my-income-stats" class="stats-grid">
@@ -801,7 +835,7 @@
                             </div>
                         </div>
                         
-                        <!-- 表格 -->
+                        <!-- 表格 - 已添加垂直滚动条 -->
                         <div class="table-container">
                             <table class="data-table">
                                 <thead>
@@ -840,7 +874,8 @@
             records: [],
             selectedCategory: 'macau',
             selectedSubtype: 'up',
-            selectedPerson: null
+            selectedPerson: null,
+            currentViewDate: new Date().toISOString().split('T')[0] // 当前查看的日期
         };
         
         // DOM元素引用
@@ -850,14 +885,15 @@
             recordType: document.getElementById('record-type'),
             recordAmount: document.getElementById('record-amount'),
             recordNote: document.getElementById('record-note'),
-            todayRecordsBody: document.getElementById('today-records-body'),
+            dateRecordsBody: document.getElementById('date-records-body'),
             recordsBody: document.getElementById('records-body'),
             summaryStats: document.getElementById('summary-stats'),
             myIncomeStats: document.getElementById('my-income-stats'),
             selectYear: document.getElementById('select-year'),
             selectMonth: document.getElementById('select-month'),
             filterCategory: document.getElementById('filter-category'),
-            filterPerson: document.getElementById('filter-person')
+            filterPerson: document.getElementById('filter-person'),
+            viewDate: document.getElementById('view-date')
         };
         
         // 工具函数
@@ -901,6 +937,8 @@
         function init() {
             const today = new Date().toISOString().split('T')[0];
             elements.recordDate.value = today;
+            elements.viewDate.value = today; // 设置日期选择器默认值为今天
+            appState.currentViewDate = today;
             
             loadLocalData();
         }
@@ -934,7 +972,7 @@
             const data = {
                 records: appState.records,
                 savedAt: new Date().toISOString(),
-                version: '18.0'
+                version: '20.0'
             };
             
             try {
@@ -954,8 +992,8 @@
                     updatePersonFilter();
                     updateYearFilter();
                     loadRecords();
-                    loadTodayRecords();
-                    loadMyIncomeStats();
+                    loadDateRecords(); // 加载日期记录
+                    loadMyIncomeStatsForDate(appState.currentViewDate); // 加载选中日期的统计
                 }
             } catch (error) {
                 console.error('加载本地数据失败:', error);
@@ -1061,26 +1099,39 @@
             updatePersonFilter();
             updateYearFilter();
             loadRecords();
-            loadTodayRecords();
-            loadMyIncomeStats();
+            loadDateRecords();
+            loadMyIncomeStatsForDate(appState.currentViewDate);
             
             showToast('记录已保存');
         }
         
-        // 加载当天记录
-        function loadTodayRecords() {
+        // 设置日期为今天
+        function setTodayDate() {
             const today = new Date().toISOString().split('T')[0];
-            const todayRecords = appState.records.filter(record => record.date === today);
-            
-            renderTodayRecordsTable(todayRecords);
+            elements.viewDate.value = today;
+            appState.currentViewDate = today;
+            loadDateRecords();
+            loadMyIncomeStatsForDate(today);
         }
         
-        // 渲染当天记录表格
-        function renderTodayRecordsTable(records) {
-            const tbody = elements.todayRecordsBody;
+        // 加载指定日期的记录
+        function loadDateRecords() {
+            const selectedDate = elements.viewDate.value;
+            if (!selectedDate) return;
+            
+            appState.currentViewDate = selectedDate;
+            const dateRecords = appState.records.filter(record => record.date === selectedDate);
+            
+            renderDateRecordsTable(dateRecords);
+            loadMyIncomeStatsForDate(selectedDate);
+        }
+        
+        // 渲染日期记录表格
+        function renderDateRecordsTable(records) {
+            const tbody = elements.dateRecordsBody;
             
             if (records.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" class="empty-state">暂无当天记录</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="7" class="empty-state">该日期暂无记录</td></tr>';
                 return;
             }
             
@@ -1092,8 +1143,6 @@
                 const profit = calculateProfit(record);
                 const isProfit = profit >= 0;
                 const profitClass = isProfit ? 'stat-profit' : 'stat-expense';
-                const profitHintClass = isProfit ? 'profit-hint' : 'expense-hint';
-                const profitText = isProfit ? `收入 ¥${Math.abs(profit).toFixed(2)}` : `支出 ¥${Math.abs(profit).toFixed(2)}`;
                 
                 html += `
                     <tr>
@@ -1125,14 +1174,13 @@
             tbody.innerHTML = html;
         }
         
-        // 加载我的收支统计
-        function loadMyIncomeStats() {
-            const today = new Date().toISOString().split('T')[0];
-            const todayRecords = appState.records.filter(record => record.date === today);
+        // 加载选中日期的我的收支统计
+        function loadMyIncomeStatsForDate(date) {
+            const dateRecords = appState.records.filter(record => record.date === date);
             
             // 计算澳门收支
-            const macauUpRecords = todayRecords.filter(r => r.category === 'macau' && r.subtype === 'up');
-            const macauDownRecords = todayRecords.filter(r => r.category === 'macau' && r.subtype === 'down');
+            const macauUpRecords = dateRecords.filter(r => r.category === 'macau' && r.subtype === 'up');
+            const macauDownRecords = dateRecords.filter(r => r.category === 'macau' && r.subtype === 'down');
             
             const macauUpTotal = calculateStats(macauUpRecords);
             const macauDownTotal = calculateStats(macauDownRecords);
@@ -1141,8 +1189,8 @@
             const macauMyIncome = macauDownTotal.profit - macauUpTotal.profit;
             
             // 计算粤港收支
-            const guangdongUpRecords = todayRecords.filter(r => r.category === 'guangdong' && r.subtype === 'up');
-            const guangdongDownRecords = todayRecords.filter(r => r.category === 'guangdong' && r.subtype === 'down');
+            const guangdongUpRecords = dateRecords.filter(r => r.category === 'guangdong' && r.subtype === 'up');
+            const guangdongDownRecords = dateRecords.filter(r => r.category === 'guangdong' && r.subtype === 'down');
             
             const guangdongUpTotal = calculateStats(guangdongUpRecords);
             const guangdongDownTotal = calculateStats(guangdongDownRecords);
@@ -1169,7 +1217,7 @@
                 },
                 guangdongUpProfit: guangdongUpProfit,
                 total: totalMyIncome
-            }, today);
+            }, date);
         }
         
         // 计算粤港上家总利润
@@ -1206,7 +1254,7 @@
             container.innerHTML += `
                 <div class="stat-card">
                     <div class="stat-header">
-                        <div class="stat-title">澳门我的收支</div>
+                        <div class="stat-title">澳门收支统计</div>
                         <div class="stat-amount ${macauColorClass}">
                             ${macauIsIncome ? '+' : ''}¥${Math.abs(stats.macau.my).toFixed(2)}
                         </div>
@@ -1246,7 +1294,7 @@
             container.innerHTML += `
                 <div class="stat-card">
                     <div class="stat-header">
-                        <div class="stat-title">粤港我的收支</div>
+                        <div class="stat-title">粤港收支统计</div>
                         <div class="stat-amount ${guangdongColorClass}">
                             ${guangdongIsIncome ? '+' : ''}¥${Math.abs(stats.guangdong.my).toFixed(2)}
                         </div>
@@ -1271,7 +1319,7 @@
             container.innerHTML += `
                 <div class="stat-card">
                     <div class="stat-header">
-                        <div class="stat-title">总计我的收支</div>
+                        <div class="stat-title">总计收支统计</div>
                         <div class="stat-amount ${totalColorClass}">
                             ${totalIsIncome ? '+' : ''}¥${Math.abs(stats.total).toFixed(2)}
                         </div>
@@ -1529,8 +1577,6 @@
                 const profit = calculateProfit(record);
                 const isProfit = profit >= 0;
                 const profitClass = isProfit ? 'stat-profit' : 'stat-expense';
-                const profitHintClass = isProfit ? 'profit-hint' : 'expense-hint';
-                const profitText = isProfit ? `收入 ¥${Math.abs(profit).toFixed(2)}` : `支出 ¥${Math.abs(profit).toFixed(2)}`;
                 
                 html += `
                     <tr>
@@ -1713,8 +1759,8 @@
                 updatePersonFilter();
                 updateYearFilter();
                 loadRecords();
-                loadTodayRecords();
-                loadMyIncomeStats();
+                loadDateRecords();
+                loadMyIncomeStatsForDate(appState.currentViewDate);
                 
                 showToast('记录已删除');
             } else {
@@ -1757,8 +1803,8 @@
                 updatePersonFilter();
                 updateYearFilter();
                 loadRecords();
-                loadTodayRecords();
-                loadMyIncomeStats();
+                loadDateRecords();
+                loadMyIncomeStatsForDate(appState.currentViewDate);
                 
                 showToast(`✅ 已清除本月 ${monthRecords.length} 条记录`);
             }
@@ -1777,8 +1823,8 @@
                 updatePersonFilter();
                 updateYearFilter();
                 loadRecords();
-                loadTodayRecords();
-                loadMyIncomeStats();
+                loadDateRecords();
+                loadMyIncomeStatsForDate(appState.currentViewDate);
                 
                 showToast('✅ 数据已清空');
             }
@@ -1794,7 +1840,7 @@
             const data = {
                 records: appState.records,
                 exportedAt: new Date().toISOString(),
-                version: '18.0'
+                version: '20.0'
             };
             
             const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -1832,8 +1878,8 @@
                             updatePersonFilter();
                             updateYearFilter();
                             loadRecords();
-                            loadTodayRecords();
-                            loadMyIncomeStats();
+                            loadDateRecords();
+                            loadMyIncomeStatsForDate(appState.currentViewDate);
                             showToast('✅ 数据导入成功');
                         }
                     } catch (error) {
