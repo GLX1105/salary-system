@@ -811,6 +811,7 @@
                                     <option value="macau-down">澳门下家</option>
                                     <option value="guangdong-up">粤港上家</option>
                                     <option value="guangdong-down">粤港下家</option>
+                                    <option value="my-income">我的收支</option>
                                 </select>
                             </div>
                             <div class="filter-group">
@@ -954,6 +955,8 @@
         
         // 初始化应用
         function init() {
+            console.log('正在初始化应用...');
+            
             const today = new Date().toISOString().split('T')[0];
             elements.recordDate.value = today;
             elements.specificDate.value = today;
@@ -967,6 +970,8 @@
             
             // 加载指定日期记录
             loadSpecificDateRecords();
+            
+            console.log('应用初始化完成');
         }
         
         // 设置事件监听器
@@ -1094,7 +1099,7 @@
             const data = {
                 records: appState.records,
                 savedAt: new Date().toISOString(),
-                version: '3.0'
+                version: '2.0'
             };
             
             try {
@@ -1172,6 +1177,28 @@
         function calculateProfit(record) {
             if (record.category === 'guangdong' && record.subtype === 'up') {
                 return record.amount * 0.1;
+            }
+            return 0;
+        }
+        
+        // 计算记录对我的收支的贡献
+        function calculateMyIncomeContribution(record) {
+            if (record.category === 'macau' && record.subtype === 'up') {
+                // 澳门上家：支出是收入，收入是支出
+                return -record.amount; // 上家的收入是负贡献，支出是正贡献
+            } else if (record.category === 'macau' && record.subtype === 'down') {
+                // 澳门下家：收入是收入，支出是支出
+                return record.amount; // 下家的收入是正贡献，支出是负贡献
+            } else if (record.category === 'guangdong' && record.subtype === 'up') {
+                // 粤港上家：计算利润
+                if (record.amount > 0) { // 收入
+                    return -record.amount + (record.amount * 0.1); // 上家收入是负贡献，但加上利润
+                } else { // 支出
+                    return -record.amount; // 上家支出是正贡献
+                }
+            } else if (record.category === 'guangdong' && record.subtype === 'down') {
+                // 粤港下家：收入是收入，支出是支出
+                return record.amount; // 下家的收入是正贡献，支出是负贡献
             }
             return 0;
         }
@@ -1258,9 +1285,15 @@
                 return;
             }
             
-            // 修改：不再按日期排序，直接获取最新的18条记录
-            // 因为新记录是使用unshift添加的，所以前18条就是最新的记录
-            const recentRecords = appState.records.slice(0, 18);
+            // 获取最近18条记录（按日期倒序，最新的在最上面）
+            const recentRecords = [...appState.records]
+                .sort((a, b) => {
+                    if (b.date !== a.date) {
+                        return b.date.localeCompare(a.date);
+                    }
+                    return b.id.localeCompare(a.id);
+                })
+                .slice(0, 18);
             
             if (recentRecords.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="6" class="empty-state">暂无记录</td></tr>';
@@ -1322,8 +1355,6 @@
             
             let html = '';
             
-            // 修改：指定日期记录不按时间排序，按录入顺序显示
-            // 数组的顺序就是录入顺序，最新录入的显示在最上面
             records.forEach(record => {
                 const isIncome = record.amount > 0;
                 const categoryLabel = getCategoryLabel(record.category, record.subtype);
@@ -1525,14 +1556,9 @@
             return totalProfit;
         }
         
-        // 加载记录
-        function loadRecords() {
-            const selectedYear = elements.selectYear.value;
-            const selectedMonth = elements.selectMonth.value;
-            const filterCategory = elements.filterCategory.value;
-            const filterPerson = elements.filterPerson.value;
-            
-            let filteredRecords = appState.records;
+        // 筛选记录
+        function filterRecords(records, selectedYear, selectedMonth, filterCategory, filterPerson) {
+            let filteredRecords = records;
             
             // 按年份筛选
             if (selectedYear !== 'all') {
@@ -1553,7 +1579,7 @@
             }
             
             // 按分类筛选
-            if (filterCategory !== 'all') {
+            if (filterCategory !== 'all' && filterCategory !== 'my-income') {
                 if (filterCategory.includes('-')) {
                     const [category, subtype] = filterCategory.split('-');
                     filteredRecords = filteredRecords.filter(record => 
@@ -1564,20 +1590,47 @@
                 }
             }
             
+            // 按我的收支筛选
+            if (filterCategory === 'my-income') {
+                filteredRecords = filteredRecords.filter(record => {
+                    const contribution = calculateMyIncomeContribution(record);
+                    return contribution !== 0; // 筛选出对我的收支有贡献的记录
+                });
+            }
+            
             // 按人员筛选
             if (filterPerson !== 'all') {
                 filteredRecords = filteredRecords.filter(record => record.name === filterPerson);
             }
             
-            // 修改：不再按时间排序，按录入顺序显示
-            const sortedRecords = filteredRecords.slice(0, 30);
+            return filteredRecords;
+        }
+        
+        // 加载记录
+        function loadRecords() {
+            const selectedYear = elements.selectYear.value;
+            const selectedMonth = elements.selectMonth.value;
+            const filterCategory = elements.filterCategory.value;
+            const filterPerson = elements.filterPerson.value;
             
-            renderRecordsTable(sortedRecords);
+            let filteredRecords = filterRecords(appState.records, selectedYear, selectedMonth, filterCategory, filterPerson);
+            
+            // 按日期倒序排序，然后取前30条
+            const sortedRecords = [...filteredRecords]
+                .sort((a, b) => {
+                    if (b.date !== a.date) {
+                        return b.date.localeCompare(a.date);
+                    }
+                    return b.id.localeCompare(a.id);
+                })
+                .slice(0, 30);
+            
+            renderRecordsTable(sortedRecords, filterCategory);
             renderSummaryStats(filteredRecords, selectedYear, selectedMonth, filterCategory);
         }
         
         // 渲染记录表格
-        function renderRecordsTable(records) {
+        function renderRecordsTable(records, filterCategory) {
             const tbody = elements.recordsBody;
             
             if (records.length === 0) {
@@ -1593,6 +1646,7 @@
                 const profit = calculateProfit(record);
                 const isProfit = profit >= 0;
                 const profitClass = isProfit ? 'stat-profit' : 'stat-expense';
+                const contribution = calculateMyIncomeContribution(record);
                 
                 html += `
                     <tr>
@@ -1625,252 +1679,124 @@
             tbody.innerHTML = html;
         }
         
-        // 渲染统计卡片
-        function renderSummaryStats(records, selectedYear, selectedMonth, filterCategory) {
+        // 渲染汇总统计
+        function renderSummaryStats(filteredRecords, selectedYear, selectedMonth, filterCategory) {
             const container = elements.summaryStats;
             
-            // 按分类分开统计
-            const macauUpRecords = records.filter(r => r.category === 'macau' && r.subtype === 'up');
-            const macauDownRecords = records.filter(r => r.category === 'macau' && r.subtype === 'down');
-            
-            const guangdongUpRecords = records.filter(r => r.category === 'guangdong' && r.subtype === 'up');
-            const guangdongDownRecords = records.filter(r => r.category === 'guangdong' && r.subtype === 'down');
-            
-            const allRecords = records;
-            
-            const timeLabel = selectedYear === 'all' ? '全部' : `${selectedYear}年${selectedMonth === 'all' ? '' : selectedMonth + '月'}`;
-            
-            const macauUpTotal = calculateStats(macauUpRecords);
-            const macauDownTotal = calculateStats(macauDownRecords);
-            
-            const guangdongUpTotal = calculateStats(guangdongUpRecords);
-            const guangdongDownTotal = calculateStats(guangdongDownRecords);
-            
-            const allStats = calculateStats(allRecords);
-            
-            // 计算我的收支
-            const macauMyIncome = macauDownTotal.profit - macauUpTotal.profit;
-            const guangdongMyIncome = guangdongDownTotal.profit - guangdongUpTotal.profit;
-            
-            // 计算粤港上家总利润
-            const guangdongUpProfit = calculateGuangdongUpProfit(guangdongUpRecords);
-            
-            container.innerHTML = '';
-            
-            // 澳门统计卡片
-            if (filterCategory === 'all' || filterCategory.includes('macau')) {
-                const macauIsIncome = macauMyIncome >= 0;
-                const macauHintClass = macauIsIncome ? 'income-hint' : 'expense-hint';
-                
-                container.innerHTML += `
+            if (filteredRecords.length === 0) {
+                container.innerHTML = `
                     <div class="stat-card">
                         <div class="stat-header">
-                            <div class="stat-title">澳门 ${timeLabel}统计</div>
-                            <div class="stat-amount ${macauIsIncome ? 'stat-income' : 'stat-expense'}">
-                                ${macauIsIncome ? '+' : ''}¥${Math.abs(macauMyIncome).toFixed(2)}
-                            </div>
+                            <div class="stat-title">暂无数据</div>
                         </div>
-                        <div class="${macauHintClass}" style="margin-bottom: 6px;">
-                            ${macauIsIncome ? '收入' : '支出'} ¥${Math.abs(macauMyIncome).toFixed(2)}
-                        </div>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 6px;">
-                            <div>
-                                <div class="stat-label">上家</div>
-                                <div class="stat-amount ${macauUpTotal.profit >= 0 ? 'stat-income' : 'stat-expense'}">
-                                    ${macauUpTotal.profit >= 0 ? '+' : ''}¥${Math.abs(macauUpTotal.profit).toFixed(2)}
-                                </div>
-                            </div>
-                            <div>
-                                <div class="stat-label">下家</div>
-                                <div class="stat-amount ${macauDownTotal.profit >= 0 ? 'stat-income' : 'stat-expense'}">
-                                    ${macauDownTotal.profit >= 0 ? '+' : ''}¥${Math.abs(macauDownTotal.profit).toFixed(2)}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="stat-details">记录数：${macauUpTotal.count + macauDownTotal.count}条</div>
+                        <div class="empty-state">请先录入数据</div>
                     </div>
                 `;
+                return;
             }
             
-            // 粤港统计卡片
-            if (filterCategory === 'all' || filterCategory.includes('guangdong')) {
-                const guangdongIsIncome = guangdongMyIncome >= 0;
-                const guangdongHintClass = guangdongIsIncome ? 'income-hint' : 'expense-hint';
-                const guangdongUpProfitIsIncome = guangdongUpProfit >= 0;
-                const guangdongUpProfitHintClass = guangdongUpProfitIsIncome ? 'profit-hint' : 'expense-hint';
-                
-                container.innerHTML += `
+            const stats = calculateStats(filteredRecords);
+            
+            // 计算我的收支总计
+            let myIncomeTotal = 0;
+            filteredRecords.forEach(record => {
+                myIncomeTotal += calculateMyIncomeContribution(record);
+            });
+            
+            const isMyIncome = myIncomeTotal >= 0;
+            const myIncomeClass = isMyIncome ? 'stat-income' : 'stat-expense';
+            
+            // 如果筛选了"我的收支"，则只显示我的收支总计
+            if (filterCategory === 'my-income') {
+                container.innerHTML = `
                     <div class="stat-card">
                         <div class="stat-header">
-                            <div class="stat-title">粤港 ${timeLabel}统计</div>
-                            <div class="stat-amount ${guangdongIsIncome ? 'stat-income' : 'stat-expense'}">
-                                ${guangdongIsIncome ? '+' : ''}¥${Math.abs(guangdongMyIncome).toFixed(2)}
+                            <div class="stat-title">我的收支总计</div>
+                            <div class="stat-amount ${myIncomeClass}">
+                                ${isMyIncome ? '+' : ''}¥${Math.abs(myIncomeTotal).toFixed(2)}
                             </div>
                         </div>
-                        <div class="${guangdongHintClass}" style="margin-bottom: 6px;">
-                            ${guangdongIsIncome ? '收入' : '支出'} ¥${Math.abs(guangdongMyIncome).toFixed(2)}
+                        <div class="stat-details">
+                            ${selectedYear !== 'all' ? `${selectedYear}年` : ''}
+                            ${selectedMonth !== 'all' ? `${selectedMonth}月` : ''}
+                            ${filterCategory === 'my-income' ? '我的收支' : ''}
                         </div>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 6px;">
-                            <div>
-                                <div class="stat-label">上家</div>
-                                <div class="stat-amount ${guangdongUpTotal.profit >= 0 ? 'stat-income' : 'stat-expense'}">
-                                    ${guangdongUpTotal.profit >= 0 ? '+' : ''}¥${Math.abs(guangdongUpTotal.profit).toFixed(2)}
-                                </div>
-                            </div>
-                            <div>
-                                <div class="stat-label">下家</div>
-                                <div class="stat-amount ${guangdongDownTotal.profit >= 0 ? 'stat-income' : 'stat-expense'}">
-                                    ${guangdongDownTotal.profit >= 0 ? '+' : ''}¥${Math.abs(guangdongDownTotal.profit).toFixed(2)}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="${guangdongUpProfitHintClass}" style="margin-top: 6px; font-size: 10px;">
-                            上家利润(10%)：${guangdongUpProfitIsIncome ? '+' : ''}¥${Math.abs(guangdongUpProfit).toFixed(2)}
-                        </div>
-                        <div class="stat-details">记录数：${guangdongUpTotal.count + guangdongDownTotal.count}条</div>
                     </div>
                 `;
+                return;
             }
             
-            // 总统计卡片
-            const allIsIncome = allStats.profit >= 0;
-            const allHintClass = allIsIncome ? 'income-hint' : 'expense-hint';
-            
-            container.innerHTML += `
+            // 否则显示完整的统计信息
+            container.innerHTML = `
                 <div class="stat-card">
                     <div class="stat-header">
-                        <div class="stat-title">总计 ${timeLabel}统计</div>
-                        <div class="stat-amount ${allIsIncome ? 'stat-income' : 'stat-expense'}">
-                            ${allIsIncome ? '+' : ''}¥${Math.abs(allStats.profit).toFixed(2)}
+                        <div class="stat-title">收入总计</div>
+                        <div class="stat-amount stat-income">+¥${stats.income.toFixed(2)}</div>
+                    </div>
+                    <div class="stat-details">记录数：${stats.count}</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-title">支出总计</div>
+                        <div class="stat-amount stat-expense">-¥${stats.expense.toFixed(2)}</div>
+                    </div>
+                    <div class="stat-details">记录数：${stats.count}</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-title">净收入</div>
+                        <div class="stat-amount ${stats.profit >= 0 ? 'stat-income' : 'stat-expense'}">
+                            ${stats.profit >= 0 ? '+' : ''}¥${Math.abs(stats.profit).toFixed(2)}
                         </div>
                     </div>
-                    <div class="${allHintClass}" style="margin-bottom: 6px;">
-                        ${allIsIncome ? '收入' : '支出'} ¥${Math.abs(allStats.profit).toFixed(2)}
-                    </div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px;">
-                        <div>
-                            <div class="stat-label">总收入</div>
-                            <div class="stat-amount stat-income">+¥${allStats.income.toFixed(2)}</div>
-                        </div>
-                        <div>
-                            <div class="stat-label">总支出</div>
-                            <div class="stat-amount stat-expense">-¥${allStats.expense.toFixed(2)}</div>
+                    <div class="stat-details">收入 ¥${stats.income.toFixed(2)} - 支出 ¥${stats.expense.toFixed(2)}</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-title">我的收支</div>
+                        <div class="stat-amount ${myIncomeClass}">
+                            ${isMyIncome ? '+' : ''}¥${Math.abs(myIncomeTotal).toFixed(2)}
                         </div>
                     </div>
-                    <div class="stat-details">记录总数：${allStats.count}条</div>
+                    <div class="stat-details">根据分类计算</div>
                 </div>
             `;
         }
         
         // 删除记录
-        function deleteRecord(recordId) {
-            if (!confirm('确定要删除这条记录吗？此操作不可恢复！')) {
-                return;
-            }
-            
-            const index = appState.records.findIndex(record => record.id === recordId);
-            if (index !== -1) {
-                appState.records.splice(index, 1);
+        function deleteRecord(id) {
+            if (confirm('确定要删除这条记录吗？')) {
+                appState.records = appState.records.filter(record => record.id !== id);
                 saveLocalData();
                 updatePersonFilter();
                 updateYearFilter();
                 loadRecords();
                 loadRecentRecordsTable();
                 loadSpecificDateRecords();
-                
                 showToast('记录已删除');
-            } else {
-                showToast('删除失败，记录不存在', true);
-            }
-        }
-        
-        // 清除当月记录
-        function clearCurrentMonth() {
-            if (appState.records.length === 0) {
-                showToast('没有数据可清除', true);
-                return;
-            }
-            
-            const now = new Date();
-            const currentYear = now.getFullYear();
-            const currentMonth = now.getMonth() + 1;
-            
-            const monthRecords = appState.records.filter(record => {
-                const recordDate = new Date(record.date);
-                const recordYear = recordDate.getFullYear();
-                const recordMonth = recordDate.getMonth() + 1;
-                return recordYear === currentYear && recordMonth === currentMonth;
-            });
-            
-            if (monthRecords.length === 0) {
-                showToast('本月没有记录可清除', true);
-                return;
-            }
-            
-            if (confirm(`确定要清除本月的所有记录吗？\n将删除 ${monthRecords.length} 条记录\n此操作不可恢复！`)) {
-                appState.records = appState.records.filter(record => {
-                    const recordDate = new Date(record.date);
-                    const recordYear = recordDate.getFullYear();
-                    const recordMonth = recordDate.getMonth() + 1;
-                    return !(recordYear === currentYear && recordMonth === currentMonth);
-                });
-                
-                saveLocalData();
-                updatePersonFilter();
-                updateYearFilter();
-                loadRecords();
-                loadRecentRecordsTable();
-                loadSpecificDateRecords();
-                
-                showToast(`✅ 已清除本月 ${monthRecords.length} 条记录`);
-            }
-        }
-        
-        // 清空数据
-        function clearAllData() {
-            if (appState.records.length === 0) {
-                showToast('没有数据可清空', true);
-                return;
-            }
-            
-            if (confirm(`确定要清空所有数据吗？\n将删除 ${appState.records.length} 条记录\n此操作不可恢复！`)) {
-                appState.records = [];
-                saveLocalData();
-                updatePersonFilter();
-                updateYearFilter();
-                loadRecords();
-                loadRecentRecordsTable();
-                loadSpecificDateRecords();
-                
-                showToast('✅ 数据已清空');
             }
         }
         
         // 导出数据
         function exportData() {
             if (appState.records.length === 0) {
-                showToast('没有数据可导出', true);
+                showToast('没有数据可以导出', true);
                 return;
             }
             
-            const data = {
-                records: appState.records,
-                exportedAt: new Date().toISOString(),
-                version: '3.0'
-            };
+            const dataStr = JSON.stringify(appState.records, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            const exportFileDefaultName = 'finance_data_' + new Date().toISOString().split('T')[0] + '.json';
             
-            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
             
-            a.href = url;
-            a.download = `收支数据_${new Date().toISOString().split('T')[0]}.json`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            
-            showToast('✅ 数据已导出');
+            showToast('数据已导出');
         }
         
         // 导入数据
@@ -1879,27 +1805,28 @@
             input.type = 'file';
             input.accept = '.json';
             
-            input.onchange = (e) => {
-                const file = e.target.files[0];
+            input.onchange = function(event) {
+                const file = event.target.files[0];
                 if (!file) return;
                 
                 const reader = new FileReader();
-                reader.onload = (event) => {
+                reader.onload = function(e) {
                     try {
-                        const data = JSON.parse(event.target.result);
-                        
-                        if (confirm(`确定要导入数据吗？\n这将覆盖当前所有数据。\n包含：${data.records?.length || 0}条记录`)) {
-                            appState.records = data.records || [];
+                        const importedData = JSON.parse(e.target.result);
+                        if (Array.isArray(importedData)) {
+                            appState.records = importedData;
                             saveLocalData();
                             updatePersonFilter();
                             updateYearFilter();
                             loadRecords();
                             loadRecentRecordsTable();
                             loadSpecificDateRecords();
-                            showToast('✅ 数据导入成功');
+                            showToast('数据已导入，共' + importedData.length + '条记录');
+                        } else {
+                            showToast('文件格式不正确', true);
                         }
                     } catch (error) {
-                        showToast('❌ 文件格式错误', true);
+                        showToast('导入失败，文件格式错误', true);
                     }
                 };
                 reader.readAsText(file);
@@ -1908,9 +1835,56 @@
             input.click();
         }
         
-        // 初始化应用
+        // 清除当月数据
+        function clearCurrentMonth() {
+            if (!confirm('确定要清除当前月份的所有记录吗？此操作不可恢复！')) {
+                return;
+            }
+            
+            const today = new Date();
+            const currentYear = today.getFullYear().toString();
+            const currentMonth = (today.getMonth() + 1).toString().padStart(2, '0');
+            
+            const recordsBefore = appState.records.length;
+            appState.records = appState.records.filter(record => {
+                if (!record.date) return true;
+                const [year, month] = record.date.split('-');
+                return year !== currentYear || month !== currentMonth;
+            });
+            
+            const recordsAfter = appState.records.length;
+            const deletedCount = recordsBefore - recordsAfter;
+            
+            saveLocalData();
+            updatePersonFilter();
+            updateYearFilter();
+            loadRecords();
+            loadRecentRecordsTable();
+            loadSpecificDateRecords();
+            
+            showToast(`已清除${deletedCount}条当月记录`);
+        }
+        
+        // 清空所有数据
+        function clearAllData() {
+            if (!confirm('确定要清空所有数据吗？此操作不可恢复！')) {
+                return;
+            }
+            
+            appState.records = [];
+            saveLocalData();
+            updatePersonFilter();
+            updateYearFilter();
+            loadRecords();
+            loadRecentRecordsTable();
+            loadSpecificDateRecords();
+            
+            showToast('所有数据已清空');
+        }
+        
+        // 页面加载完成后初始化
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM已加载，开始初始化...');
+            console.log('DOM加载完成，开始初始化应用');
             init();
         });
     </script>
