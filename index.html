@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>个人收支管理系统 - 日期选择版</title>
+    <title>个人收支管理系统 - 优化版</title>
     <style>
         * {
             margin: 0;
@@ -317,6 +317,11 @@
             margin-top: 10px;
             border-radius: 5px;
             border: 1px solid var(--border);
+        }
+        
+        .table-container.no-scroll {
+            overflow-y: visible;
+            max-height: none;
         }
         
         .data-table {
@@ -648,7 +653,7 @@
             <div class="nav-left">
                 <div class="nav-icon">💰</div>
                 <div>
-                    <div class="nav-title">个人收支管理系统 - 日期选择版</div>
+                    <div class="nav-title">个人收支管理系统 - 优化版</div>
                     <div class="nav-subtitle">澳门 & 粤港 - 下家总和减去上家总和=我的收支 | 粤港上家利润10%</div>
                 </div>
             </div>
@@ -746,7 +751,7 @@
                             <button class="btn btn-outline btn-sm" onclick="setTodayDate()" style="padding: 2px 6px; font-size: 9px;">今天</button>
                         </div>
                         
-                        <div class="table-container" style="max-height: 200px;">
+                        <div class="table-container no-scroll">
                             <table class="data-table">
                                 <thead>
                                     <tr>
@@ -769,7 +774,7 @@
                     </div>
                 </div>
                 
-                <!-- 当天我的收支统计 -->
+                <!-- 选中日期我的收支统计 -->
                 <div class="card">
                     <div class="card-header primary">
                         <div class="card-title">💰 选中日期我的收支统计</div>
@@ -875,7 +880,7 @@
             selectedCategory: 'macau',
             selectedSubtype: 'up',
             selectedPerson: null,
-            currentViewDate: new Date().toISOString().split('T')[0] // 当前查看的日期
+            currentViewDate: new Date().toISOString().split('T')[0]
         };
         
         // DOM元素引用
@@ -937,7 +942,7 @@
         function init() {
             const today = new Date().toISOString().split('T')[0];
             elements.recordDate.value = today;
-            elements.viewDate.value = today; // 设置日期选择器默认值为今天
+            elements.viewDate.value = today;
             appState.currentViewDate = today;
             
             loadLocalData();
@@ -948,12 +953,10 @@
             appState.selectedCategory = category;
             appState.selectedSubtype = subtype;
             
-            // 更新按钮样式
             document.querySelectorAll('.category-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
             
-            // 根据选择的分类和子类型激活对应的按钮
             let activeClass = '';
             if (subtype === 'up') {
                 activeClass = `${category}-up`;
@@ -972,7 +975,7 @@
             const data = {
                 records: appState.records,
                 savedAt: new Date().toISOString(),
-                version: '20.0'
+                version: '21.0'
             };
             
             try {
@@ -989,11 +992,14 @@
                     const data = JSON.parse(saved);
                     appState.records = data.records || [];
                     
+                    // 按日期降序排列（最新的在前面）
+                    appState.records.sort((a, b) => new Date(b.date) - new Date(a.date));
+                    
                     updatePersonFilter();
                     updateYearFilter();
                     loadRecords();
-                    loadDateRecords(); // 加载日期记录
-                    loadMyIncomeStatsForDate(appState.currentViewDate); // 加载选中日期的统计
+                    loadDateRecords();
+                    loadMyIncomeStatsForDate(appState.currentViewDate);
                 }
             } catch (error) {
                 console.error('加载本地数据失败:', error);
@@ -1013,7 +1019,6 @@
                 }
             });
             
-            // 将年份排序（从大到小）
             const sortedYears = Array.from(years).sort((a, b) => b - a);
             
             sortedYears.forEach(year => {
@@ -1090,10 +1095,11 @@
             
             appState.records.unshift(record);
             
-            // 清空表单
+            // 重新按日期排序
+            appState.records.sort((a, b) => new Date(b.date) - new Date(a.date));
+            
             elements.recordAmount.value = '';
-            elements.personName.value = ''; // 清空姓名
-            // 特码不清空，除非手动修改
+            elements.personName.value = '';
             
             saveLocalData();
             updatePersonFilter();
@@ -1122,6 +1128,7 @@
             appState.currentViewDate = selectedDate;
             const dateRecords = appState.records.filter(record => record.date === selectedDate);
             
+            // 按时间排序（如果有时间的话，这里按录入顺序）
             renderDateRecordsTable(dateRecords);
             loadMyIncomeStatsForDate(selectedDate);
         }
@@ -1178,43 +1185,26 @@
         function loadMyIncomeStatsForDate(date) {
             const dateRecords = appState.records.filter(record => record.date === date);
             
-            // 计算澳门收支
             const macauUpRecords = dateRecords.filter(r => r.category === 'macau' && r.subtype === 'up');
             const macauDownRecords = dateRecords.filter(r => r.category === 'macau' && r.subtype === 'down');
             
             const macauUpTotal = calculateStats(macauUpRecords);
             const macauDownTotal = calculateStats(macauDownRecords);
-            
-            // 澳门我的收支 = 澳门下家总和 - 澳门上家总和
             const macauMyIncome = macauDownTotal.profit - macauUpTotal.profit;
             
-            // 计算粤港收支
             const guangdongUpRecords = dateRecords.filter(r => r.category === 'guangdong' && r.subtype === 'up');
             const guangdongDownRecords = dateRecords.filter(r => r.category === 'guangdong' && r.subtype === 'down');
             
             const guangdongUpTotal = calculateStats(guangdongUpRecords);
             const guangdongDownTotal = calculateStats(guangdongDownRecords);
-            
-            // 粤港我的收支 = 粤港下家总和 - 粤港上家总和
             const guangdongMyIncome = guangdongDownTotal.profit - guangdongUpTotal.profit;
             
-            // 计算粤港上家总利润
             const guangdongUpProfit = calculateGuangdongUpProfit(guangdongUpRecords);
-            
-            // 总我的收支
             const totalMyIncome = macauMyIncome + guangdongMyIncome;
             
             renderMyIncomeStats({
-                macau: {
-                    up: macauUpTotal,
-                    down: macauDownTotal,
-                    my: macauMyIncome
-                },
-                guangdong: {
-                    up: guangdongUpTotal,
-                    down: guangdongDownTotal,
-                    my: guangdongMyIncome
-                },
+                macau: { up: macauUpTotal, down: macauDownTotal, my: macauMyIncome },
+                guangdong: { up: guangdongUpTotal, down: guangdongDownTotal, my: guangdongMyIncome },
                 guangdongUpProfit: guangdongUpProfit,
                 total: totalMyIncome
             }, date);
@@ -1222,31 +1212,24 @@
         
         // 计算粤港上家总利润
         function calculateGuangdongUpProfit(guangdongUpRecords) {
-            let totalProfit = 0;
-            guangdongUpRecords.forEach(record => {
-                totalProfit += calculateProfit(record);
-            });
-            return totalProfit;
+            return guangdongUpRecords.reduce((total, record) => total + calculateProfit(record), 0);
         }
         
         // 渲染我的收支统计
         function renderMyIncomeStats(stats, date) {
             const container = elements.myIncomeStats;
-            
             container.innerHTML = '';
             
-            // 澳门我的收支卡片
+            // 澳门统计卡片
             const macauIsIncome = stats.macau.my >= 0;
             const macauColorClass = macauIsIncome ? 'stat-income' : 'stat-expense';
             const macauHintClass = macauIsIncome ? 'income-hint' : 'expense-hint';
             const macauHintText = macauIsIncome ? `收入 ¥${Math.abs(stats.macau.my).toFixed(2)}` : `支出 ¥${Math.abs(stats.macau.my).toFixed(2)}`;
             
-            // 澳门上家统计
             const macauUpIsIncome = stats.macau.up.profit >= 0;
             const macauUpColorClass = macauUpIsIncome ? 'stat-income' : 'stat-expense';
             const macauUpHintText = macauUpIsIncome ? `收入 ¥${Math.abs(stats.macau.up.profit).toFixed(2)}` : `支出 ¥${Math.abs(stats.macau.up.profit).toFixed(2)}`;
             
-            // 澳门下家统计
             const macauDownIsIncome = stats.macau.down.profit >= 0;
             const macauDownColorClass = macauDownIsIncome ? 'stat-income' : 'stat-expense';
             const macauDownHintText = macauDownIsIncome ? `收入 ¥${Math.abs(stats.macau.down.profit).toFixed(2)}` : `支出 ¥${Math.abs(stats.macau.down.profit).toFixed(2)}`;
@@ -1269,26 +1252,22 @@
                 </div>
             `;
             
-            // 粤港我的收支卡片
+            // 粤港统计卡片
             const guangdongIsIncome = stats.guangdong.my >= 0;
             const guangdongColorClass = guangdongIsIncome ? 'stat-income' : 'stat-expense';
             const guangdongHintClass = guangdongIsIncome ? 'income-hint' : 'expense-hint';
             const guangdongHintText = guangdongIsIncome ? `收入 ¥${Math.abs(stats.guangdong.my).toFixed(2)}` : `支出 ¥${Math.abs(stats.guangdong.my).toFixed(2)}`;
             
-            // 粤港上家统计
             const guangdongUpIsIncome = stats.guangdong.up.profit >= 0;
             const guangdongUpColorClass = guangdongUpIsIncome ? 'stat-income' : 'stat-expense';
             const guangdongUpHintText = guangdongUpIsIncome ? `收入 ¥${Math.abs(stats.guangdong.up.profit).toFixed(2)}` : `支出 ¥${Math.abs(stats.guangdong.up.profit).toFixed(2)}`;
             
-            // 粤港下家统计
             const guangdongDownIsIncome = stats.guangdong.down.profit >= 0;
             const guangdongDownColorClass = guangdongDownIsIncome ? 'stat-income' : 'stat-expense';
             const guangdongDownHintText = guangdongDownIsIncome ? `收入 ¥${Math.abs(stats.guangdong.down.profit).toFixed(2)}` : `支出 ¥${Math.abs(stats.guangdong.down.profit).toFixed(2)}`;
             
-            // 粤港上家利润统计
             const guangdongUpProfitIsIncome = stats.guangdongUpProfit >= 0;
             const guangdongUpProfitColorClass = guangdongUpProfitIsIncome ? 'stat-profit' : 'stat-expense';
-            const guangdongUpProfitHintClass = guangdongUpProfitIsIncome ? 'profit-hint' : 'expense-hint';
             const guangdongUpProfitHintText = guangdongUpProfitIsIncome ? `收入 ¥${Math.abs(stats.guangdongUpProfit).toFixed(2)}` : `支出 ¥${Math.abs(stats.guangdongUpProfit).toFixed(2)}`;
             
             container.innerHTML += `
@@ -1310,7 +1289,7 @@
                 </div>
             `;
             
-            // 总计我的收支卡片
+            // 总计统计卡片
             const totalIsIncome = stats.total >= 0;
             const totalColorClass = totalIsIncome ? 'stat-income' : 'stat-expense';
             const totalHintClass = totalIsIncome ? 'income-hint' : 'expense-hint';
@@ -1369,57 +1348,57 @@
             }
         }
         
-        // 加载记录
+        // 加载记录（按日期降序排列）
         function loadRecords() {
             const selectedYear = elements.selectYear.value;
             const selectedMonth = elements.selectMonth.value;
             const filterCategory = elements.filterCategory.value;
             const filterPerson = elements.filterPerson.value;
             
-            let filteredRecords = appState.records;
-            
-            // 按年份筛选
-            if (selectedYear !== 'all') {
-                filteredRecords = filteredRecords.filter(record => {
-                    if (!record.date) return false;
-                    const year = record.date.split('-')[0];
-                    return year === selectedYear;
-                });
-            }
-            
-            // 按月份筛选
-            if (selectedMonth !== 'all') {
-                filteredRecords = filteredRecords.filter(record => {
-                    if (!record.date) return false;
-                    const month = record.date.split('-')[1];
-                    return month === selectedMonth.toString().padStart(2, '0');
-                });
-            }
-            
-            // 按分类筛选
-            if (filterCategory !== 'all') {
-                if (filterCategory === 'my-income') {
-                    // 计算我的收支记录
-                    renderMyIncomeRecords(filteredRecords, selectedYear, selectedMonth);
-                    return;
-                } else if (filterCategory.includes('-')) {
-                    // 处理上下家筛选
-                    const [category, subtype] = filterCategory.split('-');
-                    filteredRecords = filteredRecords.filter(record => 
-                        record.category === category && record.subtype === subtype
-                    );
-                } else {
-                    filteredRecords = filteredRecords.filter(record => record.category === filterCategory);
+            let filteredRecords = appState.records.filter(record => {
+                // 年份筛选
+                if (selectedYear !== 'all' && record.date.split('-')[0] !== selectedYear) {
+                    return false;
                 }
-            }
+                
+                // 月份筛选
+                if (selectedMonth !== 'all' && record.date.split('-')[1] !== selectedMonth.padStart(2, '0')) {
+                    return false;
+                }
+                
+                // 分类筛选
+                if (filterCategory !== 'all') {
+                    if (filterCategory === 'my-income') {
+                        return false; // 我的收支是虚拟记录，不在这里显示
+                    } else if (filterCategory.includes('-')) {
+                        const [category, subtype] = filterCategory.split('-');
+                        if (record.category !== category || record.subtype !== subtype) {
+                            return false;
+                        }
+                    } else {
+                        if (record.category !== filterCategory) {
+                            return false;
+                        }
+                    }
+                }
+                
+                // 人员筛选
+                if (filterPerson !== 'all' && record.name !== filterPerson) {
+                    return false;
+                }
+                
+                return true;
+            });
             
-            // 按人员筛选
-            if (filterPerson !== 'all') {
-                filteredRecords = filteredRecords.filter(record => record.name === filterPerson);
-            }
+            // 按日期降序排列（最新的在前面）
+            filteredRecords.sort((a, b) => new Date(b.date) - new Date(a.date));
             
-            renderRecordsTable(filteredRecords);
-            renderSummaryStats(filteredRecords, selectedYear, selectedMonth, filterCategory);
+            if (filterCategory === 'my-income') {
+                renderMyIncomeRecords(filteredRecords, selectedYear, selectedMonth);
+            } else {
+                renderRecordsTable(filteredRecords);
+                renderSummaryStats(filteredRecords, selectedYear, selectedMonth, filterCategory);
+            }
         }
         
         // 渲染我的收支记录
@@ -1427,7 +1406,6 @@
             const tbody = elements.recordsBody;
             const container = elements.summaryStats;
             
-            // 按日期分组
             const recordsByDate = {};
             records.forEach(record => {
                 if (!recordsByDate[record.date]) {
@@ -1436,36 +1414,24 @@
                 recordsByDate[record.date].push(record);
             });
             
-            // 计算每天的我的收支
             const myIncomeRecords = [];
             
-            Object.keys(recordsByDate).forEach(date => {
+            Object.keys(recordsByDate).sort((a, b) => new Date(b) - new Date(a)).forEach(date => {
                 const dateRecords = recordsByDate[date];
                 
-                // 计算澳门收支
                 const macauUpRecords = dateRecords.filter(r => r.category === 'macau' && r.subtype === 'up');
                 const macauDownRecords = dateRecords.filter(r => r.category === 'macau' && r.subtype === 'down');
-                
                 const macauUpTotal = calculateStats(macauUpRecords);
                 const macauDownTotal = calculateStats(macauDownRecords);
-                
-                // 澳门我的收支 = 澳门下家总和 - 澳门上家总和
                 const macauMyIncome = macauDownTotal.profit - macauUpTotal.profit;
                 
-                // 计算粤港收支
                 const guangdongUpRecords = dateRecords.filter(r => r.category === 'guangdong' && r.subtype === 'up');
                 const guangdongDownRecords = dateRecords.filter(r => r.category === 'guangdong' && r.subtype === 'down');
-                
                 const guangdongUpTotal = calculateStats(guangdongUpRecords);
                 const guangdongDownTotal = calculateStats(guangdongDownRecords);
-                
-                // 粤港我的收支 = 粤港下家总和 - 粤港上家总和
                 const guangdongMyIncome = guangdongDownTotal.profit - guangdongUpTotal.profit;
                 
-                // 计算粤港上家总利润
                 const guangdongUpProfit = calculateGuangdongUpProfit(guangdongUpRecords);
-                
-                // 总我的收支
                 const totalMyIncome = macauMyIncome + guangdongMyIncome;
                 
                 if (totalMyIncome !== 0) {
@@ -1481,9 +1447,6 @@
                 }
             });
             
-            // 按日期排序
-            myIncomeRecords.sort((a, b) => b.date.localeCompare(a.date));
-            
             if (myIncomeRecords.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="8" class="empty-state">暂无我的收支记录</td></tr>';
                 container.innerHTML = '';
@@ -1491,14 +1454,11 @@
             }
             
             let html = '';
-            
             myIncomeRecords.forEach(record => {
                 const isIncome = record.amount > 0;
                 const rowClass = isIncome ? 'my-income-row' : 'my-expense-row';
                 const badgeClass = isIncome ? 'my-income' : 'my-expense';
                 const badgeText = isIncome ? '我的收入' : '我的支出';
-                const hintClass = isIncome ? 'income-hint' : 'expense-hint';
-                const hintText = isIncome ? `收入 ¥${Math.abs(record.amount).toFixed(2)}` : `支出 ¥${Math.abs(record.amount).toFixed(2)}`;
                 
                 html += `
                     <tr class="${rowClass}">
@@ -1528,7 +1488,7 @@
             
             tbody.innerHTML = html;
             
-            // 计算统计
+            // 统计信息
             const myIncomeStats = calculateStats(myIncomeRecords);
             const timeLabel = selectedYear === 'all' ? '全部' : `${selectedYear}年${selectedMonth === 'all' ? '' : selectedMonth + '月'}`;
             const isIncome = myIncomeStats.profit >= 0;
@@ -1570,7 +1530,6 @@
             }
             
             let html = '';
-            
             records.forEach(record => {
                 const isIncome = record.amount > 0;
                 const categoryLabel = getCategoryLabel(record.category, record.subtype);
@@ -1612,34 +1571,25 @@
         // 渲染统计卡片
         function renderSummaryStats(records, selectedYear, selectedMonth, filterCategory) {
             const container = elements.summaryStats;
+            container.innerHTML = '';
             
-            // 按分类分开统计
             const macauUpRecords = records.filter(r => r.category === 'macau' && r.subtype === 'up');
             const macauDownRecords = records.filter(r => r.category === 'macau' && r.subtype === 'down');
-            
             const guangdongUpRecords = records.filter(r => r.category === 'guangdong' && r.subtype === 'up');
             const guangdongDownRecords = records.filter(r => r.category === 'guangdong' && r.subtype === 'down');
-            
             const allRecords = records;
             
             const timeLabel = selectedYear === 'all' ? '全部' : `${selectedYear}年${selectedMonth === 'all' ? '' : selectedMonth + '月'}`;
             
             const macauUpTotal = calculateStats(macauUpRecords);
             const macauDownTotal = calculateStats(macauDownRecords);
-            
             const guangdongUpTotal = calculateStats(guangdongUpRecords);
             const guangdongDownTotal = calculateStats(guangdongDownRecords);
-            
             const allStats = calculateStats(allRecords);
             
-            // 计算我的收支
             const macauMyIncome = macauDownTotal.profit - macauUpTotal.profit;
             const guangdongMyIncome = guangdongDownTotal.profit - guangdongUpTotal.profit;
-            
-            // 计算粤港上家总利润
             const guangdongUpProfit = calculateGuangdongUpProfit(guangdongUpRecords);
-            
-            container.innerHTML = '';
             
             // 澳门统计卡片
             if (filterCategory === 'all' || filterCategory.includes('macau')) {
@@ -1777,13 +1727,11 @@
             
             const now = new Date();
             const currentYear = now.getFullYear();
-            const currentMonth = now.getMonth() + 1;
+            const currentMonth = (now.getMonth() + 1).toString().padStart(2, '0');
             
             const monthRecords = appState.records.filter(record => {
-                const recordDate = new Date(record.date);
-                const recordYear = recordDate.getFullYear();
-                const recordMonth = recordDate.getMonth() + 1;
-                return recordYear === currentYear && recordMonth === currentMonth;
+                const [year, month] = record.date.split('-');
+                return year === currentYear.toString() && month === currentMonth;
             });
             
             if (monthRecords.length === 0) {
@@ -1793,10 +1741,8 @@
             
             if (confirm(`确定要清除本月的所有记录吗？\n将删除 ${monthRecords.length} 条记录\n此操作不可恢复！`)) {
                 appState.records = appState.records.filter(record => {
-                    const recordDate = new Date(record.date);
-                    const recordYear = recordDate.getFullYear();
-                    const recordMonth = recordDate.getMonth() + 1;
-                    return !(recordYear === currentYear && recordMonth === currentMonth);
+                    const [year, month] = record.date.split('-');
+                    return !(year === currentYear.toString() && month === currentMonth);
                 });
                 
                 saveLocalData();
@@ -1840,7 +1786,7 @@
             const data = {
                 records: appState.records,
                 exportedAt: new Date().toISOString(),
-                version: '20.0'
+                version: '21.0'
             };
             
             const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -1874,6 +1820,9 @@
                         
                         if (confirm(`确定要导入数据吗？\n这将覆盖当前所有数据。\n包含：${data.records?.length || 0}条记录`)) {
                             appState.records = data.records || [];
+                            // 按日期降序排列
+                            appState.records.sort((a, b) => new Date(b.date) - new Date(a.date));
+                            
                             saveLocalData();
                             updatePersonFilter();
                             updateYearFilter();
