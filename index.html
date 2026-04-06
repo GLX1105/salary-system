@@ -312,8 +312,6 @@
         /* 表格样式 */
         .table-container {
             overflow-x: auto;
-            overflow-y: auto;
-            max-height: 400px;
             margin-top: 10px;
             border-radius: 5px;
             border: 1px solid var(--border);
@@ -664,10 +662,10 @@
         <div class="main-grid">
             <!-- 左栏：录入和管理 (现在占1/3) -->
             <div>
-                <!-- 录入卡片 -->
+                <!-- 录入收支卡片 -->
                 <div class="card">
                     <div class="card-header primary">
-                        <div class="card-title">📝 录入收支记录</div>
+                        <div class="card-title">📝 录入收支</div>
                     </div>
                     <div class="card-body">
                         <!-- 分类选择 - 澳门上家和下家在同一行 -->
@@ -746,7 +744,7 @@
                             <button class="btn btn-outline btn-sm" onclick="setTodayDate()" style="padding: 2px 6px; font-size: 9px;">今天</button>
                         </div>
                         
-                        <div class="table-container" style="max-height: 200px;">
+                        <div class="table-container">
                             <table class="data-table">
                                 <thead>
                                     <tr>
@@ -769,7 +767,7 @@
                     </div>
                 </div>
                 
-                <!-- 当天我的收支统计 -->
+                <!-- 选中日期我的收支统计 -->
                 <div class="card">
                     <div class="card-header primary">
                         <div class="card-title">💰 选中日期我的收支统计</div>
@@ -836,7 +834,7 @@
                         </div>
                         
                         <!-- 表格 - 已添加垂直滚动条 -->
-                        <div class="table-container">
+                        <div class="table-container" style="max-height: 400px; overflow-y: auto;">
                             <table class="data-table">
                                 <thead>
                                     <tr>
@@ -972,7 +970,7 @@
             const data = {
                 records: appState.records,
                 savedAt: new Date().toISOString(),
-                version: '20.0'
+                version: '21.0'
             };
             
             try {
@@ -1840,7 +1838,7 @@
             const data = {
                 records: appState.records,
                 exportedAt: new Date().toISOString(),
-                version: '20.0'
+                version: '21.0'
             };
             
             const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
