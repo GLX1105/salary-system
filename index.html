@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>个人收支管理系统 - 增强版</title>
+    <title>个人收支管理系统 - 加密版</title>
     <style>
         * {
             margin: 0;
@@ -39,6 +39,111 @@
         .container {
             max-width: 1200px;
             margin: 0 auto;
+        }
+        
+        /* 密码登录界面 */
+        .login-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.3s ease;
+        }
+        
+        .login-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        .login-box {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            min-width: 350px;
+            animation: slideIn 0.5s ease;
+        }
+        
+        .login-icon {
+            font-size: 48px;
+            color: var(--primary);
+            margin-bottom: 20px;
+        }
+        
+        .login-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 8px;
+        }
+        
+        .login-subtitle {
+            font-size: 14px;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+        }
+        
+        .password-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 16px;
+            margin-bottom: 20px;
+            transition: var(--transition);
+        }
+        
+        .password-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+        
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-bottom: 15px;
+        }
+        
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .login-btn:active {
+            transform: translateY(0);
+        }
+        
+        .error-message {
+            color: var(--expense);
+            font-size: 14px;
+            margin-top: 10px;
+            display: none;
+        }
+        
+        .error-message.show {
+            display: block;
+        }
+        
+        .attempts-warning {
+            color: var(--warning);
+            font-size: 12px;
+            margin-top: 10px;
         }
         
         /* 导航栏 */
@@ -152,7 +257,7 @@
             box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.1);
         }
         
-        .error-message {
+        .error-msg {
             color: var(--expense);
             font-size: 9px;
             margin-top: 2px;
@@ -694,6 +799,22 @@
             cursor: pointer;
         }
         
+        /* 登出按钮 */
+        .logout-btn {
+            background: var(--expense);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 10px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        
+        .logout-btn:hover {
+            background: #c0392b;
+        }
+        
         /* 响应式设计 */
         @media (max-width: 900px) {
             .main-grid {
@@ -703,6 +824,11 @@
             .container {
                 max-width: 100%;
                 padding: 0 6px;
+            }
+            
+            .login-box {
+                min-width: 300px;
+                padding: 30px 20px;
             }
         }
         
@@ -757,11 +883,16 @@
                 padding: 8px 12px;
                 font-size: 11px;
             }
+            
+            .login-box {
+                min-width: 280px;
+                padding: 25px 15px;
+            }
         }
         
         /* 动画 */
         @keyframes slideIn {
-            from { transform: translateY(-10px); opacity: 0; }
+            from { transform: translateY(-50px); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
         }
         
@@ -774,10 +905,48 @@
             from { opacity: 1; }
             to { opacity: 0; }
         }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        
+        .shake {
+            animation: shake 0.5s ease-in-out;
+        }
     </style>
 </head>
 <body>
-    <div class="container">
+    <!-- 密码登录界面 -->
+    <div class="login-overlay" id="login-overlay">
+        <div class="login-box">
+            <div class="login-icon">🔒</div>
+            <h2 class="login-title">个人收支管理系统</h2>
+            <p class="login-subtitle">请输入访问密码以继续</p>
+            
+            <input 
+                type="password" 
+                class="password-input" 
+                id="password-input" 
+                placeholder="请输入密码"
+                autocomplete="current-password"
+            >
+            
+            <button class="login-btn" onclick="checkPassword()">进入系统</button>
+            
+            <div class="error-message" id="error-message">
+                密码错误，请重试！
+            </div>
+            
+            <div class="attempts-warning" id="attempts-warning">
+                剩余尝试次数: <span id="attempts-left">3</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 主应用内容 -->
+    <div class="container" id="main-app" style="display: none;">
         <!-- 撤销提示 -->
         <div class="undo-toast" id="undo-toast">
             <span>记录已删除</span>
@@ -790,7 +959,7 @@
             <div class="nav-left">
                 <div class="nav-icon">💰</div>
                 <div>
-                    <div class="nav-title">个人收支管理系统 - 增强版</div>
+                    <div class="nav-title">个人收支管理系统 - 加密版</div>
                     <div class="nav-subtitle">澳门 & 粤港 - 下家总和减去上家总和=我的收支 | 粤港上家利润10%</div>
                 </div>
             </div>
@@ -799,6 +968,7 @@
                 <button class="btn btn-outline btn-sm" onclick="importData()">导入数据</button>
                 <button class="btn btn-warning btn-sm" onclick="clearCurrentMonth()">清除当月</button>
                 <button class="btn btn-danger btn-sm" onclick="clearAllData()">清空数据</button>
+                <button class="logout-btn" onclick="logout()">退出登录</button>
             </div>
         </nav>
         
@@ -843,12 +1013,12 @@
                             <div class="form-group">
                                 <label class="form-label">姓名</label>
                                 <input type="text" id="person-name" placeholder="输入姓名" class="form-input" onblur="validateName()">
-                                <div class="error-message" id="name-error">姓名不能为空且不能包含特殊字符</div>
+                                <div class="error-msg" id="name-error">姓名不能为空且不能包含特殊字符</div>
                             </div>
                             <div class="form-group">
                                 <label class="form-label">日期</label>
                                 <input type="date" id="record-date" class="form-input" onblur="validateDate()">
-                                <div class="error-message" id="date-error">请选择有效日期</div>
+                                <div class="error-msg" id="date-error">请选择有效日期</div>
                             </div>
                         </div>
                         
@@ -856,7 +1026,7 @@
                             <div class="form-group">
                                 <label class="form-label">金额</label>
                                 <input type="number" id="record-amount" placeholder="输入金额" class="form-input" step="0.01" onblur="validateAmount()">
-                                <div class="error-message" id="amount-error">金额必须大于0</div>
+                                <div class="error-msg" id="amount-error">金额必须大于0</div>
                             </div>
                             <div class="form-group">
                                 <label class="form-label">类型</label>
@@ -870,7 +1040,7 @@
                         <div class="form-group">
                             <label class="form-label">特码</label>
                             <input type="text" id="record-note" placeholder="输入特码（可选）" class="form-input" onblur="validateNote()">
-                            <div class="error-message" id="note-error">特码不能包含特殊字符</div>
+                            <div class="error-msg" id="note-error">特码不能包含特殊字符</div>
                         </div>
                         
                         <div class="btn-group">
@@ -1039,11 +1209,19 @@
             deletedRecord: null, // 用于撤销删除
             undoTimer: null, // 撤销定时器
             searchTerm: '', // 搜索关键词
-            selectedRecords: new Set() // 选中的记录ID
+            selectedRecords: new Set(), // 选中的记录ID
+            loginAttempts: 0, // 登录尝试次数
+            isLoggedIn: false // 登录状态
         };
         
         // DOM元素引用
         const elements = {
+            passwordInput: document.getElementById('password-input'),
+            loginOverlay: document.getElementById('login-overlay'),
+            mainApp: document.getElementById('main-app'),
+            errorMessage: document.getElementById('error-message'),
+            attemptsWarning: document.getElementById('attempts-warning'),
+            attemptsLeft: document.getElementById('attempts-left'),
             personName: document.getElementById('person-name'),
             recordDate: document.getElementById('record-date'),
             recordType: document.getElementById('record-type'),
@@ -1065,6 +1243,9 @@
             undoToast: document.getElementById('undo-toast'),
             undoTimer: document.getElementById('undo-timer')
         };
+        
+        // 正确的密码
+        const CORRECT_PASSWORD = "160601";
         
         // 工具函数
         function showToast(message, isError = false) {
@@ -1128,6 +1309,81 @@
             }
         }
         
+        // 检查密码
+        function checkPassword() {
+            const password = elements.passwordInput.value;
+            
+            if (password === CORRECT_PASSWORD) {
+                // 密码正确，进入系统
+                appState.isLoggedIn = true;
+                appState.loginAttempts = 0;
+                
+                // 隐藏登录界面，显示主应用
+                elements.loginOverlay.classList.add('hidden');
+                setTimeout(() => {
+                    elements.loginOverlay.style.display = 'none';
+                    elements.mainApp.style.display = 'block';
+                    
+                    // 初始化应用
+                    init();
+                }, 300);
+                
+                showToast('登录成功！');
+            } else {
+                // 密码错误
+                appState.loginAttempts++;
+                
+                // 显示错误信息
+                elements.errorMessage.classList.add('show');
+                elements.passwordInput.classList.add('shake');
+                
+                setTimeout(() => {
+                    elements.passwordInput.classList.remove('shake');
+                }, 500);
+                
+                // 更新尝试次数显示
+                const remainingAttempts = 3 - appState.loginAttempts;
+                elements.attemptsLeft.textContent = remainingAttempts;
+                
+                if (remainingAttempts > 0) {
+                    elements.attemptsWarning.style.display = 'block';
+                } else {
+                    elements.attemptsWarning.innerHTML = '尝试次数过多，请刷新页面重试';
+                    elements.loginBtn.disabled = true;
+                    setTimeout(() => {
+                        alert('登录尝试次数过多，系统已锁定。请刷新页面重新开始。');
+                    }, 1000);
+                    return;
+                }
+                
+                // 清空输入框
+                elements.passwordInput.value = '';
+                elements.passwordInput.focus();
+                
+                showToast('密码错误！', true);
+            }
+        }
+        
+        // 退出登录
+        function logout() {
+            if (confirm('确定要退出登录吗？')) {
+                appState.isLoggedIn = false;
+                appState.loginAttempts = 0;
+                
+                // 清空主应用显示
+                elements.mainApp.style.display = 'none';
+                elements.loginOverlay.style.display = 'flex';
+                elements.loginOverlay.classList.remove('hidden');
+                
+                // 清空密码输入
+                elements.passwordInput.value = '';
+                elements.errorMessage.classList.remove('show');
+                elements.attemptsWarning.style.display = 'none';
+                
+                showToast('已退出登录');
+            }
+        }
+        
         // 初始化应用
         function init() {
             const today = new Date().toISOString().split('T')[0];
@@ -1139,7 +1395,24 @@
             selectCategory('macau', 'down');
             
             loadLocalData();
+            
+            // 自动聚焦到密码输入框（如果还没登录）
+            if (!appState.isLoggedIn) {
+                elements.passwordInput.focus();
+            }
         }
+        
+        // 监听回车键登录
+        document.addEventListener('DOMContentLoaded', function() {
+            elements.passwordInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    checkPassword();
+                }
+            });
+            
+            // 初始化登录界面
+            init();
+        });
         
         // 数据验证函数
         function validateName() {
@@ -1244,7 +1517,7 @@
             const data = {
                 records: appState.records,
                 savedAt: new Date().toISOString(),
-                version: '24.0'
+                version: '25.0'
             };
             
             try {
@@ -2295,7 +2568,7 @@
             const data = {
                 records: appState.records,
                 exportedAt: new Date().toISOString(),
-                version: '24.0'
+                version: '25.0'
             };
             
             const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -2346,9 +2619,6 @@
             
             input.click();
         }
-        
-        // 初始化应用
-        window.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
 </html>
