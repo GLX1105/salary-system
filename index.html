@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>个人收支管理系统 - 日期选择版</title>
+    <title>个人收支管理系统 - 美化版</title>
     <style>
         * {
             margin: 0;
@@ -178,18 +178,24 @@
         
         .category-btn {
             flex: 1;
-            padding: 6px 4px;
-            border: 1px solid transparent;
-            border-radius: 5px;
+            padding: 8px 6px;
+            border: 2px solid transparent;
+            border-radius: 6px;
             background: white;
             font-size: 10px;
-            font-weight: 500;
+            font-weight: 600;
             cursor: pointer;
             transition: var(--transition);
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 2px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .category-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
         }
         
         .category-btn.macau-up {
@@ -200,6 +206,7 @@
         .category-btn.macau-up.active {
             background: var(--category3);
             color: white;
+            box-shadow: 0 4px 8px rgba(230, 126, 34, 0.3);
         }
         
         .category-btn.macau-down {
@@ -210,6 +217,7 @@
         .category-btn.macau-down.active {
             background: var(--category4);
             color: white;
+            box-shadow: 0 4px 8px rgba(52, 73, 94, 0.3);
         }
         
         .category-btn.guangdong-up {
@@ -220,6 +228,7 @@
         .category-btn.guangdong-up.active {
             background: var(--category3);
             color: white;
+            box-shadow: 0 4px 8px rgba(230, 126, 34, 0.3);
         }
         
         .category-btn.guangdong-down {
@@ -230,48 +239,57 @@
         .category-btn.guangdong-down.active {
             background: var(--category4);
             color: white;
+            box-shadow: 0 4px 8px rgba(52, 73, 94, 0.3);
         }
         
-        /* 按钮样式 */
+        /* 按钮样式美化 */
         .btn {
             display: inline-block;
-            padding: 8px 10px;
+            padding: 10px 16px;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             font-size: 12px;
-            font-weight: 500;
+            font-weight: 600;
             cursor: pointer;
             transition: var(--transition);
             text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
         
         .btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
         
         .btn-success {
-            background: var(--income);
+            background: linear-gradient(135deg, var(--income), #27ae60);
             color: white;
         }
         
         .btn-success:hover {
-            background: #27ae60;
+            background: linear-gradient(135deg, #27ae60, #229954);
         }
         
         .btn-danger {
-            background: var(--expense);
+            background: linear-gradient(135deg, var(--expense), #c0392b);
             color: white;
         }
         
         .btn-danger:hover {
-            background: #c0392b;
+            background: linear-gradient(135deg, #c0392b, #a93226);
         }
         
         .btn-outline {
             background: white;
             color: var(--primary);
-            border: 1px solid var(--primary);
+            border: 2px solid var(--primary);
         }
         
         .btn-outline:hover {
@@ -280,32 +298,33 @@
         }
         
         .btn-warning {
-            background: var(--warning);
+            background: linear-gradient(135deg, var(--warning), #e67e22);
             color: white;
         }
         
         .btn-warning:hover {
-            background: #e67e22;
+            background: linear-gradient(135deg, #e67e22, #d35400);
         }
         
         .btn-cloud {
-            background: var(--cloud);
+            background: linear-gradient(135deg, var(--cloud), #8e44ad);
             color: white;
         }
         
         .btn-cloud:hover {
-            background: #8e44ad;
+            background: linear-gradient(135deg, #8e44ad, #7d3c98);
         }
         
         .btn-sm {
-            padding: 4px 6px;
+            padding: 6px 10px;
             font-size: 10px;
+            border-radius: 6px;
         }
         
         .btn-group {
             display: flex;
-            gap: 6px;
-            margin-top: 10px;
+            gap: 8px;
+            margin-top: 12px;
             flex-wrap: wrap;
         }
         
@@ -331,16 +350,16 @@
         }
         
         .data-table th {
-            padding: 6px 8px;
+            padding: 8px 10px;
             text-align: left;
             font-weight: 600;
             color: var(--dark);
-            border-bottom: 1px solid var(--border);
+            border-bottom: 2px solid var(--border);
             font-size: 10px;
         }
         
         .data-table td {
-            padding: 6px 8px;
+            padding: 8px 10px;
             border-bottom: 1px solid var(--border);
             font-size: 10px;
         }
@@ -351,24 +370,24 @@
         
         .type-badge {
             display: inline-block;
-            padding: 2px 4px;
-            border-radius: 8px;
+            padding: 3px 6px;
+            border-radius: 12px;
             font-size: 9px;
-            font-weight: 500;
+            font-weight: 600;
         }
         
         .type-income {
-            background: rgba(46, 204, 113, 0.1);
+            background: rgba(46, 204, 113, 0.15);
             color: var(--income);
         }
         
         .type-expense {
-            background: rgba(231, 76, 60, 0.1);
+            background: rgba(231, 76, 60, 0.15);
             color: var(--expense);
         }
         
         .type-profit {
-            background: rgba(230, 126, 34, 0.1);
+            background: rgba(230, 126, 34, 0.15);
             color: var(--profit);
         }
         
@@ -393,11 +412,12 @@
         }
         
         .filter-select {
-            padding: 4px 6px;
+            padding: 6px 8px;
             border: 1px solid var(--border);
-            border-radius: 4px;
+            border-radius: 5px;
             font-size: 10px;
             background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
         
         /* 日期选择组 */
@@ -415,11 +435,12 @@
         }
         
         .date-selector input {
-            padding: 4px 6px;
+            padding: 6px 8px;
             border: 1px solid var(--border);
-            border-radius: 4px;
+            border-radius: 5px;
             font-size: 10px;
             background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
         
         /* 统计卡片 */
@@ -433,8 +454,9 @@
         .stat-card {
             background: white;
             border-radius: var(--radius);
-            padding: 8px;
+            padding: 10px;
             box-shadow: var(--shadow);
+            border: 1px solid var(--border);
         }
         
         .stat-header {
@@ -475,21 +497,18 @@
         
         /* 操作按钮 */
         .action-btn {
-            padding: 2px 4px;
+            padding: 4px 6px;
             border: none;
-            border-radius: 3px;
+            border-radius: 4px;
             font-size: 9px;
             font-weight: 500;
             cursor: pointer;
             transition: var(--transition);
-        }
-        
-        .action-delete {
             background: rgba(231, 76, 60, 0.1);
             color: var(--expense);
         }
         
-        .action-delete:hover {
+        .action-btn:hover {
             background: var(--expense);
             color: white;
         }
@@ -497,29 +516,29 @@
         /* 分类统计标签 */
         .category-badge {
             display: inline-block;
-            padding: 1px 4px;
-            border-radius: 8px;
+            padding: 2px 6px;
+            border-radius: 12px;
             font-size: 8px;
             font-weight: 500;
         }
         
         .category-badge.macau-up {
-            background: rgba(230, 126, 34, 0.1);
+            background: rgba(230, 126, 34, 0.15);
             color: var(--category3);
         }
         
         .category-badge.macau-down {
-            background: rgba(52, 73, 94, 0.1);
+            background: rgba(52, 73, 94, 0.15);
             color: var(--category4);
         }
         
         .category-badge.guangdong-up {
-            background: rgba(230, 126, 34, 0.1);
+            background: rgba(230, 126, 34, 0.15);
             color: var(--category3);
         }
         
         .category-badge.guangdong-down {
-            background: rgba(52, 73, 94, 0.1);
+            background: rgba(52, 73, 94, 0.15);
             color: var(--category4);
         }
         
@@ -629,11 +648,11 @@
             
             .category-btn {
                 font-size: 9px;
-                padding: 5px 3px;
+                padding: 6px 4px;
             }
             
             .btn {
-                padding: 6px 8px;
+                padding: 8px 12px;
                 font-size: 11px;
             }
         }
@@ -646,7 +665,7 @@
             <div class="nav-left">
                 <div class="nav-icon">💰</div>
                 <div>
-                    <div class="nav-title">个人收支管理系统 - 日期选择版</div>
+                    <div class="nav-title">个人收支管理系统 - 美化版</div>
                     <div class="nav-subtitle">澳门 & 粤港 - 下家总和减去上家总和=我的收支 | 粤港上家利润10%</div>
                 </div>
             </div>
@@ -673,10 +692,10 @@
                             <div>
                                 <div class="category-label">澳门分类：</div>
                                 <div class="category-group">
-                                    <button class="category-btn macau-up active" onclick="selectCategory('macau', 'up')">
+                                    <button class="category-btn macau-up" onclick="selectCategory('macau', 'up')">
                                         <span>⬆️ 澳门上家</span>
                                     </button>
-                                    <button class="category-btn macau-down" onclick="selectCategory('macau', 'down')">
+                                    <button class="category-btn macau-down active" onclick="selectCategory('macau', 'down')">
                                         <span>⬇️ 澳门下家</span>
                                     </button>
                                 </div>
@@ -741,7 +760,7 @@
                         <div class="date-selector">
                             <label for="view-date">选择日期：</label>
                             <input type="date" id="view-date" onchange="loadDateRecords()">
-                            <button class="btn btn-outline btn-sm" onclick="setTodayDate()" style="padding: 2px 6px; font-size: 9px;">今天</button>
+                            <button class="btn btn-outline btn-sm" onclick="setTodayDate()" style="padding: 4px 8px; font-size: 9px;">今天</button>
                         </div>
                         
                         <div class="table-container">
@@ -871,7 +890,7 @@
         let appState = {
             records: [],
             selectedCategory: 'macau',
-            selectedSubtype: 'up',
+            selectedSubtype: 'down', // 默认选择澳门下家
             selectedPerson: null,
             currentViewDate: new Date().toISOString().split('T')[0] // 当前查看的日期
         };
@@ -904,11 +923,11 @@
                 right: 12px;
                 background: ${isError ? '#e74c3c' : '#2ecc71'};
                 color: white;
-                padding: 6px 12px;
-                border-radius: 4px;
-                font-weight: 500;
-                font-size: 11px;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+                padding: 8px 16px;
+                border-radius: 6px;
+                font-weight: 600;
+                font-size: 12px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.2);
                 z-index: 1000;
                 opacity: 0;
                 transform: translateY(-20px);
@@ -937,6 +956,9 @@
             elements.recordDate.value = today;
             elements.viewDate.value = today; // 设置日期选择器默认值为今天
             appState.currentViewDate = today;
+            
+            // 设置默认选择澳门下家
+            selectCategory('macau', 'down');
             
             loadLocalData();
         }
@@ -970,7 +992,7 @@
             const data = {
                 records: appState.records,
                 savedAt: new Date().toISOString(),
-                version: '22.0'
+                version: '23.0'
             };
             
             try {
@@ -1370,7 +1392,7 @@
             }
         }
         
-        // 加载记录 - 修改后按日期降序排列
+        // 加载记录 - 按日期降序排列
         function loadRecords() {
             const selectedYear = elements.selectYear.value;
             const selectedMonth = elements.selectMonth.value;
@@ -1564,7 +1586,7 @@
             `;
         }
         
-        // 渲染记录表格 - 修改后按日期降序排列
+        // 渲染记录表格 - 按日期降序排列
         function renderRecordsTable(records) {
             const tbody = elements.recordsBody;
             
@@ -1847,7 +1869,7 @@
             const data = {
                 records: appState.records,
                 exportedAt: new Date().toISOString(),
-                version: '22.0'
+                version: '23.0'
             };
             
             const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
