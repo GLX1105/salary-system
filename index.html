@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>个人收支管理系统 - 中国时区版</title>
     <style>
-        /* 所有样式保持不变 */
         * {
             margin: 0;
             padding: 0;
@@ -314,6 +313,48 @@
         
         .card-body {
             padding: 12px;
+        }
+        
+        /* 收支明细卡片特殊样式 - 固定宽度显示6人 */
+        .detail-card {
+            width: 100%;
+            overflow-x: auto;
+        }
+        
+        .detail-card .table-container {
+            overflow-x: auto;
+            max-width: 650px; /* 固定宽度，约显示6人 */
+            border: 1px solid var(--border);
+            border-radius: 5px;
+        }
+        
+        .detail-card .data-table {
+            min-width: 600px; /* 6人宽度 */
+            width: max-content;
+        }
+        
+        .detail-card th, .detail-card td {
+            padding: 8px 10px;
+            text-align: center;
+            white-space: nowrap;
+            min-width: 80px;
+        }
+        
+        .detail-card th:first-child {
+            position: sticky;
+            left: 0;
+            background: #f8f9fa;
+            z-index: 5;
+            min-width: 60px;
+        }
+        
+        .detail-card td:first-child {
+            position: sticky;
+            left: 0;
+            background: white;
+            z-index: 4;
+            font-weight: 600;
+            min-width: 60px;
         }
         
         /* 回收站面板 */
@@ -1162,7 +1203,7 @@
         <div class="main-grid">
             <!-- 左栏：录入和管理 -->
             <div>
-                <!-- 录入收支卡片 -->
+                <!-- 录入收支卡片（已添加清除按钮和回车保存功能） -->
                 <div class="card">
                     <div class="card-header primary">
                         <div class="card-title">📝 录入收支</div>
@@ -1198,7 +1239,8 @@
                         <div class="form-row">
                             <div class="form-group">
                                 <label class="form-label">姓名</label>
-                                <input type="text" id="person-name" placeholder="输入姓名" class="form-input" onblur="validateName()">
+                                <input type="text" id="person-name" placeholder="输入姓名" class="form-input" 
+                                       onblur="validateName()" onkeydown="handleEnterKey(event)">
                                 <div class="error-msg" id="name-error">姓名不能为空且不能包含特殊字符</div>
                             </div>
                             <div class="form-group">
@@ -1211,7 +1253,8 @@
                         <div class="form-row">
                             <div class="form-group">
                                 <label class="form-label">金额</label>
-                                <input type="number" id="record-amount" placeholder="输入金额" class="form-input" step="0.01" onblur="validateAmount()">
+                                <input type="number" id="record-amount" placeholder="输入金额" class="form-input" step="0.01" 
+                                       onblur="validateAmount()" onkeydown="handleEnterKey(event)">
                                 <div class="error-msg" id="amount-error">金额必须大于0</div>
                             </div>
                             <div class="form-group">
@@ -1231,6 +1274,7 @@
                         
                         <div class="btn-group">
                             <button class="btn btn-success" onclick="saveRecord()">保存记录</button>
+                            <button class="btn btn-outline" onclick="clearInput()">清除</button>
                         </div>
                     </div>
                 </div>
@@ -1380,6 +1424,60 @@
                         </div>
                     </div>
                 </div>
+                
+                <!-- 收支明细卡片（已设置固定宽度显示6人） -->
+                <div class="card detail-card">
+                    <div class="card-header primary">
+                        <div class="card-title">
+                            <span>📊</span>
+                            <span>收支明细</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="filter-info">
+                            <div style="font-size: 11px; color: #7f8c8d; margin-bottom: 10px;">
+                                统计范围：仅统计当前筛选条件下的记录
+                            </div>
+                            <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px;">
+                                <div style="font-size: 10px; background: #f0f8ff; padding: 4px 8px; border-radius: 4px; border-left: 3px solid #3498db;">
+                                    <strong>筛选条件：</strong>
+                                    <span id="filter-year-display">全部年份</span> | 
+                                    <span id="filter-month-display">全部月份</span> | 
+                                    <span id="filter-category-display">全部分类</span> | 
+                                    <span id="filter-name-display">全部人员</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="table-container">
+                            <table class="data-table" id="detail-transposed-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 60px;">月份</th>
+                                        <!-- 姓名列将通过JavaScript动态生成 -->
+                                    </tr>
+                                </thead>
+                                <tbody id="detail-transposed-body">
+                                    <tr class="empty-state-row">
+                                        <td colspan="1" class="empty-state">暂无数据，请先设置筛选条件</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div style="margin-top: 15px; font-size: 10px; color: #7f8c8d;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    当前显示 <span id="transposed-person-count">0</span> 个人员，
+                                    <span id="transposed-month-count">0</span> 个月份
+                                </div>
+                                <div>
+                                    总利润：<span id="transposed-total">0</span> 元
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -1500,7 +1598,17 @@
             recycleTotal: document.getElementById('recycle-total'),
             recycleToday: document.getElementById('recycle-today'),
             recycleWeek: document.getElementById('recycle-week'),
-            recycleSize: document.getElementById('recycle-size')
+            recycleSize: document.getElementById('recycle-size'),
+            // 收支明细相关元素
+            filterYearDisplay: document.getElementById('filter-year-display'),
+            filterMonthDisplay: document.getElementById('filter-month-display'),
+            filterCategoryDisplay: document.getElementById('filter-category-display'),
+            filterNameDisplay: document.getElementById('filter-name-display'),
+            transposedTable: document.getElementById('detail-transposed-table'),
+            transposedBody: document.getElementById('detail-transposed-body'),
+            transposedPersonCount: document.getElementById('transposed-person-count'),
+            transposedMonthCount: document.getElementById('transposed-month-count'),
+            transposedTotal: document.getElementById('transposed-total')
         };
         
         // 正确的密码
@@ -1677,12 +1785,50 @@
             loadLocalData();
             updateRecycleCount();
             
+            // 添加回车键监听
+            setupEnterKeyListeners();
+            
             if (!appState.isLoggedIn) {
                 elements.passwordInput.focus();
             }
             
             // 调试信息：在控制台显示当前中国时区日期
             console.log('当前中国时区日期设置为:', today);
+        }
+        
+        // 设置回车键监听
+        function setupEnterKeyListeners() {
+            const nameInput = document.getElementById('person-name');
+            const amountInput = document.getElementById('record-amount');
+            
+            nameInput.addEventListener('keydown', handleEnterKey);
+            amountInput.addEventListener('keydown', handleEnterKey);
+        }
+        
+        // 处理回车键事件
+        function handleEnterKey(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault(); // 阻止默认回车行为
+                const name = elements.personName.value.trim();
+                const amount = elements.recordAmount.value.trim();
+                
+                // 检查姓名和金额是否都有数据
+                if (name && amount) {
+                    saveRecord(); // 触发保存
+                }
+            }
+        }
+        
+        // 清除输入
+        function clearInput() {
+            elements.personName.value = '';
+            elements.recordAmount.value = '';
+            elements.recordNote.value = '';
+            // 清除错误状态
+            hideError(elements.personName, document.getElementById('name-error'));
+            hideError(elements.recordAmount, document.getElementById('amount-error'));
+            hideError(elements.recordNote, document.getElementById('note-error'));
+            showToast('已清除输入内容');
         }
         
         // 监听回车键登录
@@ -1797,7 +1943,7 @@
                 records: appState.records,
                 recycleBin: appState.recycleBin,
                 savedAt: new Date().toISOString(),
-                version: '29.0'
+                version: '32.0'
             };
             
             try {
@@ -1936,9 +2082,8 @@
             
             appState.records.unshift(record);
             
-            elements.recordAmount.value = '';
-            elements.personName.value = '';
-            elements.recordNote.value = '';
+            // 保存后自动清除输入
+            clearInput();
             
             saveLocalData();
             updatePersonFilter();
@@ -2264,6 +2409,232 @@
             
             renderRecordsTable(filteredRecords);
             renderSummaryStats(filteredRecords, selectedYear, selectedMonth, filterCategory);
+            
+            // 🎯 新增：更新收支明细表格
+            updateDetailTransposedTable(filteredRecords);
+            updateFilterDisplay();
+        }
+        
+        // 🎯 新增：更新筛选条件显示
+        function updateFilterDisplay() {
+            const yearSelect = elements.selectYear;
+            const monthSelect = elements.selectMonth;
+            const categorySelect = elements.filterCategory;
+            const personSelect = elements.filterPerson;
+            
+            elements.filterYearDisplay.textContent = 
+                yearSelect.value === 'all' ? '全部年份' : `${yearSelect.value}年`;
+            
+            elements.filterMonthDisplay.textContent = 
+                monthSelect.value === 'all' ? '全部月份' : `${monthSelect.value}月`;
+            
+            elements.filterCategoryDisplay.textContent = 
+                categorySelect.value === 'all' ? '全部分类' : 
+                categorySelect.options[categorySelect.selectedIndex].text;
+            
+            elements.filterNameDisplay.textContent = 
+                personSelect.value === 'all' ? '全部人员' : personSelect.value;
+        }
+        
+        // 🎯 新增：更新转置表格的函数（重点修改金额显示样式）
+        function updateDetailTransposedTable(filteredRecords) {
+            const tableHead = document.querySelector('#detail-transposed-table thead tr');
+            const transposedBody = elements.transposedBody;
+            const personCount = elements.transposedPersonCount;
+            const monthCount = elements.transposedMonthCount;
+            const totalProfit = elements.transposedTotal;
+            
+            // 清空表格
+            tableHead.innerHTML = '<th style="width: 60px;">月份</th>';
+            transposedBody.innerHTML = '';
+            
+            if (filteredRecords.length === 0) {
+                transposedBody.innerHTML = '<tr class="empty-state-row"><td colspan="1" class="empty-state">暂无数据</td></tr>';
+                personCount.textContent = '0';
+                monthCount.textContent = '0';
+                totalProfit.textContent = '0';
+                totalProfit.className = '';
+                return;
+            }
+            
+            // 获取所有人员姓名（去重）
+            const allPersons = [...new Set(filteredRecords.map(record => record.name))].sort();
+            // 获取所有月份（1-12月，根据筛选条件）
+            const selectedYear = elements.selectYear.value;
+            const selectedMonth = elements.selectMonth.value;
+            
+            let monthsToShow = [];
+            if (selectedMonth === 'all') {
+                monthsToShow = Array.from({length: 12}, (_, i) => i + 1); // 1-12月
+            } else {
+                monthsToShow = [parseInt(selectedMonth)]; // 指定月份
+            }
+            
+            // 按姓名和月份分组统计利润
+            const personMonthStats = {};
+            let grandTotalProfit = 0;
+            
+            filteredRecords.forEach(record => {
+                const name = record.name;
+                const month = parseInt(record.date.split('-')[1]);
+                const year = parseInt(record.date.split('-')[0]);
+                
+                // 如果筛选了特定年份，只统计该年份
+                if (selectedYear !== 'all' && year != selectedYear) {
+                    return;
+                }
+                
+                if (!personMonthStats[name]) {
+                    personMonthStats[name] = {};
+                }
+                
+                if (!personMonthStats[name][month]) {
+                    personMonthStats[name][month] = 0;
+                }
+                
+                // 计算利润：收入为正，支出为负
+                const amount = record.type === 'income' ? record.amount : -Math.abs(record.amount);
+                personMonthStats[name][month] += amount;
+                grandTotalProfit += amount;
+            });
+            
+            // 添加姓名表头
+            allPersons.forEach(name => {
+                const th = document.createElement('th');
+                th.style.minWidth = '80px';
+                th.innerHTML = `<strong>${name}</strong>`;
+                tableHead.appendChild(th);
+            });
+            
+            // 添加总计列头
+            const totalTh = document.createElement('th');
+            totalTh.style.minWidth = '80px';
+            totalTh.innerHTML = '<strong>总计</strong>';
+            tableHead.appendChild(totalTh);
+            
+            // 填充月份行
+            monthsToShow.forEach(month => {
+                const row = document.createElement('tr');
+                
+                // 月份单元格
+                const monthCell = document.createElement('td');
+                monthCell.innerHTML = `<strong>${month}月</strong>`;
+                monthCell.style.fontWeight = '600';
+                row.appendChild(monthCell);
+                
+                let monthTotal = 0;
+                
+                // 每个人员在该月份的利润
+                allPersons.forEach(name => {
+                    const cell = document.createElement('td');
+                    const profit = personMonthStats[name]?.[month] || 0;
+                    
+                    if (profit !== 0) {
+                        // 🎯 重点修改：收入绿色，支出红色
+                        if (profit > 0) {
+                            cell.className = 'stat-income'; // 收入绿色
+                            cell.innerHTML = `+¥${profit.toFixed(2)}`;
+                        } else {
+                            cell.className = 'stat-expense'; // 支出红色
+                            cell.innerHTML = `-¥${Math.abs(profit).toFixed(2)}`;
+                        }
+                        monthTotal += profit;
+                    } else {
+                        cell.innerHTML = ''; // 没利润就空着
+                        cell.style.backgroundColor = 'transparent';
+                    }
+                    
+                    row.appendChild(cell);
+                });
+                
+                // 该月份总计
+                const totalCell = document.createElement('td');
+                if (monthTotal !== 0) {
+                    // 🎯 重点修改：总计也按收入绿色、支出红色显示
+                    if (monthTotal > 0) {
+                        totalCell.className = 'stat-income';
+                        totalCell.innerHTML = `+¥${monthTotal.toFixed(2)}`;
+                    } else {
+                        totalCell.className = 'stat-expense';
+                        totalCell.innerHTML = `-¥${Math.abs(monthTotal).toFixed(2)}`;
+                    }
+                } else {
+                    totalCell.innerHTML = '';
+                }
+                row.appendChild(totalCell);
+                
+                transposedBody.appendChild(row);
+            });
+            
+            // 添加总计行
+            const totalRow = document.createElement('tr');
+            const totalLabelCell = document.createElement('td');
+            totalLabelCell.innerHTML = '<strong>总计</strong>';
+            totalLabelCell.style.fontWeight = '600';
+            totalRow.appendChild(totalLabelCell);
+            
+            let grandTotalByPerson = {};
+            allPersons.forEach(name => {
+                const cell = document.createElement('td');
+                let personTotal = 0;
+                
+                monthsToShow.forEach(month => {
+                    const profit = personMonthStats[name]?.[month] || 0;
+                    personTotal += profit;
+                });
+                
+                if (personTotal !== 0) {
+                    // 🎯 重点修改：个人总计也按收入绿色、支出红色显示
+                    if (personTotal > 0) {
+                        cell.className = 'stat-income';
+                        cell.innerHTML = `+¥${personTotal.toFixed(2)}`;
+                    } else {
+                        cell.className = 'stat-expense';
+                        cell.innerHTML = `-¥${Math.abs(personTotal).toFixed(2)}`;
+                    }
+                } else {
+                    cell.innerHTML = '';
+                }
+                
+                grandTotalByPerson[name] = personTotal;
+                totalRow.appendChild(cell);
+            });
+            
+            // 全体总计
+            const grandTotalCell = document.createElement('td');
+            if (grandTotalProfit !== 0) {
+                // 🎯 重点修改：全体总计也按收入绿色、支出红色显示
+                if (grandTotalProfit > 0) {
+                    grandTotalCell.className = 'stat-income';
+                    grandTotalCell.innerHTML = `+¥${grandTotalProfit.toFixed(2)}`;
+                } else {
+                    grandTotalCell.className = 'stat-expense';
+                    grandTotalCell.innerHTML = `-¥${Math.abs(grandTotalProfit).toFixed(2)}`;
+                }
+            } else {
+                grandTotalCell.innerHTML = '';
+            }
+            totalRow.appendChild(grandTotalCell);
+            
+            transposedBody.appendChild(totalRow);
+            
+            // 更新统计信息
+            personCount.textContent = allPersons.length;
+            monthCount.textContent = monthsToShow.length;
+            
+            // 🎯 重点修改：总利润也按收入绿色、支出红色显示
+            if (grandTotalProfit !== 0) {
+                if (grandTotalProfit > 0) {
+                    totalProfit.className = 'stat-income';
+                    totalProfit.innerHTML = `+¥${grandTotalProfit.toFixed(2)}`;
+                } else {
+                    totalProfit.className = 'stat-expense';
+                    totalProfit.innerHTML = `-¥${Math.abs(grandTotalProfit).toFixed(2)}`;
+                }
+            } else {
+                totalProfit.innerHTML = '0';
+                totalProfit.className = '';
+            }
         }
         
         // 切换选择所有记录
@@ -2640,27 +3011,26 @@
                 const amount = record.amount;     // 记录金额
                 const subtype = record.subtype;   // 记录子类型
                 
-                // 上家分类：粤港上家、澳门上家 → 累加到上家总和
+                // 上家分类：粤港上家、澳门上家
                 if ((category === 'guangdong' && subtype === 'up') || 
                     (category === 'macau' && subtype === 'up')) {
                     sumUpstream += amount;
                 }
-                // 下家分类：澳门下家、粤港下家 → 累加到下家总和
+                // 下家分类：澳门下家、粤港下家
                 else if ((category === 'macau' && subtype === 'down') || 
                          (category === 'guangdong' && subtype === 'down')) {
                     sumDownstream += amount;
                 }
-                // 其他分类（如虚拟的"我的收支"）：不参与上下家总和计算
             });
             
-            // 净收入 = 下家总收支 - 上家总收支（核心逻辑）
+            // 净收入 = 下家总收支 - 上家总收支
             const netIncome = sumDownstream - sumUpstream;
             
             return {
-                sumUpstream: Number(sumUpstream.toFixed(2)),    // 上家总收支
-                sumDownstream: Number(sumDownstream.toFixed(2)), // 下家总收支
-                netIncome: Number(netIncome.toFixed(2)),       // 净收入（下家-上家）
-                count: count                                   // 记录总数
+                sumUpstream: Number(sumUpstream.toFixed(2)),
+                sumDownstream: Number(sumDownstream.toFixed(2)),
+                netIncome: Number(netIncome.toFixed(2)),
+                count: count
             };
         }
         
@@ -2896,7 +3266,7 @@
                 records: appState.records,
                 recycleBin: appState.recycleBin,
                 exportedAt: new Date().toISOString(),
-                version: '29.0'
+                version: '32.0'
             };
             
             const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
