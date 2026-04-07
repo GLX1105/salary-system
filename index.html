@@ -1797,7 +1797,7 @@
                 records: appState.records,
                 recycleBin: appState.recycleBin,
                 savedAt: new Date().toISOString(),
-                version: '28.0'
+                version: '29.0'
             };
             
             try {
@@ -2042,16 +2042,16 @@
             const macauUpRecords = dateRecords.filter(r => r.category === 'macau' && r.subtype === 'up');
             const macauDownRecords = dateRecords.filter(r => r.category === 'macau' && r.subtype === 'down');
             
-            const macauUpTotal = calculateStats(macauUpRecords);
-            const macauDownTotal = calculateStats(macauDownRecords);
+            const macauUpTotal = calculateStatsOld(macauUpRecords);
+            const macauDownTotal = calculateStatsOld(macauDownRecords);
             
             const macauMyIncome = macauDownTotal.profit - macauUpTotal.profit;
             
             const guangdongUpRecords = dateRecords.filter(r => r.category === 'guangdong' && r.subtype === 'up');
             const guangdongDownRecords = dateRecords.filter(r => r.category === 'guangdong' && r.subtype === 'down');
             
-            const guangdongUpTotal = calculateStats(guangdongUpRecords);
-            const guangdongDownTotal = calculateStats(guangdongDownRecords);
+            const guangdongUpTotal = calculateStatsOld(guangdongUpRecords);
+            const guangdongDownTotal = calculateStatsOld(guangdongDownRecords);
             
             const guangdongMyIncome = guangdongDownTotal.profit - guangdongUpTotal.profit;
             
@@ -2178,8 +2178,8 @@
             `;
         }
         
-        // 计算统计数据
-        function calculateStats(recordList) {
+        // 计算统计数据（旧版，用于我的收支计算）
+        function calculateStatsOld(recordList) {
             let income = 0;
             let expense = 0;
             
@@ -2464,16 +2464,16 @@
                 const macauUpRecords = dateRecords.filter(r => r.category === 'macau' && r.subtype === 'up');
                 const macauDownRecords = dateRecords.filter(r => r.category === 'macau' && r.subtype === 'down');
                 
-                const macauUpTotal = calculateStats(macauUpRecords);
-                const macauDownTotal = calculateStats(macauDownRecords);
+                const macauUpTotal = calculateStatsOld(macauUpRecords);
+                const macauDownTotal = calculateStatsOld(macauDownRecords);
                 
                 const macauMyIncome = macauDownTotal.profit - macauUpTotal.profit;
                 
                 const guangdongUpRecords = dateRecords.filter(r => r.category === 'guangdong' && r.subtype === 'up');
                 const guangdongDownRecords = dateRecords.filter(r => r.category === 'guangdong' && r.subtype === 'down');
                 
-                const guangdongUpTotal = calculateStats(guangdongUpRecords);
-                const guangdongDownTotal = calculateStats(guangdongDownRecords);
+                const guangdongUpTotal = calculateStatsOld(guangdongUpRecords);
+                const guangdongDownTotal = calculateStatsOld(guangdongDownRecords);
                 
                 const guangdongMyIncome = guangdongDownTotal.profit - guangdongUpTotal.profit;
                 
@@ -2541,7 +2541,7 @@
             
             tbody.innerHTML = html;
             
-            const myIncomeStats = calculateStats(myIncomeRecords);
+            const myIncomeStats = calculateStatsOld(myIncomeRecords);
             const timeLabel = selectedYear === 'all' ? '全部' : `${selectedYear}年${selectedMonth === 'all' ? '' : selectedMonth + '月'}`;
             const isIncome = myIncomeStats.profit >= 0;
             const hintClass = isIncome ? 'income-hint' : 'expense-hint';
@@ -2625,36 +2625,106 @@
             tbody.innerHTML = html;
         }
         
-        // 渲染统计卡片
+        /**
+         * 🔄 修改后的统计函数 - 按新逻辑计算总计统计
+         * 计算：上家总收支（粤港上家+澳门上家）、下家总收支（澳门下家+粤港下家）
+         * 净收入 = 下家总收支 - 上家总收支
+         */
+        function calculateStatsNew(recordList) {
+            let sumUpstream = 0;    // 上家总收支（粤港上家 + 澳门上家）
+            let sumDownstream = 0;  // 下家总收支（澳门下家 + 粤港下家）
+            const count = recordList.length; // 记录总数
+            
+            recordList.forEach(record => {
+                const category = record.category; // 记录分类
+                const amount = record.amount;     // 记录金额
+                const subtype = record.subtype;   // 记录子类型
+                
+                // 上家分类：粤港上家、澳门上家 → 累加到上家总和
+                if ((category === 'guangdong' && subtype === 'up') || 
+                    (category === 'macau' && subtype === 'up')) {
+                    sumUpstream += amount;
+                }
+                // 下家分类：澳门下家、粤港下家 → 累加到下家总和
+                else if ((category === 'macau' && subtype === 'down') || 
+                         (category === 'guangdong' && subtype === 'down')) {
+                    sumDownstream += amount;
+                }
+                // 其他分类（如虚拟的"我的收支"）：不参与上下家总和计算
+            });
+            
+            // 净收入 = 下家总收支 - 上家总收支（核心逻辑）
+            const netIncome = sumDownstream - sumUpstream;
+            
+            return {
+                sumUpstream: Number(sumUpstream.toFixed(2)),    // 上家总收支
+                sumDownstream: Number(sumDownstream.toFixed(2)), // 下家总收支
+                netIncome: Number(netIncome.toFixed(2)),       // 净收入（下家-上家）
+                count: count                                   // 记录总数
+            };
+        }
+        
+        /**
+         * 🔄 修改后的总计统计渲染函数
+         * 按新逻辑显示：上家总收支、下家总收支、净收入、记录数
+         */
         function renderSummaryStats(records, selectedYear, selectedMonth, filterCategory) {
             const container = elements.summaryStats;
             
+            // 🔄 使用新的统计函数
+            const allStats = calculateStatsNew(records);
+            
+            const timeLabel = selectedYear === 'all' ? '全部' : `${selectedYear}年${selectedMonth === 'all' ? '' : selectedMonth + '月'}`;
+            
+            container.innerHTML = '';
+            
+            // 🔄 渲染新的总计统计卡片（按新逻辑）
+            container.innerHTML += `
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-title">总计 ${timeLabel}统计</div>
+                        <div class="stat-amount ${allStats.netIncome >= 0 ? 'stat-income' : 'stat-expense'}">
+                            ${allStats.netIncome >= 0 ? '+' : ''}¥${Math.abs(allStats.netIncome).toFixed(2)}
+                        </div>
+                    </div>
+                    <div class="${allStats.netIncome >= 0 ? 'income-hint' : 'expense-hint'}" style="margin-top: 5px;">
+                        ${allStats.netIncome >= 0 ? '收入' : '支出'} ¥${Math.abs(allStats.netIncome).toFixed(2)}
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px;">
+                        <div>
+                            <div class="stat-label">上家总收支（粤港+澳门）</div>
+                            <div class="stat-amount ${allStats.sumUpstream >= 0 ? 'stat-income' : 'stat-expense'}">
+                                ${allStats.sumUpstream >= 0 ? '+' : ''}¥${Math.abs(allStats.sumUpstream).toFixed(2)}
+                            </div>
+                        </div>
+                        <div>
+                            <div class="stat-label">下家总收支（澳门+粤港）</div>
+                            <div class="stat-amount ${allStats.sumDownstream >= 0 ? 'stat-income' : 'stat-expense'}">
+                                ${allStats.sumDownstream >= 0 ? '+' : ''}¥${Math.abs(allStats.sumDownstream).toFixed(2)}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stat-details">记录总数：${allStats.count}条</div>
+                </div>
+            `;
+            
+            // 🔄 保留原有的澳门和粤港统计卡片（不受影响）
             const macauUpRecords = records.filter(r => r.category === 'macau' && r.subtype === 'up');
             const macauDownRecords = records.filter(r => r.category === 'macau' && r.subtype === 'down');
             
             const guangdongUpRecords = records.filter(r => r.category === 'guangdong' && r.subtype === 'up');
             const guangdongDownRecords = records.filter(r => r.category === 'guangdong' && r.subtype === 'down');
             
-            const allRecords = records;
-            
-            const timeLabel = selectedYear === 'all' ? '全部' : `${selectedYear}年${selectedMonth === 'all' ? '' : selectedMonth + '月'}`;
-            
-            const macauUpTotal = calculateStats(macauUpRecords);
-            const macauDownTotal = calculateStats(macauDownRecords);
-            
-            const guangdongUpTotal = calculateStats(guangdongUpRecords);
-            const guangdongDownTotal = calculateStats(guangdongDownRecords);
-            
-            const allStats = calculateStats(allRecords);
+            const macauUpTotal = calculateStatsOld(macauUpRecords);
+            const macauDownTotal = calculateStatsOld(macauDownRecords);
+            const guangdongUpTotal = calculateStatsOld(guangdongUpRecords);
+            const guangdongDownTotal = calculateStatsOld(guangdongDownRecords);
             
             const macauMyIncome = macauDownTotal.profit - macauUpTotal.profit;
             const guangdongMyIncome = guangdongDownTotal.profit - guangdongUpTotal.profit;
-            
             const guangdongUpProfit = calculateGuangdongUpProfit(guangdongUpRecords);
             
-            container.innerHTML = '';
-            
-            // 澳门统计卡片
+            // 澳门统计卡片（保留原逻辑）
             if (filterCategory === 'all' || filterCategory.includes('macau')) {
                 const macauIsIncome = macauMyIncome >= 0;
                 const macauHintClass = macauIsIncome ? 'income-hint' : 'expense-hint';
@@ -2689,7 +2759,7 @@
                 `;
             }
             
-            // 粤港统计卡片
+            // 粤港统计卡片（保留原逻辑）
             if (filterCategory === 'all' || filterCategory.includes('guangdong')) {
                 const guangdongIsIncome = guangdongMyIncome >= 0;
                 const guangdongHintClass = guangdongIsIncome ? 'income-hint' : 'expense-hint';
@@ -2728,35 +2798,6 @@
                     </div>
                 `;
             }
-            
-            // 总统计卡片
-            const allIsIncome = allStats.profit >= 0;
-            const allHintClass = allIsIncome ? 'income-hint' : 'expense-hint';
-            
-            container.innerHTML += `
-                <div class="stat-card">
-                    <div class="stat-header">
-                        <div class="stat-title">总计 ${timeLabel}统计</div>
-                        <div class="stat-amount ${allIsIncome ? 'stat-income' : 'stat-expense'}">
-                            ${allIsIncome ? '+' : ''}¥${Math.abs(allStats.profit).toFixed(2)}
-                        </div>
-                    </div>
-                    <div class="${allHintClass}" style="margin-bottom: 6px;">
-                        ${allIsIncome ? '收入' : '支出'} ¥${Math.abs(allStats.profit).toFixed(2)}
-                    </div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px;">
-                        <div>
-                            <div class="stat-label">总收入</div>
-                            <div class="stat-amount stat-income">+¥${allStats.income.toFixed(2)}</div>
-                        </div>
-                        <div>
-                            <div class="stat-label">总支出</div>
-                            <div class="stat-amount stat-expense">-¥${allStats.expense.toFixed(2)}</div>
-                        </div>
-                    </div>
-                    <div class="stat-details">记录总数：${allStats.count}条</div>
-                </div>
-            `;
         }
         
         // 清除当月记录
@@ -2855,7 +2896,7 @@
                 records: appState.records,
                 recycleBin: appState.recycleBin,
                 exportedAt: new Date().toISOString(),
-                version: '28.0'
+                version: '29.0'
             };
             
             const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
