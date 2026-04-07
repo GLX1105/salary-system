@@ -640,6 +640,34 @@
             margin-top: 10px;
             border-radius: 5px;
             border: 1px solid var(--border);
+            min-width: 100%;
+            max-width: 100%;
+        }
+        
+        /* 添加横向滚动条样式 */
+        .horizontal-scroll {
+            overflow-x: auto;
+            white-space: nowrap;
+            min-width: 100%;
+            max-width: 100%;
+        }
+        
+        .horizontal-scroll::-webkit-scrollbar {
+            height: 8px;
+        }
+        
+        .horizontal-scroll::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        
+        .horizontal-scroll::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 4px;
+        }
+        
+        .horizontal-scroll::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
         }
         
         .data-table {
@@ -1172,7 +1200,7 @@
         <div class="main-grid">
             <!-- 左栏：录入和管理 -->
             <div>
-                <!-- 录入收支卡片（已添加回车保存和清除功能） -->
+                <!-- 录入收支卡片 -->
                 <div class="card">
                     <div class="card-header primary">
                         <div class="card-title">📝 录入收支</div>
@@ -1262,7 +1290,7 @@
                             <button class="btn btn-outline btn-sm" onclick="setTodayDate()" style="padding: 4px 8px; font-size: 9px;">今天</button>
                         </div>
                         
-                        <div class="table-container">
+                        <div class="table-container horizontal-scroll">
                             <table class="data-table">
                                 <thead>
                                     <tr>
@@ -1364,8 +1392,8 @@
                             </div>
                         </div>
                         
-                        <!-- 表格 -->
-                        <div class="table-container" style="max-height: 400px; overflow-y: auto;">
+                        <!-- 表格 - 添加横向滚动 -->
+                        <div class="table-container horizontal-scroll" style="max-height: 400px; overflow-y: auto;">
                             <table class="data-table">
                                 <thead>
                                     <tr>
@@ -1395,7 +1423,7 @@
                     </div>
                 </div>
                 
-                <!-- 收支明细卡片 -->
+                <!-- 收支明细卡片 - 添加横向滚动 -->
                 <div class="card">
                     <div class="card-header primary">
                         <div class="card-title">
@@ -1419,7 +1447,7 @@
                             </div>
                         </div>
                         
-                        <div class="table-container">
+                        <div class="table-container horizontal-scroll">
                             <table class="data-table" id="detail-transposed-table">
                                 <thead>
                                     <tr>
@@ -1961,7 +1989,7 @@
                 records: appState.records,
                 recycleBin: appState.recycleBin,
                 savedAt: new Date().toISOString(),
-                version: '31.0'
+                version: '32.0'
             };
             
             try {
@@ -3279,7 +3307,7 @@
                 records: appState.records,
                 recycleBin: appState.recycleBin,
                 exportedAt: new Date().toISOString(),
-                version: '31.0'
+                version: '32.0'
             };
             
             const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
