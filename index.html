@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>个人收支管理系统 - 粤港港&澳门</title>
+    <title>个人收支管理系统 - 中国时区版</title>
     <style>
         * {
             margin: 0;
@@ -1041,6 +1041,21 @@
             color: var(--rebate);
         }
         
+        /* 总返点样式 */
+        .total-rebate {
+            display: inline-block;
+            margin-left: 20px;
+            padding: 4px 8px;
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+        
+        .total-rebate-value {
+            font-size: 12px;
+        }
+        
         /* 响应式设计 */
         @media (max-width: 900px) {
             .main-grid {
@@ -1207,8 +1222,8 @@
             <div class="nav-left">
                 <div class="nav-icon">💰</div>
                 <div>
-                    <div class="nav-title">个人收支管理系统 - 澳门 & 粤港</div>
-                    <div class="nav-subtitle">澳门 & 粤港 888</div>
+                    <div class="nav-title">个人收支管理系统 - 中国时区版</div>
+                    <div class="nav-subtitle">澳门 & 粤港 - 下家总和减去上家总和=我的收支 | 粤港上家返点10%</div>
                 </div>
             </div>
             <div class="btn-group">
@@ -1266,7 +1281,7 @@
                                 <input type="text" id="person-name" placeholder="输入姓名" class="form-input" 
                                        onblur="validateName()" 
                                        onkeydown="handleNameKeyPress(event)">
-                                <div class="error-msg" id="name-error">姓名不能为空且不能包含特殊字符</div>
+                                <div class="error-msg" id="name-error">姓名不能为空</div>
                             </div>
                             <div class="form-group">
                                 <label class="form-label">日期</label>
@@ -1351,7 +1366,7 @@
                             </table>
                         </div>
                         
-                        <!-- 返点统计区域 -->
+                        <!-- 返点统计区域（已添加总返点） -->
                         <div id="date-rebate-summary" class="rebate-summary">
                             <!-- 动态显示返点统计 -->
                         </div>
@@ -1461,7 +1476,7 @@
                             </table>
                         </div>
                         
-                        <!-- 返点统计区域 -->
+                        <!-- 返点统计区域（已添加总返点） -->
                         <div id="detail-rebate-summary" class="rebate-summary">
                             <!-- 动态显示返点统计 -->
                         </div>
@@ -1624,8 +1639,8 @@
             recordType: document.getElementById('record-type'),
             recordAmount: document.getElementById('record-amount'),
             recordNote: document.getElementById('record-note'),
-            recordTotal: document.getElementById('record-total'), // 新增总额输入框
-            recordRebateRate: document.getElementById('record-rebate-rate'), // 新增返水率输入框
+            recordTotal: document.getElementById('record-total'),
+            recordRebateRate: document.getElementById('record-rebate-rate'),
             dateRecordsBody: document.getElementById('date-records-body'),
             recordsBody: document.getElementById('records-body'),
             summaryStats: document.getElementById('summary-stats'),
@@ -1650,7 +1665,6 @@
             recycleToday: document.getElementById('recycle-today'),
             recycleWeek: document.getElementById('recycle-week'),
             recycleSize: document.getElementById('recycle-size'),
-            // 收支明细相关元素
             filterYearDisplay: document.getElementById('filter-year-display'),
             filterMonthDisplay: document.getElementById('filter-month-display'),
             filterCategoryDisplay: document.getElementById('filter-category-display'),
@@ -1660,7 +1674,6 @@
             transposedPersonCount: document.getElementById('transposed-person-count'),
             transposedMonthCount: document.getElementById('transposed-month-count'),
             transposedTotal: document.getElementById('transposed-total'),
-            // 返点统计元素
             dateRebateSummary: document.getElementById('date-rebate-summary'),
             detailRebateSummary: document.getElementById('detail-rebate-summary')
         };
@@ -1671,7 +1684,6 @@
         // 🇨🇳 中国时区时间函数
         function getCurrentDateChina() {
             const now = new Date();
-            // 转换为中国时区 (UTC+8)
             const chinaTime = new Date(now.getTime() + (8 * 60 * 60 * 1000));
             const year = chinaTime.getUTCFullYear();
             const month = String(chinaTime.getUTCMonth() + 1).padStart(2, '0');
@@ -1681,7 +1693,6 @@
         
         function formatDateChina(date) {
             const d = new Date(date);
-            // 转换为中国时区
             const chinaTime = new Date(d.getTime() + (8 * 60 * 60 * 1000));
             const year = chinaTime.getUTCFullYear();
             const month = String(chinaTime.getUTCMonth() + 1).padStart(2, '0');
@@ -1691,7 +1702,6 @@
         
         function formatDateTimeChina(dateString) {
             const date = new Date(dateString);
-            // 转换为中国时区
             const chinaTime = new Date(date.getTime() + (8 * 60 * 60 * 1000));
             const year = chinaTime.getUTCFullYear();
             const month = String(chinaTime.getUTCMonth() + 1).padStart(2, '0');
@@ -1829,7 +1839,6 @@
         
         // 初始化应用
         function init() {
-            // 🇨🇳 使用中国时区时间
             const today = getCurrentDateChina();
             elements.recordDate.value = today;
             elements.viewDate.value = today;
@@ -1843,7 +1852,6 @@
                 elements.passwordInput.focus();
             }
             
-            // 调试信息：在控制台显示当前中国时区日期
             console.log('当前中国时区日期设置为:', today);
         }
         
@@ -1858,17 +1866,13 @@
             init();
         });
         
-        // 数据验证函数
+        // 数据验证函数（修改特码验证允许特殊字符）
         function validateName() {
             const name = elements.personName.value.trim();
             const errorElement = document.getElementById('name-error');
-            const nameRegex = /^[\u4e00-\u9fa5a-zA-Z0-9\s]+$/;
             
             if (!name) {
                 showError(elements.personName, errorElement, '姓名不能为空');
-                return false;
-            } else if (!nameRegex.test(name)) {
-                showError(elements.personName, errorElement, '姓名不能包含特殊字符');
                 return false;
             } else {
                 hideError(elements.personName, errorElement);
@@ -1906,18 +1910,14 @@
             }
         }
         
+        // 🎯 修改：允许特码输入特殊字符
         function validateNote() {
             const note = elements.recordNote.value.trim();
             const errorElement = document.getElementById('note-error');
-            const noteRegex = /^[\u4e00-\u9fa5a-zA-Z0-9\s]*$/;
             
-            if (note && !noteRegex.test(note)) {
-                showError(elements.recordNote, errorElement, '特码不能包含特殊字符');
-                return false;
-            } else {
-                hideError(elements.recordNote, errorElement);
-                return true;
-            }
+            // 允许所有字符，包括特殊字符
+            hideError(elements.recordNote, errorElement);
+            return true;
         }
         
         function showError(input, errorElement, message) {
@@ -1959,7 +1959,7 @@
                 records: appState.records,
                 recycleBin: appState.recycleBin,
                 savedAt: new Date().toISOString(),
-                version: '33.0'
+                version: '34.0'
             };
             
             try {
@@ -1977,7 +1977,6 @@
                     appState.records = data.records || [];
                     appState.recycleBin = data.recycleBin || [];
                     
-                    // 确保所有日期都使用中国时区格式
                     appState.records.forEach(record => {
                         if (record.date) {
                             record.date = formatDateChina(new Date(record.date));
@@ -2108,9 +2107,9 @@
                 type,
                 amount: type === 'expense' ? -Math.abs(amount) : Math.abs(amount),
                 note,
-                totalAmount: totalAmount || null, // 总额
-                rebateRate: rebateRate || null,   // 返水率
-                rebate: 0, // 返点将在下面计算
+                totalAmount: totalAmount || null,
+                rebateRate: rebateRate || null,
+                rebate: 0,
                 createdAt: new Date().toISOString()
             };
             
@@ -2134,7 +2133,6 @@
         
         // 设置日期为今天
         function setTodayDate() {
-            // 🇨🇳 使用中国时区
             const today = getCurrentDateChina();
             elements.viewDate.value = today;
             appState.currentViewDate = today;
@@ -2218,26 +2216,26 @@
             tbody.innerHTML = html;
         }
         
-        // 更新日期返点统计
+        // 更新日期返点统计（已添加总返点）
         function updateDateRebateSummary(records) {
             if (!elements.dateRebateSummary) return;
             
             // 计算各类返点总和
             let macauDownRebate = 0;
             let guangdongDownRebate = 0;
-            let guangdongUpperRebate = 0;
             
             records.forEach(record => {
                 if (record.category === 'macau' && record.subtype === 'down') {
                     macauDownRebate += record.rebate || 0;
                 } else if (record.category === 'guangdong' && record.subtype === 'down') {
                     guangdongDownRebate += record.rebate || 0;
-                } else if (record.category === 'guangdong' && record.subtype === 'up') {
-                    guangdongUpperRebate += record.rebate || 0;
                 }
             });
             
-            // 构建统计HTML
+            // 🎯 计算总返点（澳门下家+粤港下家）
+            const totalRebate = macauDownRebate + guangdongDownRebate;
+            
+            // 构建统计HTML（添加总返点）
             let html = '<div class="rebate-item">';
             html += '<span>澳门下家返点:</span> ';
             html += `<span class="rebate-value">${macauDownRebate.toFixed(2)}元</span>`;
@@ -2248,9 +2246,10 @@
             html += `<span class="rebate-value">${guangdongDownRebate.toFixed(2)}元</span>`;
             html += '</div>';
             
-            html += '<div class="rebate-item">';
-            html += '<span>粤港上家返点:</span> ';
-            html += `<span class="rebate-value">${guangdongUpperRebate.toFixed(2)}元</span>`;
+            // 🎯 添加总返点显示
+            html += '<div class="total-rebate">';
+            html += '<span>总返点:</span> ';
+            html += `<span class="total-rebate-value">${totalRebate.toFixed(2)}元</span>`;
             html += '</div>';
             
             elements.dateRebateSummary.innerHTML = html;
@@ -2489,26 +2488,26 @@
             updateDetailRebateSummary(filteredRecords); // 更新返点统计
         }
         
-        // 更新详细记录返点统计
+        // 更新详细记录返点统计（已添加总返点）
         function updateDetailRebateSummary(records) {
             if (!elements.detailRebateSummary) return;
             
             // 计算各类返点总和
             let macauDownRebate = 0;
             let guangdongDownRebate = 0;
-            let guangdongUpperRebate = 0;
             
             records.forEach(record => {
                 if (record.category === 'macau' && record.subtype === 'down') {
                     macauDownRebate += record.rebate || 0;
                 } else if (record.category === 'guangdong' && record.subtype === 'down') {
                     guangdongDownRebate += record.rebate || 0;
-                } else if (record.category === 'guangdong' && record.subtype === 'up') {
-                    guangdongUpperRebate += record.rebate || 0;
                 }
             });
             
-            // 构建统计HTML
+            // 🎯 计算总返点
+            const totalRebate = macauDownRebate + guangdongDownRebate;
+            
+            // 构建统计HTML（添加总返点）
             let html = '<div class="rebate-item">';
             html += '<span>澳门下家返点:</span> ';
             html += `<span class="rebate-value">${macauDownRebate.toFixed(2)}元</span>`;
@@ -2519,9 +2518,10 @@
             html += `<span class="rebate-value">${guangdongDownRebate.toFixed(2)}元</span>`;
             html += '</div>';
             
-            html += '<div class="rebate-item">';
-            html += '<span>粤港上家返点:</span> ';
-            html += `<span class="rebate-value">${guangdongUpperRebate.toFixed(2)}元</span>`;
+            // 🎯 添加总返点显示
+            html += '<div class="total-rebate">';
+            html += '<span>总返点:</span> ';
+            html += `<span class="total-rebate-value">${totalRebate.toFixed(2)}元</span>`;
             html += '</div>';
             
             elements.detailRebateSummary.innerHTML = html;
@@ -2551,11 +2551,7 @@
         // 🎯 新增：处理姓名输入框回车事件
         function handleNameKeyPress(event) {
             if (event.key === 'Enter') {
-                // 检查姓名是否包含数字
-                const name = elements.personName.value.trim();
-                if (/\d/.test(name) && validateName()) {
-                    saveRecord();
-                } else if (name && validateName()) {
+                if (validateName()) {
                     saveRecord();
                 }
             }
@@ -2564,9 +2560,7 @@
         // 🎯 新增：处理金额输入框回车事件
         function handleAmountKeyPress(event) {
             if (event.key === 'Enter') {
-                // 检查金额是否为有效数字
-                const amount = elements.recordAmount.value.trim();
-                if (/\d/.test(amount) && validateAmount()) {
+                if (validateAmount()) {
                     saveRecord();
                 }
             }
@@ -2578,10 +2572,11 @@
             elements.recordAmount.value = '';
             elements.recordTotal.value = '';
             elements.recordRebateRate.value = '';
+            elements.recordNote.value = '';
             // 清除错误状态
             hideError(elements.personName, document.getElementById('name-error'));
             hideError(elements.recordAmount, document.getElementById('amount-error'));
-            elements.personName.focus(); // 焦点回到姓名输入框
+            elements.personName.focus();
         }
         
         // 🎯 新增：更新转置表格的函数
@@ -2592,7 +2587,6 @@
             const monthCount = elements.transposedMonthCount;
             const totalProfit = elements.transposedTotal;
             
-            // 清空表格
             tableHead.innerHTML = '<th style="width: 60px;">月份</th>';
             transposedBody.innerHTML = '';
             
@@ -2605,20 +2599,17 @@
                 return;
             }
             
-            // 获取所有人员姓名（去重）
             const allPersons = [...new Set(filteredRecords.map(record => record.name))].sort();
-            // 获取所有月份（1-12月，根据筛选条件）
             const selectedYear = elements.selectYear.value;
             const selectedMonth = elements.selectMonth.value;
             
             let monthsToShow = [];
             if (selectedMonth === 'all') {
-                monthsToShow = Array.from({length: 12}, (_, i) => i + 1); // 1-12月
+                monthsToShow = Array.from({length: 12}, (_, i) => i + 1);
             } else {
-                monthsToShow = [parseInt(selectedMonth)]; // 指定月份
+                monthsToShow = [parseInt(selectedMonth)];
             }
             
-            // 按姓名和月份分组统计利润
             const personMonthStats = {};
             let grandTotalProfit = 0;
             
@@ -2627,7 +2618,6 @@
                 const month = parseInt(record.date.split('-')[1]);
                 const year = parseInt(record.date.split('-')[0]);
                 
-                // 如果筛选了特定年份，只统计该年份
                 if (selectedYear !== 'all' && year != selectedYear) {
                     return;
                 }
@@ -2640,31 +2630,26 @@
                     personMonthStats[name][month] = 0;
                 }
                 
-                // 计算利润：收入为正，支出为负
                 const amount = record.type === 'income' ? record.amount : -Math.abs(record.amount);
                 personMonthStats[name][month] += amount;
                 grandTotalProfit += amount;
             });
             
-            // 添加姓名表头（固定宽度80px）
             allPersons.forEach(name => {
                 const th = document.createElement('th');
-                th.style.width = '80px'; // 固定姓名列宽
+                th.style.width = '80px';
                 th.innerHTML = `<strong>${name}</strong>`;
                 tableHead.appendChild(th);
             });
             
-            // 添加总计列头
             const totalTh = document.createElement('th');
-            totalTh.style.width = '80px'; // 固定总计列宽
+            totalTh.style.width = '80px';
             totalTh.innerHTML = '<strong>总计</strong>';
             tableHead.appendChild(totalTh);
             
-            // 填充月份行
             monthsToShow.forEach(month => {
                 const row = document.createElement('tr');
                 
-                // 月份单元格
                 const monthCell = document.createElement('td');
                 monthCell.innerHTML = `<strong>${month}月</strong>`;
                 monthCell.style.fontWeight = '600';
@@ -2672,30 +2657,26 @@
                 
                 let monthTotal = 0;
                 
-                // 每个人员在该月份的利润
                 allPersons.forEach(name => {
                     const cell = document.createElement('td');
                     const profit = personMonthStats[name]?.[month] || 0;
                     
                     if (profit !== 0) {
-                        // 收入绿色，支出红色
                         if (profit > 0) {
-                            cell.className = 'stat-income'; // 收入绿色
+                            cell.className = 'stat-income';
                             cell.innerHTML = `+¥${profit.toFixed(2)}`;
                         } else {
-                            cell.className = 'stat-expense'; // 支出红色
+                            cell.className = 'stat-expense';
                             cell.innerHTML = `-¥${Math.abs(profit).toFixed(2)}`;
                         }
                         monthTotal += profit;
                     } else {
-                        cell.innerHTML = ''; // 没利润就空着
-                        cell.style.backgroundColor = 'transparent';
+                        cell.innerHTML = '';
                     }
                     
                     row.appendChild(cell);
                 });
                 
-                // 该月份总计
                 const totalCell = document.createElement('td');
                 if (monthTotal !== 0) {
                     if (monthTotal > 0) {
@@ -2713,7 +2694,6 @@
                 transposedBody.appendChild(row);
             });
             
-            // 添加总计行
             const totalRow = document.createElement('tr');
             const totalLabelCell = document.createElement('td');
             totalLabelCell.innerHTML = '<strong>总计</strong>';
@@ -2746,7 +2726,6 @@
                 totalRow.appendChild(cell);
             });
             
-            // 全体总计
             const grandTotalCell = document.createElement('td');
             if (grandTotalProfit !== 0) {
                 if (grandTotalProfit > 0) {
@@ -2763,7 +2742,6 @@
             
             transposedBody.appendChild(totalRow);
             
-            // 更新统计信息
             personCount.textContent = allPersons.length;
             monthCount.textContent = monthsToShow.length;
             
@@ -2855,23 +2833,16 @@
             if (!record) return;
             
             if (confirm('确定要删除这条记录吗？记录将移至回收站，可随时恢复。')) {
-                // 记录删除信息
                 const deletedRecord = {
                     ...record,
                     deletedAt: new Date().toISOString(),
                     originalIndex: appState.records.indexOf(record)
                 };
                 
-                // 从主记录中移除
                 appState.records = appState.records.filter(r => r.id !== recordId);
-                
-                // 添加到回收站
                 appState.recycleBin.unshift(deletedRecord);
-                
-                // 从选择中移除
                 appState.selectedRecords.delete(recordId);
                 
-                // 保存并刷新
                 saveLocalData();
                 updatePersonFilter();
                 updateYearFilter();
@@ -2894,17 +2865,14 @@
             }
             
             if (confirm(`确定要删除选中的 ${appState.selectedRecords.size} 条记录吗？记录将移至回收站。`)) {
-                // 获取选中的记录
                 const selectedRecordsData = appState.records.filter(record => 
                     appState.selectedRecords.has(record.id)
                 );
                 
-                // 从主记录中移除
                 appState.records = appState.records.filter(record => 
                     !appState.selectedRecords.has(record.id)
                 );
                 
-                // 添加到回收站
                 selectedRecordsData.forEach(record => {
                     appState.recycleBin.unshift({
                         ...record,
@@ -2913,10 +2881,8 @@
                     });
                 });
                 
-                // 清空选择
                 clearSelection();
                 
-                // 保存并刷新
                 saveLocalData();
                 updatePersonFilter();
                 updateYearFilter();
@@ -3338,7 +3304,6 @@
             }
             
             if (confirm(`确定要清除本月的所有记录吗？\n将删除 ${monthRecords.length} 条记录\n此操作不可恢复！`)) {
-                // 将要删除的记录移到回收站而不是直接删除
                 monthRecords.forEach(record => {
                     appState.recycleBin.unshift({
                         ...record,
@@ -3375,7 +3340,6 @@
             }
             
             if (confirm(`确定要清空所有数据吗？\n将删除 ${appState.records.length} 条记录\n此操作不可恢复！`)) {
-                // 将要删除的记录移到回收站
                 appState.records.forEach(record => {
                     appState.recycleBin.unshift({
                         ...record,
@@ -3410,7 +3374,7 @@
                 records: appState.records,
                 recycleBin: appState.recycleBin,
                 exportedAt: new Date().toISOString(),
-                version: '33.0'
+                version: '34.0'
             };
             
             const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -3510,7 +3474,6 @@
             
             let recycleRecords = appState.recycleBin;
             
-            // 搜索过滤
             if (searchTerm) {
                 recycleRecords = recycleRecords.filter(record =>
                     record.name.toLowerCase().includes(searchTerm) ||
@@ -3593,7 +3556,6 @@
             
             const record = appState.recycleBin[recordIndex];
             
-            // 恢复到主记录
             appState.records.unshift({
                 id: record.id,
                 date: record.date,
@@ -3609,7 +3571,6 @@
                 createdAt: record.createdAt
             });
             
-            // 从回收站移除
             appState.recycleBin.splice(recordIndex, 1);
             
             saveLocalData();
@@ -3634,7 +3595,6 @@
             
             const recordIds = Array.from(checkboxes).map(cb => cb.value);
             
-            // 恢复选中的记录
             recordIds.forEach(recordId => {
                 const recordIndex = appState.recycleBin.findIndex(r => r.id === recordId);
                 if (recordIndex !== -1) {
@@ -3677,7 +3637,6 @@
             }
             
             if (confirm(`确定要还原回收站中的所有 ${appState.recycleBin.length} 条记录吗？`)) {
-                // 将所有记录恢复到主记录
                 appState.recycleBin.forEach(record => {
                     appState.records.unshift({
                         id: record.id,
