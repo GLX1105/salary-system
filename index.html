@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>个人收支管理系统 - 中国时区版</title>
+    <title>个人收支管理系统 - 粤港港&澳门</title>
     <style>
         * {
             margin: 0;
@@ -20,6 +20,7 @@
             --warning: #f39c12;
             --cloud: #9b59b6;
             --profit: #e67e22;
+            --rebate: #ff9800;
             --category3: #e67e22;
             --category4: #34495e;
             --light: #f8f9fa;
@@ -315,46 +316,38 @@
             padding: 12px;
         }
         
-        /* 收支明细卡片特殊样式 - 固定宽度显示8人 */
-        .detail-card {
-            width: 100%;
-            overflow-x: auto;
-        }
-        
+        /* 收支明细卡片固定宽度与滚动 */
         .detail-card .table-container {
+            width: 100%;
+            max-width: 850px;
             overflow-x: auto;
-            max-width: 700px; /* 固定宽度，约显示8人 */
             border: 1px solid var(--border);
             border-radius: 5px;
         }
         
-        .detail-card .data-table {
-            min-width: 700px; /* 8人宽度 */
-            width: max-content;
+        .detail-card .data-table th, 
+        .detail-card .data-table td {
+            min-width: 80px;
+            text-align: center;
         }
         
-        .detail-card th, .detail-card td {
-            padding: 8px 10px;
-            text-align: center;
-            white-space: nowrap;
+        .detail-card .data-table th:first-child {
+            min-width: 60px;
+        }
+        
+        .detail-card .data-table th:last-child {
             min-width: 80px;
         }
         
-        .detail-card th:first-child {
-            position: sticky;
-            left: 0;
-            background: #f8f9fa;
-            z-index: 5;
-            min-width: 60px;
+        /* 清除按钮样式 */
+        .clear-btn {
+            background: linear-gradient(135deg, #95a5a6, #7f8c8d) !important;
+            color: white !important;
+            margin-left: 8px;
         }
         
-        .detail-card td:first-child {
-            position: sticky;
-            left: 0;
-            background: white;
-            z-index: 4;
-            font-weight: 600;
-            min-width: 60px;
+        .clear-btn:hover {
+            background: linear-gradient(135deg, #7f8c8d, #6c7b7d) !important;
         }
         
         /* 回收站面板 */
@@ -848,6 +841,10 @@
             color: var(--profit);
         }
         
+        .stat-rebate {
+            color: var(--rebate);
+        }
+        
         .stat-recycle {
             color: var(--recycle);
         }
@@ -969,6 +966,12 @@
             font-size: 10px;
         }
         
+        .rebate-hint {
+            color: var(--rebate);
+            font-weight: 600;
+            font-size: 10px;
+        }
+        
         /* 撤销提示 */
         .undo-toast {
             position: fixed;
@@ -1015,6 +1018,27 @@
         
         .logout-btn:hover {
             background: #c0392b;
+        }
+        
+        /* 返点统计样式 */
+        .rebate-summary {
+            margin-top: 10px;
+            padding: 8px;
+            background: #fff8e1;
+            border-radius: 4px;
+            border-left: 3px solid var(--rebate);
+            font-size: 10px;
+            color: #e65100;
+        }
+        
+        .rebate-item {
+            display: inline-block;
+            margin-right: 12px;
+        }
+        
+        .rebate-value {
+            font-weight: 600;
+            color: var(--rebate);
         }
         
         /* 响应式设计 */
@@ -1183,8 +1207,8 @@
             <div class="nav-left">
                 <div class="nav-icon">💰</div>
                 <div>
-                    <div class="nav-title">个人收支管理系统 - 澳门 & 粤港</div>
-                    <div class="nav-subtitle">澳门 & 粤港888 </div>
+                    <div class="nav-title">个人收支管理系统 - 中国时区版</div>
+                    <div class="nav-subtitle">澳门 & 粤港 - 下家总和减去上家总和=我的收支 | 粤港上家返点10%</div>
                 </div>
             </div>
             <div class="btn-group">
@@ -1203,7 +1227,7 @@
         <div class="main-grid">
             <!-- 左栏：录入和管理 -->
             <div>
-                <!-- 录入收支卡片（已添加清除按钮和回车保存功能） -->
+                <!-- 录入收支卡片 -->
                 <div class="card">
                     <div class="card-header primary">
                         <div class="card-title">📝 录入收支</div>
@@ -1240,7 +1264,8 @@
                             <div class="form-group">
                                 <label class="form-label">姓名</label>
                                 <input type="text" id="person-name" placeholder="输入姓名" class="form-input" 
-                                       onblur="validateName()" onkeydown="handleEnterKey(event)">
+                                       onblur="validateName()" 
+                                       onkeydown="handleNameKeyPress(event)">
                                 <div class="error-msg" id="name-error">姓名不能为空且不能包含特殊字符</div>
                             </div>
                             <div class="form-group">
@@ -1254,7 +1279,8 @@
                             <div class="form-group">
                                 <label class="form-label">金额</label>
                                 <input type="number" id="record-amount" placeholder="输入金额" class="form-input" step="0.01" 
-                                       onblur="validateAmount()" onkeydown="handleEnterKey(event)">
+                                       onblur="validateAmount()" 
+                                       onkeydown="handleAmountKeyPress(event)">
                                 <div class="error-msg" id="amount-error">金额必须大于0</div>
                             </div>
                             <div class="form-group">
@@ -1266,6 +1292,18 @@
                             </div>
                         </div>
                         
+                        <!-- 新增：总额和返水输入框 -->
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">总额</label>
+                                <input type="number" id="record-total" placeholder="输入总额" class="form-input" step="0.01">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">返水(%)</label>
+                                <input type="number" id="record-rebate-rate" placeholder="输入返水率" class="form-input" step="0.01">
+                            </div>
+                        </div>
+                        
                         <div class="form-group">
                             <label class="form-label">特码</label>
                             <input type="text" id="record-note" placeholder="输入特码（可选）" class="form-input" onblur="validateNote()">
@@ -1274,7 +1312,7 @@
                         
                         <div class="btn-group">
                             <button class="btn btn-success" onclick="saveRecord()">保存记录</button>
-                            <button class="btn btn-outline" onclick="clearInput()">清除</button>
+                            <button class="btn clear-btn" onclick="clearInputs()">清除</button>
                         </div>
                     </div>
                 </div>
@@ -1300,7 +1338,7 @@
                                         <th>分类</th>
                                         <th>类型</th>
                                         <th>金额</th>
-                                        <th>利润</th>
+                                        <th>返点</th>
                                         <th>特码</th>
                                         <th>操作</th>
                                     </tr>
@@ -1311,6 +1349,11 @@
                                     </tr>
                                 </tbody>
                             </table>
+                        </div>
+                        
+                        <!-- 返点统计区域 -->
+                        <div id="date-rebate-summary" class="rebate-summary">
+                            <!-- 动态显示返点统计 -->
                         </div>
                     </div>
                 </div>
@@ -1405,7 +1448,7 @@
                                         <th>分类</th>
                                         <th>类型</th>
                                         <th>金额</th>
-                                        <th>利润</th>
+                                        <th>返点</th>
                                         <th>特码</th>
                                         <th>操作</th>
                                     </tr>
@@ -1418,6 +1461,11 @@
                             </table>
                         </div>
                         
+                        <!-- 返点统计区域 -->
+                        <div id="detail-rebate-summary" class="rebate-summary">
+                            <!-- 动态显示返点统计 -->
+                        </div>
+                        
                         <!-- 统计卡片 -->
                         <div id="summary-stats" class="stats-grid">
                             <!-- 统计卡片会动态显示在这里 -->
@@ -1425,7 +1473,7 @@
                     </div>
                 </div>
                 
-                <!-- 收支明细卡片（已设置固定宽度显示6人） -->
+                <!-- 收支明细卡片 -->
                 <div class="card detail-card">
                     <div class="card-header primary">
                         <div class="card-title">
@@ -1531,13 +1579,14 @@
                             <th>分类</th>
                             <th>类型</th>
                             <th>金额</th>
+                            <th>返点</th>
                             <th>特码</th>
                             <th>操作</th>
                         </tr>
                     </thead>
                     <tbody id="recycle-body">
                         <tr>
-                            <td colspan="9" class="empty-state">回收站为空</td>
+                            <td colspan="10" class="empty-state">回收站为空</td>
                         </tr>
                     </tbody>
                 </table>
@@ -1575,6 +1624,8 @@
             recordType: document.getElementById('record-type'),
             recordAmount: document.getElementById('record-amount'),
             recordNote: document.getElementById('record-note'),
+            recordTotal: document.getElementById('record-total'), // 新增总额输入框
+            recordRebateRate: document.getElementById('record-rebate-rate'), // 新增返水率输入框
             dateRecordsBody: document.getElementById('date-records-body'),
             recordsBody: document.getElementById('records-body'),
             summaryStats: document.getElementById('summary-stats'),
@@ -1608,7 +1659,10 @@
             transposedBody: document.getElementById('detail-transposed-body'),
             transposedPersonCount: document.getElementById('transposed-person-count'),
             transposedMonthCount: document.getElementById('transposed-month-count'),
-            transposedTotal: document.getElementById('transposed-total')
+            transposedTotal: document.getElementById('transposed-total'),
+            // 返点统计元素
+            dateRebateSummary: document.getElementById('date-rebate-summary'),
+            detailRebateSummary: document.getElementById('detail-rebate-summary')
         };
         
         // 正确的密码
@@ -1785,50 +1839,12 @@
             loadLocalData();
             updateRecycleCount();
             
-            // 添加回车键监听
-            setupEnterKeyListeners();
-            
             if (!appState.isLoggedIn) {
                 elements.passwordInput.focus();
             }
             
             // 调试信息：在控制台显示当前中国时区日期
             console.log('当前中国时区日期设置为:', today);
-        }
-        
-        // 设置回车键监听
-        function setupEnterKeyListeners() {
-            const nameInput = document.getElementById('person-name');
-            const amountInput = document.getElementById('record-amount');
-            
-            nameInput.addEventListener('keydown', handleEnterKey);
-            amountInput.addEventListener('keydown', handleEnterKey);
-        }
-        
-        // 处理回车键事件
-        function handleEnterKey(event) {
-            if (event.key === 'Enter') {
-                event.preventDefault(); // 阻止默认回车行为
-                const name = elements.personName.value.trim();
-                const amount = elements.recordAmount.value.trim();
-                
-                // 检查姓名和金额是否都有数据
-                if (name && amount) {
-                    saveRecord(); // 触发保存
-                }
-            }
-        }
-        
-        // 清除输入
-        function clearInput() {
-            elements.personName.value = '';
-            elements.recordAmount.value = '';
-            elements.recordNote.value = '';
-            // 清除错误状态
-            hideError(elements.personName, document.getElementById('name-error'));
-            hideError(elements.recordAmount, document.getElementById('amount-error'));
-            hideError(elements.recordNote, document.getElementById('note-error'));
-            showToast('已清除输入内容');
         }
         
         // 监听回车键登录
@@ -1943,7 +1959,7 @@
                 records: appState.records,
                 recycleBin: appState.recycleBin,
                 savedAt: new Date().toISOString(),
-                version: '32.0'
+                version: '33.0'
             };
             
             try {
@@ -2031,15 +2047,27 @@
             });
         }
         
-        // 计算利润
-        function calculateProfit(record) {
-            if (record.category === 'guangdong' && record.subtype === 'up') {
-                return record.amount * 0.1;
+        // 🎯 计算返点（粤港上家10%，其他为总额*返水率）
+        function calculateRebate(record) {
+            const amount = Math.abs(record.amount);
+            const category = record.category;
+            const subtype = record.subtype;
+            const totalAmount = parseFloat(record.totalAmount) || 0;
+            const rebateRate = parseFloat(record.rebateRate) || 0;
+            
+            // 粤港上家返点 = 金额 * 0.1
+            if (category === 'guangdong' && subtype === 'up') {
+                return amount * 0.1;
             }
+            // 其他分类：如果有总额和返水率，则计算总额*返水率
+            else if (totalAmount > 0 && rebateRate > 0) {
+                return totalAmount * (rebateRate / 100);
+            }
+            // 默认返点为0
             return 0;
         }
         
-        // 保存记录
+        // 保存记录（整合所有新功能）
         function saveRecord() {
             if (!validateName() || !validateDate() || !validateAmount()) {
                 showToast('请正确填写所有必填项', true);
@@ -2053,6 +2081,8 @@
             const note = elements.recordNote.value.trim();
             const category = appState.selectedCategory;
             const subtype = appState.selectedSubtype;
+            const totalAmount = parseFloat(elements.recordTotal.value) || 0;
+            const rebateRate = parseFloat(elements.recordRebateRate.value) || 0;
             
             const isDuplicate = appState.records.some(record => 
                 record.date === date && 
@@ -2068,6 +2098,7 @@
                 return;
             }
             
+            // 🎯 创建记录对象（包含总额和返水率）
             const record = {
                 id: Date.now() + '_' + Math.random().toString(36).substr(2, 9),
                 date,
@@ -2077,13 +2108,19 @@
                 type,
                 amount: type === 'expense' ? -Math.abs(amount) : Math.abs(amount),
                 note,
+                totalAmount: totalAmount || null, // 总额
+                rebateRate: rebateRate || null,   // 返水率
+                rebate: 0, // 返点将在下面计算
                 createdAt: new Date().toISOString()
             };
             
+            // 计算返点
+            record.rebate = calculateRebate(record);
+            
             appState.records.unshift(record);
             
-            // 保存后自动清除输入
-            clearInput();
+            // 保存后清除输入框
+            clearInputs();
             
             saveLocalData();
             updatePersonFilter();
@@ -2130,9 +2167,10 @@
             
             renderDateRecordsTable(dateRecords);
             loadMyIncomeStatsForDate(selectedDate);
+            updateDateRebateSummary(dateRecords); // 更新返点统计
         }
         
-        // 渲染日期记录表格
+        // 渲染日期记录表格（显示返点）
         function renderDateRecordsTable(records) {
             const tbody = elements.dateRecordsBody;
             
@@ -2146,9 +2184,9 @@
             records.forEach(record => {
                 const isIncome = record.amount > 0;
                 const categoryLabel = getCategoryLabel(record.category, record.subtype);
-                const profit = calculateProfit(record);
-                const isProfit = profit >= 0;
-                const profitClass = isProfit ? 'stat-profit' : 'stat-expense';
+                const rebate = record.rebate || 0;
+                const isRebatePositive = rebate >= 0;
+                const rebateClass = isRebatePositive ? 'stat-rebate' : 'stat-expense';
                 
                 html += `
                     <tr>
@@ -2166,8 +2204,8 @@
                         <td class="${isIncome ? 'stat-income' : 'stat-expense'}">
                             ${isIncome ? '+' : ''}¥${Math.abs(record.amount).toFixed(2)}
                         </td>
-                        <td class="${profitClass}">
-                            ${profit !== 0 ? (profit > 0 ? '+' : '') + '¥' + Math.abs(profit).toFixed(2) : '-'}
+                        <td class="${rebateClass}">
+                            ${rebate !== 0 ? (rebate > 0 ? '+' : '') + '¥' + Math.abs(rebate).toFixed(2) : '-'}
                         </td>
                         <td>${record.note || '-'}</td>
                         <td>
@@ -2178,6 +2216,44 @@
             });
             
             tbody.innerHTML = html;
+        }
+        
+        // 更新日期返点统计
+        function updateDateRebateSummary(records) {
+            if (!elements.dateRebateSummary) return;
+            
+            // 计算各类返点总和
+            let macauDownRebate = 0;
+            let guangdongDownRebate = 0;
+            let guangdongUpperRebate = 0;
+            
+            records.forEach(record => {
+                if (record.category === 'macau' && record.subtype === 'down') {
+                    macauDownRebate += record.rebate || 0;
+                } else if (record.category === 'guangdong' && record.subtype === 'down') {
+                    guangdongDownRebate += record.rebate || 0;
+                } else if (record.category === 'guangdong' && record.subtype === 'up') {
+                    guangdongUpperRebate += record.rebate || 0;
+                }
+            });
+            
+            // 构建统计HTML
+            let html = '<div class="rebate-item">';
+            html += '<span>澳门下家返点:</span> ';
+            html += `<span class="rebate-value">${macauDownRebate.toFixed(2)}元</span>`;
+            html += '</div>';
+            
+            html += '<div class="rebate-item">';
+            html += '<span>粤港下家返点:</span> ';
+            html += `<span class="rebate-value">${guangdongDownRebate.toFixed(2)}元</span>`;
+            html += '</div>';
+            
+            html += '<div class="rebate-item">';
+            html += '<span>粤港上家返点:</span> ';
+            html += `<span class="rebate-value">${guangdongUpperRebate.toFixed(2)}元</span>`;
+            html += '</div>';
+            
+            elements.dateRebateSummary.innerHTML = html;
         }
         
         // 加载选中日期的我的收支统计
@@ -2199,26 +2275,25 @@
             const guangdongDownTotal = calculateStatsOld(guangdongDownRecords);
             
             const guangdongMyIncome = guangdongDownTotal.profit - guangdongUpTotal.profit;
-            
-            const guangdongUpProfit = calculateGuangdongUpProfit(guangdongUpRecords);
+            const guangdongUpRebate = calculateGuangdongUpRebate(guangdongUpRecords);
             
             const totalMyIncome = macauMyIncome + guangdongMyIncome;
             
             renderMyIncomeStats({
                 macau: { up: macauUpTotal, down: macauDownTotal, my: macauMyIncome },
                 guangdong: { up: guangdongUpTotal, down: guangdongDownTotal, my: guangdongMyIncome },
-                guangdongUpProfit: guangdongUpProfit,
+                guangdongUpRebate: guangdongUpRebate,
                 total: totalMyIncome
             }, date);
         }
         
-        // 计算粤港上家总利润
-        function calculateGuangdongUpProfit(guangdongUpRecords) {
-            let totalProfit = 0;
+        // 🎯 计算粤港上家总返点
+        function calculateGuangdongUpRebate(guangdongUpRecords) {
+            let totalRebate = 0;
             guangdongUpRecords.forEach(record => {
-                totalProfit += calculateProfit(record);
+                totalRebate += record.rebate || 0;
             });
-            return totalProfit;
+            return totalRebate;
         }
         
         // 渲染我的收支统计
@@ -2272,10 +2347,10 @@
             const guangdongDownColorClass = guangdongDownIsIncome ? 'stat-income' : 'stat-expense';
             const guangdongDownHintText = guangdongDownIsIncome ? `收入 ¥${Math.abs(stats.guangdong.down.profit).toFixed(2)}` : `支出 ¥${Math.abs(stats.guangdong.down.profit).toFixed(2)}`;
             
-            const guangdongUpProfitIsIncome = stats.guangdongUpProfit >= 0;
-            const guangdongUpProfitColorClass = guangdongUpProfitIsIncome ? 'stat-profit' : 'stat-expense';
-            const guangdongUpProfitHintClass = guangdongUpProfitIsIncome ? 'profit-hint' : 'expense-hint';
-            const guangdongUpProfitHintText = guangdongUpProfitIsIncome ? `收入 ¥${Math.abs(stats.guangdongUpProfit).toFixed(2)}` : `支出 ¥${Math.abs(stats.guangdongUpProfit).toFixed(2)}`;
+            const guangdongUpRebateIsIncome = stats.guangdongUpRebate >= 0;
+            const guangdongUpRebateColorClass = guangdongUpRebateIsIncome ? 'stat-rebate' : 'stat-expense';
+            const guangdongUpRebateHintClass = guangdongUpRebateIsIncome ? 'rebate-hint' : 'expense-hint';
+            const guangdongUpRebateHintText = guangdongUpRebateIsIncome ? `返点 ¥${Math.abs(stats.guangdongUpRebate).toFixed(2)}` : `支出 ¥${Math.abs(stats.guangdongUpRebate).toFixed(2)}`;
             
             container.innerHTML += `
                 <div class="stat-card">
@@ -2291,7 +2366,7 @@
                     <div class="stat-details">
                         粤港下家：<span class="${guangdongDownColorClass}">${guangdongDownHintText}</span><br>
                         粤港上家：<span class="${guangdongUpColorClass}">${guangdongUpHintText}</span><br>
-                        上家利润(10%)：<span class="${guangdongUpProfitColorClass}">${guangdongUpProfitHintText}</span>
+                        上家返点：<span class="${guangdongUpRebateColorClass} ${guangdongUpRebateHintClass}">${guangdongUpRebateHintText}</span>
                     </div>
                 </div>
             `;
@@ -2317,7 +2392,7 @@
                         日期：${date}<br>
                         澳门：${macauIsIncome ? '+' : ''}¥${Math.abs(stats.macau.my).toFixed(2)}<br>
                         粤港：${guangdongIsIncome ? '+' : ''}¥${Math.abs(stats.guangdong.my).toFixed(2)}<br>
-                        粤港上家利润：${guangdongUpProfitIsIncome ? '+' : ''}¥${Math.abs(stats.guangdongUpProfit).toFixed(2)}
+                        粤港上家返点：${guangdongUpRebateIsIncome ? '+' : ''}¥${Math.abs(stats.guangdongUpRebate).toFixed(2)}
                     </div>
                 </div>
             `;
@@ -2409,10 +2484,47 @@
             
             renderRecordsTable(filteredRecords);
             renderSummaryStats(filteredRecords, selectedYear, selectedMonth, filterCategory);
-            
-            // 🎯 新增：更新收支明细表格
             updateDetailTransposedTable(filteredRecords);
             updateFilterDisplay();
+            updateDetailRebateSummary(filteredRecords); // 更新返点统计
+        }
+        
+        // 更新详细记录返点统计
+        function updateDetailRebateSummary(records) {
+            if (!elements.detailRebateSummary) return;
+            
+            // 计算各类返点总和
+            let macauDownRebate = 0;
+            let guangdongDownRebate = 0;
+            let guangdongUpperRebate = 0;
+            
+            records.forEach(record => {
+                if (record.category === 'macau' && record.subtype === 'down') {
+                    macauDownRebate += record.rebate || 0;
+                } else if (record.category === 'guangdong' && record.subtype === 'down') {
+                    guangdongDownRebate += record.rebate || 0;
+                } else if (record.category === 'guangdong' && record.subtype === 'up') {
+                    guangdongUpperRebate += record.rebate || 0;
+                }
+            });
+            
+            // 构建统计HTML
+            let html = '<div class="rebate-item">';
+            html += '<span>澳门下家返点:</span> ';
+            html += `<span class="rebate-value">${macauDownRebate.toFixed(2)}元</span>`;
+            html += '</div>';
+            
+            html += '<div class="rebate-item">';
+            html += '<span>粤港下家返点:</span> ';
+            html += `<span class="rebate-value">${guangdongDownRebate.toFixed(2)}元</span>`;
+            html += '</div>';
+            
+            html += '<div class="rebate-item">';
+            html += '<span>粤港上家返点:</span> ';
+            html += `<span class="rebate-value">${guangdongUpperRebate.toFixed(2)}元</span>`;
+            html += '</div>';
+            
+            elements.detailRebateSummary.innerHTML = html;
         }
         
         // 🎯 新增：更新筛选条件显示
@@ -2436,7 +2548,43 @@
                 personSelect.value === 'all' ? '全部人员' : personSelect.value;
         }
         
-        // 🎯 新增：更新转置表格的函数（重点修改金额显示样式）
+        // 🎯 新增：处理姓名输入框回车事件
+        function handleNameKeyPress(event) {
+            if (event.key === 'Enter') {
+                // 检查姓名是否包含数字
+                const name = elements.personName.value.trim();
+                if (/\d/.test(name) && validateName()) {
+                    saveRecord();
+                } else if (name && validateName()) {
+                    saveRecord();
+                }
+            }
+        }
+        
+        // 🎯 新增：处理金额输入框回车事件
+        function handleAmountKeyPress(event) {
+            if (event.key === 'Enter') {
+                // 检查金额是否为有效数字
+                const amount = elements.recordAmount.value.trim();
+                if (/\d/.test(amount) && validateAmount()) {
+                    saveRecord();
+                }
+            }
+        }
+        
+        // 🎯 新增：清除输入框内容
+        function clearInputs() {
+            elements.personName.value = '';
+            elements.recordAmount.value = '';
+            elements.recordTotal.value = '';
+            elements.recordRebateRate.value = '';
+            // 清除错误状态
+            hideError(elements.personName, document.getElementById('name-error'));
+            hideError(elements.recordAmount, document.getElementById('amount-error'));
+            elements.personName.focus(); // 焦点回到姓名输入框
+        }
+        
+        // 🎯 新增：更新转置表格的函数
         function updateDetailTransposedTable(filteredRecords) {
             const tableHead = document.querySelector('#detail-transposed-table thead tr');
             const transposedBody = elements.transposedBody;
@@ -2498,17 +2646,17 @@
                 grandTotalProfit += amount;
             });
             
-            // 添加姓名表头
+            // 添加姓名表头（固定宽度80px）
             allPersons.forEach(name => {
                 const th = document.createElement('th');
-                th.style.minWidth = '80px';
+                th.style.width = '80px'; // 固定姓名列宽
                 th.innerHTML = `<strong>${name}</strong>`;
                 tableHead.appendChild(th);
             });
             
             // 添加总计列头
             const totalTh = document.createElement('th');
-            totalTh.style.minWidth = '80px';
+            totalTh.style.width = '80px'; // 固定总计列宽
             totalTh.innerHTML = '<strong>总计</strong>';
             tableHead.appendChild(totalTh);
             
@@ -2530,7 +2678,7 @@
                     const profit = personMonthStats[name]?.[month] || 0;
                     
                     if (profit !== 0) {
-                        // 🎯 重点修改：收入绿色，支出红色
+                        // 收入绿色，支出红色
                         if (profit > 0) {
                             cell.className = 'stat-income'; // 收入绿色
                             cell.innerHTML = `+¥${profit.toFixed(2)}`;
@@ -2550,7 +2698,6 @@
                 // 该月份总计
                 const totalCell = document.createElement('td');
                 if (monthTotal !== 0) {
-                    // 🎯 重点修改：总计也按收入绿色、支出红色显示
                     if (monthTotal > 0) {
                         totalCell.className = 'stat-income';
                         totalCell.innerHTML = `+¥${monthTotal.toFixed(2)}`;
@@ -2584,7 +2731,6 @@
                 });
                 
                 if (personTotal !== 0) {
-                    // 🎯 重点修改：个人总计也按收入绿色、支出红色显示
                     if (personTotal > 0) {
                         cell.className = 'stat-income';
                         cell.innerHTML = `+¥${personTotal.toFixed(2)}`;
@@ -2603,7 +2749,6 @@
             // 全体总计
             const grandTotalCell = document.createElement('td');
             if (grandTotalProfit !== 0) {
-                // 🎯 重点修改：全体总计也按收入绿色、支出红色显示
                 if (grandTotalProfit > 0) {
                     grandTotalCell.className = 'stat-income';
                     grandTotalCell.innerHTML = `+¥${grandTotalProfit.toFixed(2)}`;
@@ -2622,7 +2767,6 @@
             personCount.textContent = allPersons.length;
             monthCount.textContent = monthsToShow.length;
             
-            // 🎯 重点修改：总利润也按收入绿色、支出红色显示
             if (grandTotalProfit !== 0) {
                 if (grandTotalProfit > 0) {
                     totalProfit.className = 'stat-income';
@@ -2847,8 +2991,7 @@
                 const guangdongDownTotal = calculateStatsOld(guangdongDownRecords);
                 
                 const guangdongMyIncome = guangdongDownTotal.profit - guangdongUpTotal.profit;
-                
-                const guangdongUpProfit = calculateGuangdongUpProfit(guangdongUpRecords);
+                const guangdongUpRebate = calculateGuangdongUpRebate(guangdongUpRecords);
                 
                 const totalMyIncome = macauMyIncome + guangdongMyIncome;
                 
@@ -2859,7 +3002,7 @@
                         category: 'my-income',
                         type: totalMyIncome >= 0 ? 'income' : 'expense',
                         amount: totalMyIncome,
-                        note: `澳门:${macauMyIncome >= 0 ? '+' : ''}${macauMyIncome.toFixed(2)} 粤港:${guangdongMyIncome >= 0 ? '+' : ''}${guangdongMyIncome.toFixed(2)} 上家利润:${guangdongUpProfit >= 0 ? '+' : ''}${guangdongUpProfit.toFixed(2)}`,
+                        note: `澳门:${macauMyIncome >= 0 ? '+' : ''}${macauMyIncome.toFixed(2)} 粤港:${guangdongMyIncome >= 0 ? '+' : ''}${guangdongMyIncome.toFixed(2)} 上家返点:${guangdongUpRebate >= 0 ? '+' : ''}${guangdongUpRebate.toFixed(2)}`,
                         isVirtual: true
                     });
                 }
@@ -2943,7 +3086,7 @@
             `;
         }
         
-        // 渲染记录表格
+        // 渲染记录表格（显示返点）
         function renderRecordsTable(records) {
             const tbody = elements.recordsBody;
             
@@ -2959,9 +3102,9 @@
             records.forEach(record => {
                 const isIncome = record.amount > 0;
                 const categoryLabel = getCategoryLabel(record.category, record.subtype);
-                const profit = calculateProfit(record);
-                const isProfit = profit >= 0;
-                const profitClass = isProfit ? 'stat-profit' : 'stat-expense';
+                const rebate = record.rebate || 0;
+                const isRebatePositive = rebate >= 0;
+                const rebateClass = isRebatePositive ? 'stat-rebate' : 'stat-expense';
                 const isSelected = appState.selectedRecords.has(record.id);
                 
                 html += `
@@ -2982,8 +3125,8 @@
                         <td class="${isIncome ? 'stat-income' : 'stat-expense'}">
                             ${isIncome ? '+' : ''}¥${Math.abs(record.amount).toFixed(2)}
                         </td>
-                        <td class="${profitClass}">
-                            ${profit !== 0 ? (profit > 0 ? '+' : '') + '¥' + Math.abs(profit).toFixed(2) : '-'}
+                        <td class="${rebateClass}">
+                            ${rebate !== 0 ? (rebate > 0 ? '+' : '') + '¥' + Math.abs(rebate).toFixed(2) : '-'}
                         </td>
                         <td>${record.note || '-'}</td>
                         <td>
@@ -3092,7 +3235,7 @@
             
             const macauMyIncome = macauDownTotal.profit - macauUpTotal.profit;
             const guangdongMyIncome = guangdongDownTotal.profit - guangdongUpTotal.profit;
-            const guangdongUpProfit = calculateGuangdongUpProfit(guangdongUpRecords);
+            const guangdongUpRebate = calculateGuangdongUpRebate(guangdongUpRecords);
             
             // 澳门统计卡片（保留原逻辑）
             if (filterCategory === 'all' || filterCategory.includes('macau')) {
@@ -3129,12 +3272,13 @@
                 `;
             }
             
-            // 粤港统计卡片（保留原逻辑）
+            // 粤港统计卡片（保留原逻辑，但显示返点）
             if (filterCategory === 'all' || filterCategory.includes('guangdong')) {
                 const guangdongIsIncome = guangdongMyIncome >= 0;
                 const guangdongHintClass = guangdongIsIncome ? 'income-hint' : 'expense-hint';
-                const guangdongUpProfitIsIncome = guangdongUpProfit >= 0;
-                const guangdongUpProfitHintClass = guangdongUpProfitIsIncome ? 'profit-hint' : 'expense-hint';
+                const guangdongUpRebateIsIncome = guangdongUpRebate >= 0;
+                const guangdongUpRebateHintClass = guangdongUpRebateIsIncome ? 'rebate-hint' : 'expense-hint';
+                const guangdongUpRebateHintText = guangdongUpRebateIsIncome ? `返点 ¥${Math.abs(guangdongUpRebate).toFixed(2)}` : `支出 ¥${Math.abs(guangdongUpRebate).toFixed(2)}`;
                 
                 container.innerHTML += `
                     <div class="stat-card">
@@ -3161,8 +3305,8 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="${guangdongUpProfitHintClass}" style="margin-top: 6px; font-size: 10px;">
-                            上家利润(10%)：${guangdongUpProfitIsIncome ? '+' : ''}¥${Math.abs(guangdongUpProfit).toFixed(2)}
+                        <div class="${guangdongUpRebateHintClass}" style="margin-top: 6px; font-size: 10px;">
+                            上家返点：${guangdongUpRebateHintText}
                         </div>
                         <div class="stat-details">记录数：${guangdongUpTotal.count + guangdongDownTotal.count}条</div>
                     </div>
@@ -3266,7 +3410,7 @@
                 records: appState.records,
                 recycleBin: appState.recycleBin,
                 exportedAt: new Date().toISOString(),
-                version: '32.0'
+                version: '33.0'
             };
             
             const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -3376,7 +3520,7 @@
             }
             
             if (recycleRecords.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="9" class="empty-state">回收站为空</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="10" class="empty-state">回收站为空</td></tr>';
                 return;
             }
             
@@ -3387,6 +3531,7 @@
                 const categoryLabel = getCategoryLabel(record.category, record.subtype);
                 const deletedTime = new Date(record.deletedAt).toLocaleString('zh-CN');
                 const originalDate = record.date;
+                const rebate = record.rebate || 0;
                 
                 html += `
                     <tr>
@@ -3406,6 +3551,9 @@
                         </td>
                         <td class="${isIncome ? 'stat-income' : 'stat-expense'}">
                             ${isIncome ? '+' : ''}¥${Math.abs(record.amount).toFixed(2)}
+                        </td>
+                        <td class="stat-rebate">
+                            ${rebate !== 0 ? (rebate > 0 ? '+' : '') + '¥' + Math.abs(rebate).toFixed(2) : '-'}
                         </td>
                         <td>${record.note || '-'}</td>
                         <td>
@@ -3455,6 +3603,9 @@
                 type: record.type,
                 amount: record.amount,
                 note: record.note,
+                totalAmount: record.totalAmount,
+                rebateRate: record.rebateRate,
+                rebate: record.rebate,
                 createdAt: record.createdAt
             });
             
@@ -3497,6 +3648,9 @@
                         type: record.type,
                         amount: record.amount,
                         note: record.note,
+                        totalAmount: record.totalAmount,
+                        rebateRate: record.rebateRate,
+                        rebate: record.rebate,
                         createdAt: record.createdAt
                     });
                     appState.recycleBin.splice(recordIndex, 1);
@@ -3534,6 +3688,9 @@
                         type: record.type,
                         amount: record.amount,
                         note: record.note,
+                        totalAmount: record.totalAmount,
+                        rebateRate: record.rebateRate,
+                        rebate: record.rebate,
                         createdAt: record.createdAt
                     });
                 });
