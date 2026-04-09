@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>个人收支管理系统 - 澳门&粤港</title>
+    <title>个人收支管理系统 - 中国时区版</title>
     <style>
         * {
             margin: 0;
@@ -319,7 +319,7 @@
         /* 收支明细卡片固定宽度与滚动 */
         .detail-card .table-container {
             width: 100%;
-            max-width: 770px;
+            max-width: 850px;
             overflow-x: auto;
             border: 1px solid var(--border);
             border-radius: 5px;
@@ -1222,8 +1222,8 @@
             <div class="nav-left">
                 <div class="nav-icon">💰</div>
                 <div>
-                    <div class="nav-title">个人收支管理系统 - 澳门&粤港</div>
-                    <div class="nav-subtitle">澳门 & 粤港 -4.9版</div>
+                    <div class="nav-title">个人收支管理系统 - 中国时区版</div>
+                    <div class="nav-subtitle">澳门 & 粤港 - 下家总和减去上家总和=我的收支 | 粤港上家返点10%</div>
                 </div>
             </div>
             <div class="btn-group">
@@ -1959,7 +1959,7 @@
                 records: appState.records,
                 recycleBin: appState.recycleBin,
                 savedAt: new Date().toISOString(),
-                version: '34.0'
+                version: '35.0'
             };
             
             try {
@@ -2066,7 +2066,7 @@
             return 0;
         }
         
-        // 保存记录（整合所有新功能）
+        // 保存记录（整合所有新功能）- 修改：特码框不清除
         function saveRecord() {
             if (!validateName() || !validateDate() || !validateAmount()) {
                 showToast('请正确填写所有必填项', true);
@@ -2118,8 +2118,8 @@
             
             appState.records.unshift(record);
             
-            // 保存后清除输入框
-            clearInputs();
+            // 🎯 保存后清除输入框（特码框除外）
+            clearInputsExceptNote();
             
             saveLocalData();
             updatePersonFilter();
@@ -2129,6 +2129,32 @@
             loadMyIncomeStatsForDate(appState.currentViewDate);
             
             showToast('记录已保存');
+        }
+        
+        // 🎯 新增：清除输入框（特码框除外）
+        function clearInputsExceptNote() {
+            elements.personName.value = '';
+            elements.recordAmount.value = '';
+            elements.recordTotal.value = '';
+            elements.recordRebateRate.value = '';
+            // 注意：不清除特码框 elements.recordNote.value
+            // 清除错误状态
+            hideError(elements.personName, document.getElementById('name-error'));
+            hideError(elements.recordAmount, document.getElementById('amount-error'));
+            elements.personName.focus();
+        }
+        
+        // 🎯 原有清除函数（全部清除）
+        function clearInputs() {
+            elements.personName.value = '';
+            elements.recordAmount.value = '';
+            elements.recordTotal.value = '';
+            elements.recordRebateRate.value = '';
+            elements.recordNote.value = ''; // 全部清除时包括特码框
+            // 清除错误状态
+            hideError(elements.personName, document.getElementById('name-error'));
+            hideError(elements.recordAmount, document.getElementById('amount-error'));
+            elements.personName.focus();
         }
         
         // 设置日期为今天
@@ -2566,20 +2592,7 @@
             }
         }
         
-        // 🎯 新增：清除输入框内容
-        function clearInputs() {
-            elements.personName.value = '';
-            elements.recordAmount.value = '';
-            elements.recordTotal.value = '';
-            elements.recordRebateRate.value = '';
-            elements.recordNote.value = '';
-            // 清除错误状态
-            hideError(elements.personName, document.getElementById('name-error'));
-            hideError(elements.recordAmount, document.getElementById('amount-error'));
-            elements.personName.focus();
-        }
-        
-        // 🎯 新增：更新转置表格的函数
+        // 🎯 更新转置表格的函数
         function updateDetailTransposedTable(filteredRecords) {
             const tableHead = document.querySelector('#detail-transposed-table thead tr');
             const transposedBody = elements.transposedBody;
@@ -3374,7 +3387,7 @@
                 records: appState.records,
                 recycleBin: appState.recycleBin,
                 exportedAt: new Date().toISOString(),
-                version: '34.0'
+                version: '35.0'
             };
             
             const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
