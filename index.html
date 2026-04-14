@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>个人收支管理系统 - v4.13版</title>
+    <title>个人收支管理系统 - 中国时区版</title>
     <style>
         * {
             margin: 0;
@@ -1236,8 +1236,8 @@
             <div class="nav-left">
                 <div class="nav-icon">💰</div>
                 <div>
-                    <div class="nav-title">个人收支管理系统 - 阿婆们&粤港</div>
-                    <div class="nav-subtitle">澳门 & 粤港 - 8888</div>
+                    <div class="nav-title">个人收支管理系统 -V4.14版</div>
+                    <div class="nav-subtitle">澳门 & 粤港 - 888</div>
                 </div>
             </div>
             <div class="btn-group">
@@ -2148,7 +2148,7 @@
                     records: appState.records,
                     recycleBin: appState.recycleBin,
                     savedAt: new Date().toISOString(),
-                    version: '36.0'
+                    version: '37.0'
                 };
                 
                 await dbManager.saveData('finance_main_data', data);
@@ -2267,17 +2267,22 @@
             });
         }
         
-        // 🎯 计算返点（粤港上家10%，其他为总额*返水率）
+        // 🎯 计算返点（修改：粤港上家支出时乘以-0.1）
         function calculateRebate(record) {
             const amount = Math.abs(record.amount);
             const category = record.category;
             const subtype = record.subtype;
+            const type = record.type;
             const totalAmount = parseFloat(record.totalAmount) || 0;
             const rebateRate = parseFloat(record.rebateRate) || 0;
             
-            // 粤港上家返点 = 金额 * 0.1
+            // 粤港上家返点：收入*0.1，支出*-0.1
             if (category === 'guangdong' && subtype === 'up') {
-                return amount * 0.1;
+                if (type === 'expense') {
+                    return -amount * 0.1;  // 支出时乘以-0.1
+                } else {
+                    return amount * 0.1;   // 收入时乘以0.1
+                }
             }
             // 其他分类：如果有总额和返水率，则计算总额*返水率
             else if (totalAmount > 0 && rebateRate > 0) {
@@ -2470,19 +2475,22 @@
             // 计算各类返点总和
             let macauDownRebate = 0;
             let guangdongDownRebate = 0;
+            let guangdongUpRebate = 0;  // 新增：单独计算粤港上家返点
             
             records.forEach(record => {
                 if (record.category === 'macau' && record.subtype === 'down') {
                     macauDownRebate += record.rebate || 0;
                 } else if (record.category === 'guangdong' && record.subtype === 'down') {
                     guangdongDownRebate += record.rebate || 0;
+                } else if (record.category === 'guangdong' && record.subtype === 'up') {
+                    guangdongUpRebate += record.rebate || 0;  // 新增：累计粤港上家返点
                 }
             });
             
-            // 🎯 计算总返点（澳门下家+粤港下家）
-            const totalRebate = macauDownRebate + guangdongDownRebate;
+            // 🎯 计算总返点（澳门下家+粤港下家+粤港上家）
+            const totalRebate = macauDownRebate + guangdongDownRebate + guangdongUpRebate;
             
-            // 构建统计HTML（添加总返点）
+            // 构建统计HTML（添加总返点，并单独显示粤港上家返点）
             let html = '<div class="rebate-item">';
             html += '<span>澳门下家返点:</span> ';
             html += `<span class="rebate-value">${macauDownRebate.toFixed(2)}元</span>`;
@@ -2491,6 +2499,12 @@
             html += '<div class="rebate-item">';
             html += '<span>粤港下家返点:</span> ';
             html += `<span class="rebate-value">${guangdongDownRebate.toFixed(2)}元</span>`;
+            html += '</div>';
+            
+            // 🎯 新增：单独显示粤港上家返点
+            html += '<div class="rebate-item">';
+            html += '<span>粤港上家返点:</span> ';
+            html += `<span class="rebate-value">${guangdongUpRebate.toFixed(2)}元</span>`;
             html += '</div>';
             
             // 🎯 添加总返点显示
@@ -2742,19 +2756,22 @@
             // 计算各类返点总和
             let macauDownRebate = 0;
             let guangdongDownRebate = 0;
+            let guangdongUpRebate = 0;  // 新增：单独计算粤港上家返点
             
             records.forEach(record => {
                 if (record.category === 'macau' && record.subtype === 'down') {
                     macauDownRebate += record.rebate || 0;
                 } else if (record.category === 'guangdong' && record.subtype === 'down') {
                     guangdongDownRebate += record.rebate || 0;
+                } else if (record.category === 'guangdong' && record.subtype === 'up') {
+                    guangdongUpRebate += record.rebate || 0;  // 新增：累计粤港上家返点
                 }
             });
             
-            // 🎯 计算总返点
-            const totalRebate = macauDownRebate + guangdongDownRebate;
+            // 🎯 计算总返点（包含所有返点类型）
+            const totalRebate = macauDownRebate + guangdongDownRebate + guangdongUpRebate;
             
-            // 构建统计HTML（添加总返点）
+            // 构建统计HTML（添加总返点，并单独显示粤港上家返点）
             let html = '<div class="rebate-item">';
             html += '<span>澳门下家返点:</span> ';
             html += `<span class="rebate-value">${macauDownRebate.toFixed(2)}元</span>`;
@@ -2763,6 +2780,12 @@
             html += '<div class="rebate-item">';
             html += '<span>粤港下家返点:</span> ';
             html += `<span class="rebate-value">${guangdongDownRebate.toFixed(2)}元</span>`;
+            html += '</div>';
+            
+            // 🎯 新增：单独显示粤港上家返点
+            html += '<div class="rebate-item">';
+            html += '<span>粤港上家返点:</span> ';
+            html += `<span class="rebate-value">${guangdongUpRebate.toFixed(2)}元</span>`;
             html += '</div>';
             
             // 🎯 添加总返点显示
@@ -3628,7 +3651,7 @@
                 records: appState.records,
                 recycleBin: appState.recycleBin,
                 exportedAt: new Date().toISOString(),
-                version: '36.0'
+                version: '37.0'
             };
             
             const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
