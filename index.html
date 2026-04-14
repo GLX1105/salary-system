@@ -158,9 +158,48 @@
         .total-rebate { display: inline-block; margin-left: 20px; padding: 4px 8px; background: linear-gradient(135deg, #ff6b6b, #ee5a24); color: white; border-radius: 4px; font-weight: 600; }
         .total-rebate-value { font-size: 12px; }
         .storage-info { position: fixed; bottom: 10px; right: 10px; background: rgba(0, 0, 0, 0.8); color: white; padding: 8px 12px; border-radius: 6px; font-size: 10px; z-index: 1000; display: none; }
-        @media (max-width: 900px) { .main-grid { grid-template-columns: 1fr; } .container { max-width: 100%; padding: 0 6px; } .login-box { min-width: 300px; padding: 30px 20px; } .navbar { flex-direction: column; align-items: stretch; } .nav-left { justify-content: center; text-align: center; margin-bottom: 10px; } .btn-group { justify-content: center; } }
-        @media (max-width: 768px) { .form-row { grid-template-columns: 1fr; } .stats-grid { grid-template-columns: 1fr; } .filter-row { flex-direction: column; } .category-group { flex-direction: column; } .recycle-toolbar { flex-direction: column; } .recycle-search { min-width: auto; } }
-        @media (max-width: 480px) { .stat-card { padding: 6px; } .stat-title { font-size: 10px; } .stat-amount { font-size: 12px; } .category-btn { font-size: 9px; padding: 6px 4px; } .btn { padding: 6px 10px; font-size: 10px; } .login-box { min-width: 280px; padding: 25px 15px; } .recycle-container { padding: 15px; width: 95%; } }
+        
+        /* 【修改】收支明细卡片宽度固定在770px */
+        .detail-card {
+            width: 770px !important;
+            max-width: 770px !important;
+        }
+        
+        @media (max-width: 900px) { 
+            .main-grid { grid-template-columns: 1fr; } 
+            .container { max-width: 100%; padding: 0 6px; } 
+            .login-box { min-width: 300px; padding: 30px 20px; } 
+            .navbar { flex-direction: column; align-items: stretch; } 
+            .nav-left { justify-content: center; text-align: center; margin-bottom: 10px; } 
+            .btn-group { justify-content: center; } 
+            /* 【响应式】在小屏幕上收支明细卡片自适应 */
+            .detail-card {
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+        }
+        @media (max-width: 768px) { 
+            .form-row { grid-template-columns: 1fr; } 
+            .stats-grid { grid-template-columns: 1fr; } 
+            .filter-row { flex-direction: column; } 
+            .category-group { flex-direction: column; } 
+            .recycle-toolbar { flex-direction: column; } 
+            .recycle-search { min-width: auto; } 
+        }
+        @media (max-width: 480px) { 
+            .stat-card { padding: 6px; } 
+            .stat-title { font-size: 10px; } 
+            .stat-amount { font-size: 12px; } 
+            .category-btn { font-size: 9px; padding: 6px 4px; } 
+            .btn { padding: 6px 10px; font-size: 10px; } 
+            .login-box { min-width: 280px; padding: 25px 15px; } 
+            .recycle-container { padding: 15px; width: 95%; } 
+            /* 【响应式】在超小屏幕上收支明细卡片自适应 */
+            .detail-card {
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+        }
         @keyframes slideIn { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
@@ -195,7 +234,7 @@
                 <div class="nav-icon">💰</div>
                 <div>
                     <div class="nav-title">个人收支管理系统 - 中国时区版</div>
-                    <div class="nav-subtitle">澳门 & 粤港 - 下家总和减去上家总和=我的收支 | 粤港上家返点10%</div>
+                    <div class="nav-subtitle">澳门 & 粤港 - 888</div>
                 </div>
             </div>
             <div class="btn-group">
@@ -383,6 +422,7 @@
                         <div id="summary-stats" class="stats-grid"></div>
                     </div>
                 </div>
+                <!-- 【目标卡片】收支明细卡片，宽度已固定在770px -->
                 <div class="card detail-card">
                     <div class="card-header primary">
                         <div class="card-title"><span>📊</span><span>收支明细</span></div>
@@ -979,7 +1019,7 @@
             tbody.innerHTML = html;
         }
 
-        // 【修改】更新日期返点统计（总返点=澳门下家+粤港下家）
+        // 更新日期返点统计（总返点=澳门下家+粤港下家）
         function updateDateRebateSummary(records) {
             if (!elements.dateRebateSummary) return;
             let macauDownRebate = 0, guangdongDownRebate = 0;
@@ -1141,7 +1181,7 @@
             updateDetailRebateSummary(filteredRecords);
         }
 
-        // 【修改】更新详细记录返点统计（总返点=澳门下家+粤港下家）
+        // 更新详细记录返点统计（总返点=澳门下家+粤港下家）
         function updateDetailRebateSummary(records) {
             if (!elements.detailRebateSummary) return;
             let macauDownRebate = 0, guangdongDownRebate = 0;
