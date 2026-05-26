@@ -1689,6 +1689,24 @@
             URL.revokeObjectURL(url);
             showToast('✅ 数据已导出');
         }
+
+        // 辅助函数：判断新记录是否与现有记录重复
+        function isRecordDuplicate(newRecord, existingRecords) {
+            return existingRecords.some(record => {
+                // 比较关键字段：日期、姓名、分类、子类、类型、金额绝对值、特码
+                const amountEqual = Math.abs(record.amount) === Math.abs(newRecord.amount);
+                const noteEqual = (record.note || '') === (newRecord.note || '');
+                return record.date === newRecord.date &&
+                       record.name === newRecord.name &&
+                       record.category === newRecord.category &&
+                       record.subtype === newRecord.subtype &&
+                       record.type === newRecord.type &&
+                       amountEqual &&
+                       noteEqual;
+            });
+        }
+
+        // 修改后的导入函数（合并模式，过滤重复）
         function importData() {
             const input = document.createElement('input');
             input.type = 'file';
@@ -1700,20 +1718,56 @@
                 reader.onload = (event) => {
                     try {
                         const data = JSON.parse(event.target.result);
-                        if (confirm(`确定要导入数据吗？\n这将覆盖当前所有数据。\n包含：${data.records?.length || 0}条记录`)) {
-                            appState.records = data.records || [];
-                            appState.recycleBin = data.recycleBin || [];
-                            saveLocalData();
-                            updatePersonFilter();
-                            updateYearFilter();
-                            loadRecords();
-                            loadDateRecords();
-                            loadMyIncomeStatsForDate(appState.currentViewDate);
-                            updateRecycleCount();
-                            renderRecycleTable();
-                            showToast('✅ 数据导入成功');
+                        const importedRecords = data.records || [];
+                        if (importedRecords.length === 0) {
+                            showToast('导入文件中没有记录', true);
+                            return;
                         }
-                    } catch (error) { showToast('❌ 文件格式错误', true); }
+
+                        // 合并模式：保留现有记录，过滤重复
+                        let addedCount = 0;
+                        let duplicateCount = 0;
+
+                        for (const importedRecord of importedRecords) {
+                            // 检查是否与现有记录重复
+                            if (isRecordDuplicate(importedRecord, appState.records)) {
+                                duplicateCount++;
+                                continue;
+                            }
+
+                            // 生成新的唯一ID，避免冲突
+                            const newRecord = {
+                                ...importedRecord,
+                                id: Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+                                // 确保日期格式统一（已是中国时区格式，无需转换）
+                            };
+                            appState.records.unshift(newRecord);
+                            addedCount++;
+                        }
+
+                        // 回收站处理：默认保留原有回收站，不合并导入的回收站（避免误恢复）
+                        // 如果希望也合并回收站，可取消下面注释，但一般不建议
+                        // if (data.recycleBin && data.recycleBin.length) {
+                        //     appState.recycleBin = [...appState.recycleBin, ...data.recycleBin];
+                        // }
+
+                        saveLocalData();
+                        updatePersonFilter();
+                        updateYearFilter();
+                        loadRecords();
+                        loadDateRecords();
+                        loadMyIncomeStatsForDate(appState.currentViewDate);
+                        updateRecycleCount();
+                        renderRecycleTable();
+
+                        showToast(`✅ 导入完成：新增 ${addedCount} 条，跳过重复 ${duplicateCount} 条`);
+                        if (duplicateCount > 0) {
+                            setTimeout(() => showToast(`重复记录未导入，请检查`, false), 2000);
+                        }
+                    } catch (error) {
+                        console.error('导入解析失败:', error);
+                        showToast('❌ 文件格式错误或数据损坏', true);
+                    }
                 };
                 reader.readAsText(file);
             };
