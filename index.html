@@ -529,6 +529,7 @@
                 this.db = null;
                 this.storeName = 'financeData';
                 this.backupStoreName = 'backupData';
+                this.dailyBackupKey = 'daily_backup';
             }
             async open() {
                 return new Promise((resolve, reject) => {
@@ -547,6 +548,7 @@
                             const backupStore = db.createObjectStore(this.backupStoreName, { keyPath: 'timestamp' });
                             backupStore.createIndex('type', 'type', { unique: false });
                         }
+                        // 确保 daily_backup 存储存在（不需要单独创建store，使用backupStoreName存储特定key即可）
                     };
                 });
             }
@@ -616,6 +618,18 @@
                     const transaction = this.db.transaction([this.backupStoreName], 'readwrite');
                     const store = transaction.objectStore(this.backupStoreName);
                     const backupData = { timestamp: new Date().getTime(), type: 'auto_backup', data: data };
+                    const request = store.put(backupData);
+                    request.onsuccess = () => resolve(true);
+                    request.onerror = () => reject(request.error);
+                });
+            }
+            // 每日自动备份：直接覆盖 daily_backup 键
+            async saveDailyBackup(data) {
+                if (!this.db) await this.open();
+                return new Promise((resolve, reject) => {
+                    const transaction = this.db.transaction([this.backupStoreName], 'readwrite');
+                    const store = transaction.objectStore(this.backupStoreName);
+                    const backupData = { timestamp: new Date().getTime(), type: 'daily_backup', data: data, backupDate: getCurrentDateChina() };
                     const request = store.put(backupData);
                     request.onsuccess = () => resolve(true);
                     request.onerror = () => reject(request.error);
@@ -809,8 +823,37 @@
             await loadLocalData();
             updateRecycleCount();
             updateStorageInfo();
+            // 执行每日自动备份（页面加载时检查）
+            await performDailyBackup();
+            // 设置定时器，每隔1小时检查一次是否需要备份（解决跨天问题）
+            setInterval(async () => {
+                await performDailyBackup();
+            }, 60 * 60 * 1000);
             if (!appState.isLoggedIn) elements.passwordInput.focus();
             console.log('当前中国时区日期设置为:', today);
+        }
+
+        // 每日自动备份函数（仅当今天的日期与上次备份日期不同时才执行）
+        async function performDailyBackup() {
+            try {
+                const lastBackupDate = localStorage.getItem('lastDailyBackupDate');
+                const today = getCurrentDateChina();
+                if (lastBackupDate !== today) {
+                    // 需要备份
+                    const backupData = {
+                        records: appState.records,
+                        recycleBin: appState.recycleBin,
+                        backupTime: new Date().toISOString(),
+                        version: '36.0'
+                    };
+                    await dbManager.saveDailyBackup(backupData);
+                    localStorage.setItem('lastDailyBackupDate', today);
+                    showToast('✅ 已自动备份今日数据');
+                }
+            } catch (error) {
+                console.error('每日自动备份失败:', error);
+                // 备份失败不打扰用户，仅控制台记录
+            }
         }
 
         // 监听回车键登录
