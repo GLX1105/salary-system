@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>个人收支管理系统 - 中国时区版（完整无省略）</title>
+    <title>个人收支管理系统 - 每日自动覆盖备份</title>
     <style>
-        /* ========== 完整样式，无省略 ========== */
         * {
             margin: 0;
             padding: 0;
@@ -894,130 +893,51 @@
             max-width: 770px !important;
         }
         @media (max-width: 900px) {
-            .main-grid {
-                grid-template-columns: 1fr;
-            }
-            .container {
-                max-width: 100%;
-                padding: 0 6px;
-            }
-            .login-box {
-                min-width: 300px;
-                padding: 30px 20px;
-            }
-            .navbar {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            .nav-left {
-                justify-content: center;
-                text-align: center;
-                margin-bottom: 10px;
-            }
-            .btn-group {
-                justify-content: center;
-            }
-            .detail-card {
-                width: 100% !important;
-                max-width: 100% !important;
-            }
+            .main-grid { grid-template-columns: 1fr; }
+            .container { max-width: 100%; padding: 0 6px; }
+            .login-box { min-width: 300px; padding: 30px 20px; }
+            .navbar { flex-direction: column; align-items: stretch; }
+            .nav-left { justify-content: center; text-align: center; margin-bottom: 10px; }
+            .btn-group { justify-content: center; }
+            .detail-card { width: 100% !important; max-width: 100% !important; }
         }
         @media (max-width: 768px) {
-            .form-row {
-                grid-template-columns: 1fr;
-            }
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-            .filter-row {
-                flex-direction: column;
-            }
-            .category-group {
-                flex-direction: column;
-            }
-            .recycle-toolbar {
-                flex-direction: column;
-            }
-            .recycle-search {
-                min-width: auto;
-            }
+            .form-row { grid-template-columns: 1fr; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .filter-row { flex-direction: column; }
+            .category-group { flex-direction: column; }
+            .recycle-toolbar { flex-direction: column; }
+            .recycle-search { min-width: auto; }
         }
         @media (max-width: 480px) {
-            .stat-card {
-                padding: 6px;
-            }
-            .stat-title {
-                font-size: 10px;
-            }
-            .stat-amount {
-                font-size: 12px;
-            }
-            .category-btn {
-                font-size: 9px;
-                padding: 6px 4px;
-            }
-            .btn {
-                padding: 6px 10px;
-                font-size: 10px;
-            }
-            .login-box {
-                min-width: 280px;
-                padding: 25px 15px;
-            }
-            .recycle-container {
-                padding: 15px;
-                width: 95%;
-            }
-            .detail-card {
-                width: 100% !important;
-                max-width: 100% !important;
-            }
+            .stat-card { padding: 6px; }
+            .stat-title { font-size: 10px; }
+            .stat-amount { font-size: 12px; }
+            .category-btn { font-size: 9px; padding: 6px 4px; }
+            .btn { padding: 6px 10px; font-size: 10px; }
+            .login-box { min-width: 280px; padding: 25px 15px; }
+            .recycle-container { padding: 15px; width: 95%; }
+            .detail-card { width: 100% !important; max-width: 100% !important; }
         }
         @keyframes slideIn {
-            from {
-                transform: translateY(-50px);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
         @keyframes slideInRight {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
         }
         @keyframes fadeOut {
-            from {
-                opacity: 1;
-            }
-            to {
-                opacity: 0;
-            }
+            from { opacity: 1; }
+            to { opacity: 0; }
         }
         @keyframes shake {
-            0%, 100% {
-                transform: translateX(0);
-            }
-            25% {
-                transform: translateX(-5px);
-            }
-            75% {
-                transform: translateX(5px);
-            }
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
         }
-        .shake {
-            animation: shake 0.5s ease-in-out;
-        }
-        .fade-out {
-            animation: fadeOut 0.3s ease-in-out;
-        }
+        .shake { animation: shake 0.5s ease-in-out; }
+        .fade-out { animation: fadeOut 0.3s ease-in-out; }
     </style>
 </head>
 <body>
@@ -1051,7 +971,7 @@
                 <button class="btn btn-recycle btn-sm" onclick="openRecyclePanel()">🗑️ 回收站 (<span id="recycle-count">0</span>)</button>
                 <button class="btn btn-outline btn-sm" onclick="exportData()">导出数据</button>
                 <button class="btn btn-outline btn-sm" onclick="importData()">导入数据</button>
-                <button class="btn btn-cloud btn-sm" onclick="exportDailyBackup()">📦 导出备份</button>
+                <button class="btn btn-cloud btn-sm" onclick="manualExportBackup()">📦 手动备份</button>
                 <button class="btn btn-warning btn-sm" onclick="clearCurrentMonthWithPassword()">清除当月</button>
                 <button class="btn btn-danger btn-sm" onclick="clearAllDataWithPassword()">清空数据</button>
                 <button class="logout-btn" onclick="logout()">退出登录</button>
@@ -1060,214 +980,64 @@
         <div class="main-grid">
             <div>
                 <div class="card">
-                    <div class="card-header primary">
-                        <div class="card-title">📝 录入收支</div>
-                    </div>
+                    <div class="card-header primary"><div class="card-title">📝 录入收支</div></div>
                     <div class="card-body">
                         <div class="category-selector">
-                            <div>
-                                <div class="category-label">澳门分类：</div>
-                                <div class="category-group">
-                                    <button class="category-btn macau-up" onclick="selectCategory('macau', 'up')"><span>⬆️ 澳门上家</span></button>
-                                    <button class="category-btn macau-down active" onclick="selectCategory('macau', 'down')"><span>⬇️ 澳门下家</span></button>
-                                </div>
-                            </div>
-                            <div>
-                                <div class="category-label">粤港分类：</div>
-                                <div class="category-group">
-                                    <button class="category-btn guangdong-up" onclick="selectCategory('guangdong', 'up')"><span>⬆️ 粤港上家</span></button>
-                                    <button class="category-btn guangdong-down" onclick="selectCategory('guangdong', 'down')"><span>⬇️ 粤港下家</span></button>
-                                </div>
-                            </div>
+                            <div><div class="category-label">澳门分类：</div><div class="category-group"><button class="category-btn macau-up" onclick="selectCategory('macau', 'up')"><span>⬆️ 澳门上家</span></button><button class="category-btn macau-down active" onclick="selectCategory('macau', 'down')"><span>⬇️ 澳门下家</span></button></div></div>
+                            <div><div class="category-label">粤港分类：</div><div class="category-group"><button class="category-btn guangdong-up" onclick="selectCategory('guangdong', 'up')"><span>⬆️ 粤港上家</span></button><button class="category-btn guangdong-down" onclick="selectCategory('guangdong', 'down')"><span>⬇️ 粤港下家</span></button></div></div>
                         </div>
                         <div class="form-row">
-                            <div class="form-group">
-                                <label class="form-label">姓名</label>
-                                <input type="text" id="person-name" placeholder="输入姓名" class="form-input" onblur="validateName()" onkeydown="handleNameKeyPress(event)">
-                                <div class="error-msg" id="name-error">姓名不能为空</div>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">日期</label>
-                                <input type="date" id="record-date" class="form-input" onblur="validateDate()">
-                                <div class="error-msg" id="date-error">请选择有效日期</div>
-                            </div>
+                            <div class="form-group"><label class="form-label">姓名</label><input type="text" id="person-name" placeholder="输入姓名" class="form-input" onblur="validateName()" onkeydown="handleNameKeyPress(event)"><div class="error-msg" id="name-error">姓名不能为空</div></div>
+                            <div class="form-group"><label class="form-label">日期</label><input type="date" id="record-date" class="form-input" onblur="validateDate()"><div class="error-msg" id="date-error">请选择有效日期</div></div>
                         </div>
                         <div class="form-row">
-                            <div class="form-group">
-                                <label class="form-label">金额</label>
-                                <input type="number" id="record-amount" placeholder="输入金额" class="form-input" step="0.01" onblur="validateAmount()" onkeydown="handleAmountKeyPress(event)">
-                                <div class="error-msg" id="amount-error">金额必须大于0</div>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">类型</label>
-                                <select id="record-type" class="form-input">
-                                    <option value="income">收入</option>
-                                    <option value="expense">支出</option>
-                                </select>
-                            </div>
+                            <div class="form-group"><label class="form-label">金额</label><input type="number" id="record-amount" placeholder="输入金额" class="form-input" step="0.01" onblur="validateAmount()" onkeydown="handleAmountKeyPress(event)"><div class="error-msg" id="amount-error">金额必须大于0</div></div>
+                            <div class="form-group"><label class="form-label">类型</label><select id="record-type" class="form-input"><option value="income">收入</option><option value="expense">支出</option></select></div>
                         </div>
                         <div class="form-row">
-                            <div class="form-group">
-                                <label class="form-label">总额</label>
-                                <input type="number" id="record-total" placeholder="输入总额" class="form-input" step="0.01">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">返水(%)</label>
-                                <input type="number" id="record-rebate-rate" placeholder="输入返水率" class="form-input" step="0.01">
-                            </div>
+                            <div class="form-group"><label class="form-label">总额</label><input type="number" id="record-total" placeholder="输入总额" class="form-input" step="0.01"></div>
+                            <div class="form-group"><label class="form-label">返水(%)</label><input type="number" id="record-rebate-rate" placeholder="输入返水率" class="form-input" step="0.01"></div>
                         </div>
-                        <div class="form-group">
-                            <label class="form-label">特码</label>
-                            <input type="text" id="record-note" placeholder="输入特码（可选）" class="form-input" onblur="validateNote()">
-                            <div class="error-msg" id="note-error">特码不能包含特殊字符</div>
-                        </div>
-                        <div class="btn-group">
-                            <button class="btn btn-success" onclick="saveRecord()">保存记录</button>
-                            <button class="btn clear-btn" onclick="clearInputs()">清除</button>
-                        </div>
+                        <div class="form-group"><label class="form-label">特码</label><input type="text" id="record-note" placeholder="输入特码（可选）" class="form-input" onblur="validateNote()"><div class="error-msg" id="note-error">特码不能包含特殊字符</div></div>
+                        <div class="btn-group"><button class="btn btn-success" onclick="saveRecord()">保存记录</button><button class="btn clear-btn" onclick="clearInputs()">清除</button></div>
                     </div>
                 </div>
                 <div class="card">
-                    <div class="card-header primary">
-                        <div class="card-title">📊 日期收支记录</div>
-                    </div>
+                    <div class="card-header primary"><div class="card-title">📊 日期收支记录</div></div>
                     <div class="card-body">
-                        <div class="date-selector">
-                            <label for="view-date">选择日期：</label>
-                            <input type="date" id="view-date" onchange="loadDateRecords()">
-                            <button class="btn btn-outline btn-sm" onclick="setTodayDate()" style="padding: 4px 8px; font-size: 9px;">今天</button>
-                        </div>
-                        <div class="table-container">
-                            <table class="data-table">
-                                <thead>
-                                    <tr>
-                                        <th>姓名/类型</th>
-                                        <th>分类</th>
-                                        <th>类型</th>
-                                        <th>金额</th>
-                                        <th>返点</th>
-                                        <th>特码</th>
-                                        <th>操作</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="date-records-body">
-                                    <tr><td colspan="7" class="empty-state">请选择日期查看记录</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
+                        <div class="date-selector"><label for="view-date">选择日期：</label><input type="date" id="view-date" onchange="loadDateRecords()"><button class="btn btn-outline btn-sm" onclick="setTodayDate()" style="padding: 4px 8px; font-size: 9px;">今天</button></div>
+                        <div class="table-container"><table class="data-table"><thead><tr><th>姓名/类型</th><th>分类</th><th>类型</th><th>金额</th><th>返点</th><th>特码</th><th>操作</th></tr></thead><tbody id="date-records-body"><tr><td colspan="7" class="empty-state">请选择日期查看记录</td></tr></tbody></table></div>
                         <div id="date-rebate-summary" class="rebate-summary"></div>
                     </div>
                 </div>
                 <div class="card">
-                    <div class="card-header primary">
-                        <div class="card-title">💰 选中日期我的收支统计</div>
-                    </div>
-                    <div class="card-body">
-                        <div id="my-income-stats" class="stats-grid"></div>
-                    </div>
+                    <div class="card-header primary"><div class="card-title">💰 选中日期我的收支统计</div></div>
+                    <div class="card-body"><div id="my-income-stats" class="stats-grid"></div></div>
                 </div>
             </div>
             <div>
                 <div class="card">
-                    <div class="card-header primary">
-                        <div class="card-title">📈 查看详细记录</div>
-                    </div>
+                    <div class="card-header primary"><div class="card-title">📈 查看详细记录</div></div>
                     <div class="card-body">
-                        <div class="search-container">
-                            <input type="text" id="search-input" class="search-box" placeholder="搜索姓名或特码..." oninput="searchRecords()">
-                            <button class="btn btn-outline btn-sm" onclick="clearSearch()">清除</button>
-                        </div>
-                        <div class="batch-toolbar" id="batch-toolbar">
-                            <span class="batch-count" id="batch-count">0</span>条记录被选中
-                            <button class="btn btn-danger btn-sm" onclick="batchDelete()">批量删除</button>
-                            <button class="btn btn-outline btn-sm" onclick="clearSelection()">取消选择</button>
-                        </div>
+                        <div class="search-container"><input type="text" id="search-input" class="search-box" placeholder="搜索姓名或特码..." oninput="searchRecords()"><button class="btn btn-outline btn-sm" onclick="clearSearch()">清除</button></div>
+                        <div class="batch-toolbar" id="batch-toolbar"><span class="batch-count" id="batch-count">0</span>条记录被选中<button class="btn btn-danger btn-sm" onclick="batchDelete()">批量删除</button><button class="btn btn-outline btn-sm" onclick="clearSelection()">取消选择</button></div>
                         <div class="filter-row">
-                            <div class="filter-group">
-                                <label class="filter-label">选择年份：</label>
-                                <select id="select-year" class="filter-select" onchange="loadRecords()">
-                                    <option value="all">全部年份</option>
-                                </select>
-                            </div>
-                            <div class="filter-group">
-                                <label class="filter-label">选择月份：</label>
-                                <select id="select-month" class="filter-select" onchange="loadRecords()">
-                                    <option value="all">全部月份</option>
-                                    <option value="1">1月</option><option value="2">2月</option><option value="3">3月</option>
-                                    <option value="4">4月</option><option value="5">5月</option><option value="6">6月</option>
-                                    <option value="7">7月</option><option value="8">8月</option><option value="9">9月</option>
-                                    <option value="10">10月</option><option value="11">11月</option><option value="12">12月</option>
-                                </select>
-                            </div>
-                            <div class="filter-group">
-                                <label class="filter-label">筛选分类：</label>
-                                <select id="filter-category" class="filter-select" onchange="loadRecords()">
-                                    <option value="all">全部分类</option>
-                                    <option value="macau-up">澳门上家</option><option value="macau-down">澳门下家</option>
-                                    <option value="guangdong-up">粤港上家</option><option value="guangdong-down">粤港下家</option>
-                                    <option value="my-income">我的收支</option>
-                                </select>
-                            </div>
-                            <div class="filter-group">
-                                <label class="filter-label">筛选姓名：</label>
-                                <select id="filter-person" class="filter-select" onchange="loadRecords()">
-                                    <option value="all">全部人员</option>
-                                </select>
-                            </div>
+                            <div class="filter-group"><label class="filter-label">选择年份：</label><select id="select-year" class="filter-select" onchange="loadRecords()"><option value="all">全部年份</option></select></div>
+                            <div class="filter-group"><label class="filter-label">选择月份：</label><select id="select-month" class="filter-select" onchange="loadRecords()"><option value="all">全部月份</option><option value="1">1月</option><option value="2">2月</option><option value="3">3月</option><option value="4">4月</option><option value="5">5月</option><option value="6">6月</option><option value="7">7月</option><option value="8">8月</option><option value="9">9月</option><option value="10">10月</option><option value="11">11月</option><option value="12">12月</option></select></div>
+                            <div class="filter-group"><label class="filter-label">筛选分类：</label><select id="filter-category" class="filter-select" onchange="loadRecords()"><option value="all">全部分类</option><option value="macau-up">澳门上家</option><option value="macau-down">澳门下家</option><option value="guangdong-up">粤港上家</option><option value="guangdong-down">粤港下家</option><option value="my-income">我的收支</option></select></div>
+                            <div class="filter-group"><label class="filter-label">筛选姓名：</label><select id="filter-person" class="filter-select" onchange="loadRecords()"><option value="all">全部人员</option></select></div>
                         </div>
-                        <div class="table-container" style="max-height: 400px; overflow-y: auto;">
-                            <table class="data-table">
-                                <thead>
-                                    <tr>
-                                        <th><input type="checkbox" class="checkbox" id="select-all" onchange="toggleSelectAll()"></th>
-                                        <th>日期</th><th>姓名/类型</th><th>分类</th><th>类型</th>
-                                        <th>金额</th><th>返点</th><th>特码</th><th>操作</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="records-body">
-                                    <tr><td colspan="9" class="empty-state">暂无记录</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
+                        <div class="table-container" style="max-height: 400px; overflow-y: auto;"><table class="data-table"><thead><tr><th><input type="checkbox" class="checkbox" id="select-all" onchange="toggleSelectAll()"></th><th>日期</th><th>姓名/类型</th><th>分类</th><th>类型</th><th>金额</th><th>返点</th><th>特码</th><th>操作</th></tr></thead><tbody id="records-body"><tr><td colspan="9" class="empty-state">暂无记录</td></tr></tbody></table></div>
                         <div id="detail-rebate-summary" class="rebate-summary"></div>
                         <div id="summary-stats" class="stats-grid"></div>
                     </div>
                 </div>
                 <div class="card detail-card">
-                    <div class="card-header primary">
-                        <div class="card-title"><span>📊</span><span>收支明细</span></div>
-                    </div>
+                    <div class="card-header primary"><div class="card-title"><span>📊</span><span>收支明细</span></div></div>
                     <div class="card-body">
-                        <div class="filter-info">
-                            <div style="font-size: 11px; color: #7f8c8d; margin-bottom: 10px;">统计范围：仅统计当前筛选条件下的记录</div>
-                            <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px;">
-                                <div style="font-size: 10px; background: #f0f8ff; padding: 4px 8px; border-radius: 4px; border-left: 3px solid #3498db;">
-                                    <strong>筛选条件：</strong>
-                                    <span id="filter-year-display">全部年份</span> |
-                                    <span id="filter-month-display">全部月份</span> |
-                                    <span id="filter-category-display">全部分类</span> |
-                                    <span id="filter-name-display">全部人员</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="table-container">
-                            <table class="data-table" id="detail-transposed-table">
-                                <thead>
-                                    <tr>
-                                        <th style="width: 60px;">月份</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="detail-transposed-body">
-                                    <tr class="empty-state-row"><td colspan="1" class="empty-state">暂无数据，请先设置筛选条件</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <div style="margin-top: 15px; font-size: 10px; color: #7f8c8d;">
-                            <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <div>当前显示 <span id="transposed-person-count">0</span> 个人员，<span id="transposed-month-count">0</span> 个月份</div>
-                                <div>总利润：<span id="transposed-total">0</span> 元</div>
-                            </div>
-                        </div>
+                        <div class="filter-info"><div style="font-size: 11px; color: #7f8c8d; margin-bottom: 10px;">统计范围：仅统计当前筛选条件下的记录</div><div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px;"><div style="font-size: 10px; background: #f0f8ff; padding: 4px 8px; border-radius: 4px; border-left: 3px solid #3498db;"><strong>筛选条件：</strong><span id="filter-year-display">全部年份</span> | <span id="filter-month-display">全部月份</span> | <span id="filter-category-display">全部分类</span> | <span id="filter-name-display">全部人员</span></div></div></div>
+                        <div class="table-container"><table class="data-table" id="detail-transposed-table"><thead><tr><th style="width: 60px;">月份</th></tr></thead><tbody id="detail-transposed-body"><tr class="empty-state-row"><td colspan="1" class="empty-state">暂无数据，请先设置筛选条件</td></tr></tbody></table></div>
+                        <div style="margin-top: 15px; font-size: 10px; color: #7f8c8d;"><div style="display: flex; justify-content: space-between; align-items: center;"><div>当前显示 <span id="transposed-person-count">0</span> 个人员，<span id="transposed-month-count">0</span> 个月份</div><div>总利润：<span id="transposed-total">0</span> 元</div></div></div>
                     </div>
                 </div>
             </div>
@@ -1276,60 +1046,17 @@
 
     <div class="recycle-panel" id="recycle-panel">
         <div class="recycle-container">
-            <div class="recycle-header">
-                <h2 class="recycle-title">🗑️ 回收站管理</h2>
-                <button class="close-btn" onclick="closeRecyclePanel()">×</button>
-            </div>
-            <div class="recycle-stats">
-                <div class="recycle-stat">
-                    <div class="recycle-stat-number" id="recycle-total">0</div>
-                    <div class="recycle-stat-label">总删除记录</div>
-                </div>
-                <div class="recycle-stat">
-                    <div class="recycle-stat-number" id="recycle-today">0</div>
-                    <div class="recycle-stat-label">今日删除</div>
-                </div>
-                <div class="recycle-stat">
-                    <div class="recycle-stat-number" id="recycle-week">0</div>
-                    <div class="recycle-stat-label">本周删除</div>
-                </div>
-                <div class="recycle-stat">
-                    <div class="recycle-stat-number" id="recycle-size">0KB</div>
-                    <div class="recycle-stat-label">占用空间</div>
-                </div>
-            </div>
-            <div class="recycle-toolbar">
-                <input type="text" class="recycle-search" id="recycle-search" placeholder="搜索已删除的记录..." oninput="searchRecycleRecords()">
-                <button class="btn btn-recycle btn-sm" onclick="selectAllRecycle()">全选</button>
-                <button class="btn btn-success btn-sm" onclick="restoreSelected()">还原选中</button>
-                <button class="btn btn-warning btn-sm" onclick="restoreAll()">还原全部</button>
-                <button class="btn btn-danger btn-sm" onclick="emptyRecycleBin()">清空回收站</button>
-            </div>
-            <div class="table-container" style="max-height: 400px; overflow-y: auto;">
-                <table class="recycle-table">
-                    <thead>
-                        <tr>
-                            <th><input type="checkbox" class="checkbox" id="recycle-select-all" onchange="toggleRecycleSelectAll()"></th>
-                            <th>删除时间</th><th>原日期</th><th>姓名</th><th>分类</th><th>类型</th>
-                            <th>金额</th><th>返点</th><th>特码</th><th>操作</th>
-                        </tr>
-                    </thead>
-                    <tbody id="recycle-body">
-                        <tr><td colspan="10" class="empty-state">回收站为空</td></tr>
-                    </tbody>
-                </table>
-            </div>
+            <div class="recycle-header"><h2 class="recycle-title">🗑️ 回收站管理</h2><button class="close-btn" onclick="closeRecyclePanel()">×</button></div>
+            <div class="recycle-stats"><div class="recycle-stat"><div class="recycle-stat-number" id="recycle-total">0</div><div class="recycle-stat-label">总删除记录</div></div><div class="recycle-stat"><div class="recycle-stat-number" id="recycle-today">0</div><div class="recycle-stat-label">今日删除</div></div><div class="recycle-stat"><div class="recycle-stat-number" id="recycle-week">0</div><div class="recycle-stat-label">本周删除</div></div><div class="recycle-stat"><div class="recycle-stat-number" id="recycle-size">0KB</div><div class="recycle-stat-label">占用空间</div></div></div>
+            <div class="recycle-toolbar"><input type="text" class="recycle-search" id="recycle-search" placeholder="搜索已删除的记录..." oninput="searchRecycleRecords()"><button class="btn btn-recycle btn-sm" onclick="selectAllRecycle()">全选</button><button class="btn btn-success btn-sm" onclick="restoreSelected()">还原选中</button><button class="btn btn-warning btn-sm" onclick="restoreAll()">还原全部</button><button class="btn btn-danger btn-sm" onclick="emptyRecycleBin()">清空回收站</button></div>
+            <div class="table-container" style="max-height: 400px; overflow-y: auto;"><table class="recycle-table"><thead><tr><th><input type="checkbox" class="checkbox" id="recycle-select-all" onchange="toggleRecycleSelectAll()"></th><th>删除时间</th><th>原日期</th><th>姓名</th><th>分类</th><th>类型</th><th>金额</th><th>返点</th><th>特码</th><th>操作</th></tr></thead><tbody id="recycle-body"><tr><td colspan="10" class="empty-state">回收站为空</td></tr></tbody></table></div>
         </div>
     </div>
 
-    <div class="storage-info" id="storage-info">
-        <div>存储模式: <span id="storage-mode">IndexedDB</span></div>
-        <div>数据大小: <span id="data-size">0 KB</span></div>
-        <div>记录数量: <span id="record-count">0</span></div>
-    </div>
+    <div class="storage-info" id="storage-info"><div>存储模式: <span id="storage-mode">IndexedDB</span></div><div>数据大小: <span id="data-size">0 KB</span></div><div>记录数量: <span id="record-count">0</span></div></div>
 
     <script>
-        // ==================== IndexedDB 数据库管理类 ====================
+        // ==================== IndexedDB 管理类 ====================
         class DatabaseManager {
             constructor(dbName = 'FinanceManagementDB', version = 1) {
                 this.dbName = dbName;
@@ -1342,10 +1069,7 @@
                 return new Promise((resolve, reject) => {
                     const request = indexedDB.open(this.dbName, this.version);
                     request.onerror = () => reject(request.error);
-                    request.onsuccess = () => {
-                        this.db = request.result;
-                        resolve(this.db);
-                    };
+                    request.onsuccess = () => { this.db = request.result; resolve(this.db); };
                     request.onupgradeneeded = (event) => {
                         const db = event.target.result;
                         if (!db.objectStoreNames.contains(this.storeName)) {
@@ -1420,24 +1144,17 @@
                     return { bytes: 0, kb: '0.00', mb: '0.00' };
                 }
             }
-            // 每日自动备份（覆盖）
             async saveDailyBackup(data) {
                 if (!this.db) await this.open();
                 return new Promise((resolve, reject) => {
                     const transaction = this.db.transaction([this.backupStoreName], 'readwrite');
                     const store = transaction.objectStore(this.backupStoreName);
-                    const backupData = {
-                        timestamp: new Date().getTime(),
-                        type: 'daily_backup',
-                        data: data,
-                        backupDate: getCurrentDateChina()
-                    };
+                    const backupData = { timestamp: new Date().getTime(), type: 'daily_backup', data: data, backupDate: getCurrentDateChina() };
                     const request = store.put(backupData);
                     request.onsuccess = () => resolve(true);
                     request.onerror = () => reject(request.error);
                 });
             }
-            // 读取最新的每日备份
             async loadDailyBackup() {
                 if (!this.db) await this.open();
                 return new Promise((resolve, reject) => {
@@ -1458,9 +1175,30 @@
                     request.onerror = () => reject(request.error);
                 });
             }
+            async saveBackupDirectoryHandle(handle) {
+                if (!this.db) await this.open();
+                return new Promise((resolve, reject) => {
+                    const transaction = this.db.transaction([this.backupStoreName], 'readwrite');
+                    const store = transaction.objectStore(this.backupStoreName);
+                    const data = { timestamp: 'dir_handle', type: 'directory_handle', handle: handle };
+                    const request = store.put(data);
+                    request.onsuccess = () => resolve(true);
+                    request.onerror = () => reject(request.error);
+                });
+            }
+            async loadBackupDirectoryHandle() {
+                if (!this.db) await this.open();
+                return new Promise((resolve, reject) => {
+                    const transaction = this.db.transaction([this.backupStoreName], 'readonly');
+                    const store = transaction.objectStore(this.backupStoreName);
+                    const request = store.get('dir_handle');
+                    request.onsuccess = () => resolve(request.result ? request.result.handle : null);
+                    request.onerror = () => reject(request.error);
+                });
+            }
         }
 
-        // 全局应用状态
+        // ==================== 全局状态 ====================
         let appState = {
             records: [],
             recycleBin: [],
@@ -1476,7 +1214,7 @@
             isLoggedIn: false
         };
 
-        // DOM 元素快捷访问
+        // DOM 元素
         const elements = {
             passwordInput: document.getElementById('password-input'),
             loginOverlay: document.getElementById('login-overlay'),
@@ -1535,8 +1273,9 @@
         const dbManager = new DatabaseManager();
         const CORRECT_PASSWORD = "160601";
         const CLEAR_PASSWORD = "891105";
+        let backupDirectoryHandle = null;
 
-        // ==================== 中国时区时间工具 ====================
+        // ==================== 中国时区时间 ====================
         function getCurrentDateChina() {
             const now = new Date();
             const chinaTime = new Date(now.getTime() + (8 * 60 * 60 * 1000));
@@ -1564,7 +1303,7 @@
             return `${year}-${month}-${day} ${hours}:${minutes}`;
         }
 
-        // ==================== 提示工具 ====================
+        // ==================== 提示 ====================
         function showToast(message, isError = false) {
             const toast = document.createElement('div');
             toast.textContent = message;
@@ -1616,7 +1355,6 @@
                 showToast('密码错误！', true);
             }
         }
-
         function logout() {
             if (confirm('确定要退出登录吗？')) {
                 appState.isLoggedIn = false;
@@ -1631,25 +1369,76 @@
             }
         }
 
-        // ==================== 初始化 & 自动备份 ====================
-        async function init() {
-            const today = getCurrentDateChina();
-            elements.recordDate.value = today;
-            elements.viewDate.value = today;
-            appState.currentViewDate = today;
-            selectCategory('macau', 'down');
-            await loadLocalData();
-            updateRecycleCount();
-            updateStorageInfo();
-            await performDailyBackup();
-            setInterval(async () => {
-                await performDailyBackup();
-            }, 60 * 60 * 1000);
-            if (!appState.isLoggedIn) elements.passwordInput.focus();
-            console.log('当前中国时区日期设置为:', today);
+        // ==================== 备份文件夹授权与自动备份 ====================
+        async function loadBackupDirectory() {
+            try {
+                const handle = await dbManager.loadBackupDirectoryHandle();
+                if (handle && await verifyPermission(handle)) {
+                    backupDirectoryHandle = handle;
+                } else {
+                    backupDirectoryHandle = null;
+                }
+            } catch (e) { backupDirectoryHandle = null; }
         }
-
-        async function performDailyBackup() {
+        async function verifyPermission(handle) {
+            const opts = { mode: 'readwrite' };
+            if (await handle.queryPermission(opts) === 'granted') return true;
+            if (await handle.requestPermission(opts) === 'granted') return true;
+            return false;
+        }
+        async function requestBackupDirectory() {
+            if (!window.showDirectoryPicker) {
+                showToast('当前浏览器不支持自动保存备份文件，将使用下载方式', true);
+                return null;
+            }
+            try {
+                const dirHandle = await window.showDirectoryPicker();
+                const permission = await verifyPermission(dirHandle);
+                if (permission) {
+                    await dbManager.saveBackupDirectoryHandle(dirHandle);
+                    backupDirectoryHandle = dirHandle;
+                    showToast('✅ 备份文件夹授权成功，每日将自动备份');
+                    return dirHandle;
+                } else {
+                    showToast('未获得文件夹权限，无法自动保存', true);
+                    return null;
+                }
+            } catch (err) {
+                showToast('未选择文件夹，无法自动备份', true);
+                return null;
+            }
+        }
+        async function writeBackupFile(backupData) {
+            if (!backupDirectoryHandle) {
+                const dir = await requestBackupDirectory();
+                if (!dir) return false;
+            }
+            try {
+                const fileName = `每日备份.json`;
+                let fileHandle = await backupDirectoryHandle.getFileHandle(fileName, { create: true });
+                const writable = await fileHandle.createWritable();
+                const jsonStr = JSON.stringify(backupData, null, 2);
+                await writable.write(jsonStr);
+                await writable.close();
+                return true;
+            } catch (err) {
+                console.error('写入备份文件失败:', err);
+                return false;
+            }
+        }
+        function downloadBackup(backupData) {
+            const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `每日备份.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast('✅ 备份已生成，请点击保存覆盖旧文件');
+        }
+        async function performDailyFileBackup() {
             try {
                 const lastBackupDate = localStorage.getItem('lastDailyBackupDate');
                 const today = getCurrentDateChina();
@@ -1661,36 +1450,51 @@
                         version: '36.0'
                     };
                     await dbManager.saveDailyBackup(backupData);
+                    const success = await writeBackupFile(backupData);
+                    if (success) {
+                        showToast('✅ 每日备份已自动覆盖保存到文件夹');
+                    } else {
+                        downloadBackup(backupData);
+                        showToast('⚠️ 未授权文件夹，已生成备份文件，请点击保存');
+                    }
                     localStorage.setItem('lastDailyBackupDate', today);
-                    showToast('✅ 已自动备份今日数据');
                 }
             } catch (error) {
                 console.error('每日自动备份失败:', error);
+                showToast('自动备份失败，请检查权限', true);
+            }
+        }
+        async function manualExportBackup() {
+            const backupData = {
+                records: appState.records,
+                recycleBin: appState.recycleBin,
+                backupTime: new Date().toISOString(),
+                version: '36.0'
+            };
+            const success = await writeBackupFile(backupData);
+            if (success) {
+                showToast('✅ 手动备份已覆盖保存');
+            } else {
+                downloadBackup(backupData);
             }
         }
 
-        async function exportDailyBackup() {
-            try {
-                const backup = await dbManager.loadDailyBackup();
-                if (!backup) {
-                    showToast('暂无每日备份数据，请稍后再试', true);
-                    return;
-                }
-                const backupData = backup.data;
-                const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `每日备份_${backup.backupDate || getCurrentDateChina()}.json`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-                showToast('✅ 备份已导出');
-            } catch (error) {
-                console.error('导出备份失败:', error);
-                showToast('导出备份失败', true);
-            }
+        // ==================== 初始化 ====================
+        async function init() {
+            const today = getCurrentDateChina();
+            elements.recordDate.value = today;
+            elements.viewDate.value = today;
+            appState.currentViewDate = today;
+            selectCategory('macau', 'down');
+            await loadLocalData();
+            updateRecycleCount();
+            updateStorageInfo();
+            await loadBackupDirectory();
+            await performDailyFileBackup();
+            setInterval(async () => {
+                await performDailyFileBackup();
+            }, 60 * 60 * 1000);
+            if (!appState.isLoggedIn) elements.passwordInput.focus();
         }
 
         document.addEventListener('DOMContentLoaded', function() {
@@ -1848,7 +1652,7 @@
             loadRecords();
         }
 
-        // ==================== 日期记录加载 ====================
+        // ==================== 日期记录 ====================
         function loadDateRecords() {
             const selectedDate = elements.viewDate.value;
             if (!selectedDate) return;
@@ -1945,82 +1749,33 @@
         function renderMyIncomeStats(stats, date) {
             const container = elements.myIncomeStats;
             container.innerHTML = '';
-            // 澳门
             const macauIsIncome = stats.macau.my >= 0;
-            const macauColorClass = macauIsIncome ? 'stat-income' : 'stat-expense';
-            const macauHintClass = macauIsIncome ? 'income-hint' : 'expense-hint';
-            const macauHintText = macauIsIncome ? `收入 ¥${Math.abs(stats.macau.my).toFixed(2)}` : `支出 ¥${Math.abs(stats.macau.my).toFixed(2)}`;
-            const macauUpIsIncome = stats.macau.up.profit >= 0;
-            const macauUpColorClass = macauUpIsIncome ? 'stat-income' : 'stat-expense';
-            const macauUpHintText = macauUpIsIncome ? `收入 ¥${Math.abs(stats.macau.up.profit).toFixed(2)}` : `支出 ¥${Math.abs(stats.macau.up.profit).toFixed(2)}`;
-            const macauDownIsIncome = stats.macau.down.profit >= 0;
-            const macauDownColorClass = macauDownIsIncome ? 'stat-income' : 'stat-expense';
-            const macauDownHintText = macauDownIsIncome ? `收入 ¥${Math.abs(stats.macau.down.profit).toFixed(2)}` : `支出 ¥${Math.abs(stats.macau.down.profit).toFixed(2)}`;
             container.innerHTML += `
                 <div class="stat-card">
-                    <div class="stat-header">
-                        <div class="stat-title">澳门收支统计</div>
-                        <div class="stat-amount ${macauColorClass}">${macauIsIncome ? '+' : ''}¥${Math.abs(stats.macau.my).toFixed(2)}</div>
-                    </div>
-                    <div class="${macauHintClass}" style="margin-top: 5px;">${macauHintText}</div>
-                    <div class="stat-details">
-                        澳门下家：<span class="${macauDownColorClass}">${macauDownHintText}</span><br>
-                        澳门上家：<span class="${macauUpColorClass}">${macauUpHintText}</span>
-                    </div>
+                    <div class="stat-header"><div class="stat-title">澳门收支统计</div><div class="stat-amount ${macauIsIncome ? 'stat-income' : 'stat-expense'}">${macauIsIncome ? '+' : ''}¥${Math.abs(stats.macau.my).toFixed(2)}</div></div>
+                    <div class="${macauIsIncome ? 'income-hint' : 'expense-hint'}" style="margin-top: 5px;">${macauIsIncome ? '收入' : '支出'} ¥${Math.abs(stats.macau.my).toFixed(2)}</div>
+                    <div class="stat-details">澳门下家：${stats.macau.down.profit >= 0 ? '+' : ''}¥${Math.abs(stats.macau.down.profit).toFixed(2)}<br>澳门上家：${stats.macau.up.profit >= 0 ? '+' : ''}¥${Math.abs(stats.macau.up.profit).toFixed(2)}</div>
                 </div>
             `;
-            // 粤港
             const guangdongIsIncome = stats.guangdong.my >= 0;
-            const guangdongColorClass = guangdongIsIncome ? 'stat-income' : 'stat-expense';
-            const guangdongHintClass = guangdongIsIncome ? 'income-hint' : 'expense-hint';
-            const guangdongHintText = guangdongIsIncome ? `收入 ¥${Math.abs(stats.guangdong.my).toFixed(2)}` : `支出 ¥${Math.abs(stats.guangdong.my).toFixed(2)}`;
-            const guangdongUpIsIncome = stats.guangdong.up.profit >= 0;
-            const guangdongUpColorClass = guangdongUpIsIncome ? 'stat-income' : 'stat-expense';
-            const guangdongUpHintText = guangdongUpIsIncome ? `收入 ¥${Math.abs(stats.guangdong.up.profit).toFixed(2)}` : `支出 ¥${Math.abs(stats.guangdong.up.profit).toFixed(2)}`;
-            const guangdongDownIsIncome = stats.guangdong.down.profit >= 0;
-            const guangdongDownColorClass = guangdongDownIsIncome ? 'stat-income' : 'stat-expense';
-            const guangdongDownHintText = guangdongDownIsIncome ? `收入 ¥${Math.abs(stats.guangdong.down.profit).toFixed(2)}` : `支出 ¥${Math.abs(stats.guangdong.down.profit).toFixed(2)}`;
-            const guangdongUpRebateIsIncome = stats.guangdongUpRebate >= 0;
-            const guangdongUpRebateColorClass = guangdongUpRebateIsIncome ? 'stat-rebate' : 'stat-expense';
-            const guangdongUpRebateHintClass = guangdongUpRebateIsIncome ? 'rebate-hint' : 'expense-hint';
-            const guangdongUpRebateHintText = guangdongUpRebateIsIncome ? `返点 ¥${Math.abs(stats.guangdongUpRebate).toFixed(2)}` : `支出 ¥${Math.abs(stats.guangdongUpRebate).toFixed(2)}`;
             container.innerHTML += `
                 <div class="stat-card">
-                    <div class="stat-header">
-                        <div class="stat-title">粤港收支统计</div>
-                        <div class="stat-amount ${guangdongColorClass}">${guangdongIsIncome ? '+' : ''}¥${Math.abs(stats.guangdong.my).toFixed(2)}</div>
-                    </div>
-                    <div class="${guangdongHintClass}" style="margin-top: 5px;">${guangdongHintText}</div>
-                    <div class="stat-details">
-                        粤港下家：<span class="${guangdongDownColorClass}">${guangdongDownHintText}</span><br>
-                        粤港上家：<span class="${guangdongUpColorClass}">${guangdongUpHintText}</span><br>
-                        上家返点：<span class="${guangdongUpRebateColorClass} ${guangdongUpRebateHintClass}">${guangdongUpRebateHintText}</span>
-                    </div>
+                    <div class="stat-header"><div class="stat-title">粤港收支统计</div><div class="stat-amount ${guangdongIsIncome ? 'stat-income' : 'stat-expense'}">${guangdongIsIncome ? '+' : ''}¥${Math.abs(stats.guangdong.my).toFixed(2)}</div></div>
+                    <div class="${guangdongIsIncome ? 'income-hint' : 'expense-hint'}" style="margin-top: 5px;">${guangdongIsIncome ? '收入' : '支出'} ¥${Math.abs(stats.guangdong.my).toFixed(2)}</div>
+                    <div class="stat-details">粤港下家：${stats.guangdong.down.profit >= 0 ? '+' : ''}¥${Math.abs(stats.guangdong.down.profit).toFixed(2)}<br>粤港上家：${stats.guangdong.up.profit >= 0 ? '+' : ''}¥${Math.abs(stats.guangdong.up.profit).toFixed(2)}<br>上家返点：${stats.guangdongUpRebate >= 0 ? '+' : ''}¥${Math.abs(stats.guangdongUpRebate).toFixed(2)}</div>
                 </div>
             `;
-            // 总计
             const totalIsIncome = stats.total >= 0;
-            const totalColorClass = totalIsIncome ? 'stat-income' : 'stat-expense';
-            const totalHintClass = totalIsIncome ? 'income-hint' : 'expense-hint';
-            const totalHintText = totalIsIncome ? `收入 ¥${Math.abs(stats.total).toFixed(2)}` : `支出 ¥${Math.abs(stats.total).toFixed(2)}`;
             container.innerHTML += `
                 <div class="stat-card">
-                    <div class="stat-header">
-                        <div class="stat-title">总计收支统计</div>
-                        <div class="stat-amount ${totalColorClass}">${totalIsIncome ? '+' : ''}¥${Math.abs(stats.total).toFixed(2)}</div>
-                    </div>
-                    <div class="${totalHintClass}" style="margin-top: 5px;">${totalHintText}</div>
-                    <div class="stat-details">
-                        日期：${date}<br>
-                        澳门：${macauIsIncome ? '+' : ''}¥${Math.abs(stats.macau.my).toFixed(2)}<br>
-                        粤港：${guangdongIsIncome ? '+' : ''}¥${Math.abs(stats.guangdong.my).toFixed(2)}<br>
-                        粤港上家返点：${guangdongUpRebateIsIncome ? '+' : ''}¥${Math.abs(stats.guangdongUpRebate).toFixed(2)}
-                    </div>
+                    <div class="stat-header"><div class="stat-title">总计收支统计</div><div class="stat-amount ${totalIsIncome ? 'stat-income' : 'stat-expense'}">${totalIsIncome ? '+' : ''}¥${Math.abs(stats.total).toFixed(2)}</div></div>
+                    <div class="${totalIsIncome ? 'income-hint' : 'expense-hint'}" style="margin-top: 5px;">${totalIsIncome ? '收入' : '支出'} ¥${Math.abs(stats.total).toFixed(2)}</div>
+                    <div class="stat-details">日期：${date}<br>澳门：${macauIsIncome ? '+' : ''}¥${Math.abs(stats.macau.my).toFixed(2)}<br>粤港：${guangdongIsIncome ? '+' : ''}¥${Math.abs(stats.guangdong.my).toFixed(2)}<br>粤港上家返点：${stats.guangdongUpRebate >= 0 ? '+' : ''}¥${Math.abs(stats.guangdongUpRebate).toFixed(2)}</div>
                 </div>
             `;
         }
 
-        // ==================== 记录列表加载（带筛选） ====================
+        // ==================== 记录列表加载 ====================
         function loadRecords() {
             const selectedYear = elements.selectYear.value;
             const selectedMonth = elements.selectMonth.value;
@@ -2181,13 +1936,11 @@
             }
             updateBatchToolbar();
         }
-
         function toggleRecordSelection(recordId, checkbox) {
             if (checkbox.checked) appState.selectedRecords.add(recordId);
             else appState.selectedRecords.delete(recordId);
             updateBatchToolbar();
         }
-
         function updateBatchToolbar() {
             const count = appState.selectedRecords.size;
             elements.batchCount.textContent = count;
@@ -2198,7 +1951,6 @@
             else if (checkedCheckboxes.length === totalCheckboxes.length) { elements.selectAll.checked = true; elements.selectAll.indeterminate = false; }
             else { elements.selectAll.checked = false; elements.selectAll.indeterminate = true; }
         }
-
         function clearSelection() {
             appState.selectedRecords.clear();
             document.querySelectorAll('#records-body input[type="checkbox"]').forEach(checkbox => checkbox.checked = false);
@@ -2206,7 +1958,6 @@
             elements.selectAll.indeterminate = false;
             updateBatchToolbar();
         }
-
         function deleteRecord(recordId) {
             const record = appState.records.find(r => r.id === recordId);
             if (!record) return;
@@ -2216,39 +1967,25 @@
                 appState.recycleBin.unshift(deletedRecord);
                 appState.selectedRecords.delete(recordId);
                 saveLocalData();
-                updatePersonFilter();
-                updateYearFilter();
-                loadRecords();
-                loadDateRecords();
-                loadMyIncomeStatsForDate(appState.currentViewDate);
-                updateRecycleCount();
-                renderRecycleTable();
+                updatePersonFilter(); updateYearFilter(); loadRecords(); loadDateRecords(); loadMyIncomeStatsForDate(appState.currentViewDate);
+                updateRecycleCount(); renderRecycleTable();
                 showToast('记录已删除，可在回收站找回');
                 showUndoToast();
             }
         }
-
         function batchDelete() {
             if (appState.selectedRecords.size === 0) { showToast('请先选择要删除的记录', true); return; }
             if (confirm(`确定要删除选中的 ${appState.selectedRecords.size} 条记录吗？记录将移至回收站。`)) {
                 const selectedRecordsData = appState.records.filter(record => appState.selectedRecords.has(record.id));
                 appState.records = appState.records.filter(record => !appState.selectedRecords.has(record.id));
-                selectedRecordsData.forEach(record => {
-                    appState.recycleBin.unshift({ ...record, deletedAt: new Date().toISOString(), originalIndex: appState.records.length });
-                });
+                selectedRecordsData.forEach(record => { appState.recycleBin.unshift({ ...record, deletedAt: new Date().toISOString(), originalIndex: appState.records.length }); });
                 clearSelection();
                 saveLocalData();
-                updatePersonFilter();
-                updateYearFilter();
-                loadRecords();
-                loadDateRecords();
-                loadMyIncomeStatsForDate(appState.currentViewDate);
-                updateRecycleCount();
-                renderRecycleTable();
+                updatePersonFilter(); updateYearFilter(); loadRecords(); loadDateRecords(); loadMyIncomeStatsForDate(appState.currentViewDate);
+                updateRecycleCount(); renderRecycleTable();
                 showToast(`已将 ${selectedRecordsData.length} 条记录移至回收站`);
             }
         }
-
         function undoDelete() {
             if (!appState.deletedRecord) { showToast('没有可撤销的操作', true); return; }
             if (appState.deletedRecord.type === 'single') appState.records.unshift(appState.deletedRecord.record);
@@ -2257,11 +1994,7 @@
             appState.deletedRecord = null;
             hideUndoToast();
             saveLocalData();
-            updatePersonFilter();
-            updateYearFilter();
-            loadRecords();
-            loadDateRecords();
-            loadMyIncomeStatsForDate(appState.currentViewDate);
+            updatePersonFilter(); updateYearFilter(); loadRecords(); loadDateRecords(); loadMyIncomeStatsForDate(appState.currentViewDate);
             showToast('已撤销删除操作');
         }
 
@@ -2310,8 +2043,6 @@
                 const rowClass = isIncome ? 'my-income-row' : 'my-expense-row';
                 const badgeClass = isIncome ? 'my-income' : 'my-expense';
                 const badgeText = isIncome ? '我的收入' : '我的支出';
-                const hintClass = isIncome ? 'income-hint' : 'expense-hint';
-                const hintText = isIncome ? `收入 ¥${Math.abs(record.amount).toFixed(2)}` : `支出 ¥${Math.abs(record.amount).toFixed(2)}`;
                 html += `
                     <tr class="${rowClass}">
                         <td><input type="checkbox" class="checkbox" value="${record.id}" onchange="toggleRecordSelection('${record.id}', this)"></td>
@@ -2330,14 +2061,10 @@
             const myIncomeStats = calculateStatsOld(myIncomeRecords);
             const timeLabel = selectedYear === 'all' ? '全部' : `${selectedYear}年${selectedMonth === 'all' ? '' : selectedMonth + '月'}`;
             const isIncome = myIncomeStats.profit >= 0;
-            const hintClass = isIncome ? 'income-hint' : 'expense-hint';
             container.innerHTML = `
                 <div class="stat-card">
-                    <div class="stat-header">
-                        <div class="stat-title">我的收支 ${timeLabel}统计</div>
-                        <div class="stat-amount ${isIncome ? 'stat-income' : 'stat-expense'}">${isIncome ? '+' : ''}¥${Math.abs(myIncomeStats.profit).toFixed(2)}</div>
-                    </div>
-                    <div class="${hintClass}" style="margin-top: 5px;">${isIncome ? '收入' : '支出'} ¥${Math.abs(myIncomeStats.profit).toFixed(2)}</div>
+                    <div class="stat-header"><div class="stat-title">我的收支 ${timeLabel}统计</div><div class="stat-amount ${isIncome ? 'stat-income' : 'stat-expense'}">${isIncome ? '+' : ''}¥${Math.abs(myIncomeStats.profit).toFixed(2)}</div></div>
+                    <div class="${isIncome ? 'income-hint' : 'expense-hint'}" style="margin-top: 5px;">${isIncome ? '收入' : '支出'} ¥${Math.abs(myIncomeStats.profit).toFixed(2)}</div>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px;">
                         <div><div class="stat-label">总收入</div><div class="stat-amount stat-income">+¥${myIncomeStats.income.toFixed(2)}</div></div>
                         <div><div class="stat-label">总支出</div><div class="stat-amount stat-expense">-¥${myIncomeStats.expense.toFixed(2)}</div></div>
@@ -2398,10 +2125,7 @@
             container.innerHTML = '';
             container.innerHTML += `
                 <div class="stat-card">
-                    <div class="stat-header">
-                        <div class="stat-title">总计 ${timeLabel}统计</div>
-                        <div class="stat-amount ${allStats.netIncome >= 0 ? 'stat-income' : 'stat-expense'}">${allStats.netIncome >= 0 ? '+' : ''}¥${Math.abs(allStats.netIncome).toFixed(2)}</div>
-                    </div>
+                    <div class="stat-header"><div class="stat-title">总计 ${timeLabel}统计</div><div class="stat-amount ${allStats.netIncome >= 0 ? 'stat-income' : 'stat-expense'}">${allStats.netIncome >= 0 ? '+' : ''}¥${Math.abs(allStats.netIncome).toFixed(2)}</div></div>
                     <div class="${allStats.netIncome >= 0 ? 'income-hint' : 'expense-hint'}" style="margin-top: 5px;">${allStats.netIncome >= 0 ? '收入' : '支出'} ¥${Math.abs(allStats.netIncome).toFixed(2)}</div>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px;">
                         <div><div class="stat-label">上家总收支（粤港+澳门）</div><div class="stat-amount ${allStats.sumUpstream >= 0 ? 'stat-income' : 'stat-expense'}">${allStats.sumUpstream >= 0 ? '+' : ''}¥${Math.abs(allStats.sumUpstream).toFixed(2)}</div></div>
@@ -2423,14 +2147,10 @@
             const guangdongUpRebate = calculateGuangdongUpRebate(guangdongUpRecords);
             if (filterCategory === 'all' || filterCategory.includes('macau')) {
                 const macauIsIncome = macauMyIncome >= 0;
-                const macauHintClass = macauIsIncome ? 'income-hint' : 'expense-hint';
                 container.innerHTML += `
                     <div class="stat-card">
-                        <div class="stat-header">
-                            <div class="stat-title">澳门 ${timeLabel}统计</div>
-                            <div class="stat-amount ${macauIsIncome ? 'stat-income' : 'stat-expense'}">${macauIsIncome ? '+' : ''}¥${Math.abs(macauMyIncome).toFixed(2)}</div>
-                        </div>
-                        <div class="${macauHintClass}" style="margin-bottom: 6px;">${macauIsIncome ? '收入' : '支出'} ¥${Math.abs(macauMyIncome).toFixed(2)}</div>
+                        <div class="stat-header"><div class="stat-title">澳门 ${timeLabel}统计</div><div class="stat-amount ${macauIsIncome ? 'stat-income' : 'stat-expense'}">${macauIsIncome ? '+' : ''}¥${Math.abs(macauMyIncome).toFixed(2)}</div></div>
+                        <div class="${macauIsIncome ? 'income-hint' : 'expense-hint'}" style="margin-bottom: 6px;">${macauIsIncome ? '收入' : '支出'} ¥${Math.abs(macauMyIncome).toFixed(2)}</div>
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 6px;">
                             <div><div class="stat-label">上家</div><div class="stat-amount ${macauUpTotal.profit >= 0 ? 'stat-income' : 'stat-expense'}">${macauUpTotal.profit >= 0 ? '+' : ''}¥${Math.abs(macauUpTotal.profit).toFixed(2)}</div></div>
                             <div><div class="stat-label">下家</div><div class="stat-amount ${macauDownTotal.profit >= 0 ? 'stat-income' : 'stat-expense'}">${macauDownTotal.profit >= 0 ? '+' : ''}¥${Math.abs(macauDownTotal.profit).toFixed(2)}</div></div>
@@ -2441,22 +2161,15 @@
             }
             if (filterCategory === 'all' || filterCategory.includes('guangdong')) {
                 const guangdongIsIncome = guangdongMyIncome >= 0;
-                const guangdongHintClass = guangdongIsIncome ? 'income-hint' : 'expense-hint';
-                const guangdongUpRebateIsIncome = guangdongUpRebate >= 0;
-                const guangdongUpRebateHintClass = guangdongUpRebateIsIncome ? 'rebate-hint' : 'expense-hint';
-                const guangdongUpRebateHintText = guangdongUpRebateIsIncome ? `返点 ¥${Math.abs(guangdongUpRebate).toFixed(2)}` : `支出 ¥${Math.abs(guangdongUpRebate).toFixed(2)}`;
                 container.innerHTML += `
                     <div class="stat-card">
-                        <div class="stat-header">
-                            <div class="stat-title">粤港 ${timeLabel}统计</div>
-                            <div class="stat-amount ${guangdongIsIncome ? 'stat-income' : 'stat-expense'}">${guangdongIsIncome ? '+' : ''}¥${Math.abs(guangdongMyIncome).toFixed(2)}</div>
-                        </div>
-                        <div class="${guangdongHintClass}" style="margin-bottom: 6px;">${guangdongIsIncome ? '收入' : '支出'} ¥${Math.abs(guangdongMyIncome).toFixed(2)}</div>
+                        <div class="stat-header"><div class="stat-title">粤港 ${timeLabel}统计</div><div class="stat-amount ${guangdongIsIncome ? 'stat-income' : 'stat-expense'}">${guangdongIsIncome ? '+' : ''}¥${Math.abs(guangdongMyIncome).toFixed(2)}</div></div>
+                        <div class="${guangdongIsIncome ? 'income-hint' : 'expense-hint'}" style="margin-bottom: 6px;">${guangdongIsIncome ? '收入' : '支出'} ¥${Math.abs(guangdongMyIncome).toFixed(2)}</div>
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 6px;">
                             <div><div class="stat-label">上家</div><div class="stat-amount ${guangdongUpTotal.profit >= 0 ? 'stat-income' : 'stat-expense'}">${guangdongUpTotal.profit >= 0 ? '+' : ''}¥${Math.abs(guangdongUpTotal.profit).toFixed(2)}</div></div>
                             <div><div class="stat-label">下家</div><div class="stat-amount ${guangdongDownTotal.profit >= 0 ? 'stat-income' : 'stat-expense'}">${guangdongDownTotal.profit >= 0 ? '+' : ''}¥${Math.abs(guangdongDownTotal.profit).toFixed(2)}</div></div>
                         </div>
-                        <div class="${guangdongUpRebateHintClass}" style="margin-top: 6px; font-size: 10px;">上家返点：${guangdongUpRebateHintText}</div>
+                        <div class="${guangdongUpRebate >= 0 ? 'rebate-hint' : 'expense-hint'}" style="margin-top: 6px; font-size: 10px;">上家返点：${guangdongUpRebate >= 0 ? '+' : ''}¥${Math.abs(guangdongUpRebate).toFixed(2)}</div>
                         <div class="stat-details">记录数：${guangdongUpTotal.count + guangdongDownTotal.count}条</div>
                     </div>
                 `;
@@ -2487,9 +2200,7 @@
             });
             if (monthRecords.length === 0) { showToast('本月没有记录可清除', true); return; }
             if (confirm(`确定要清除本月的所有记录吗？\n将删除 ${monthRecords.length} 条记录\n此操作不可恢复！`)) {
-                monthRecords.forEach(record => {
-                    appState.recycleBin.unshift({ ...record, deletedAt: new Date().toISOString(), originalIndex: appState.records.indexOf(record) });
-                });
+                monthRecords.forEach(record => { appState.recycleBin.unshift({ ...record, deletedAt: new Date().toISOString(), originalIndex: appState.records.indexOf(record) }); });
                 appState.records = appState.records.filter(record => {
                     const recordDate = new Date(record.date);
                     const recordYear = recordDate.getFullYear();
@@ -2497,31 +2208,19 @@
                     return !(recordYear === currentYear && recordMonth === currentMonth);
                 });
                 saveLocalData();
-                updatePersonFilter();
-                updateYearFilter();
-                loadRecords();
-                loadDateRecords();
-                loadMyIncomeStatsForDate(appState.currentViewDate);
-                updateRecycleCount();
-                renderRecycleTable();
+                updatePersonFilter(); updateYearFilter(); loadRecords(); loadDateRecords(); loadMyIncomeStatsForDate(appState.currentViewDate);
+                updateRecycleCount(); renderRecycleTable();
                 showToast(`已将本月 ${monthRecords.length} 条记录移至回收站`);
             }
         }
         function clearAllData() {
             if (appState.records.length === 0) { showToast('没有数据可清空', true); return; }
             if (confirm(`确定要清空所有数据吗？\n将删除 ${appState.records.length} 条记录\n此操作不可恢复！`)) {
-                appState.records.forEach(record => {
-                    appState.recycleBin.unshift({ ...record, deletedAt: new Date().toISOString(), originalIndex: appState.records.indexOf(record) });
-                });
+                appState.records.forEach(record => { appState.recycleBin.unshift({ ...record, deletedAt: new Date().toISOString(), originalIndex: appState.records.indexOf(record) }); });
                 appState.records = [];
                 saveLocalData();
-                updatePersonFilter();
-                updateYearFilter();
-                loadRecords();
-                loadDateRecords();
-                loadMyIncomeStatsForDate(appState.currentViewDate);
-                updateRecycleCount();
-                renderRecycleTable();
+                updatePersonFilter(); updateYearFilter(); loadRecords(); loadDateRecords(); loadMyIncomeStatsForDate(appState.currentViewDate);
+                updateRecycleCount(); renderRecycleTable();
                 showToast(`已将 ${appState.records.length} 条记录移至回收站`);
             }
         }
@@ -2541,21 +2240,13 @@
             URL.revokeObjectURL(url);
             showToast('✅ 数据已导出');
         }
-
         function isRecordDuplicate(newRecord, existingRecords) {
             return existingRecords.some(record => {
                 const amountEqual = Math.abs(record.amount) === Math.abs(newRecord.amount);
                 const noteEqual = (record.note || '') === (newRecord.note || '');
-                return record.date === newRecord.date &&
-                       record.name === newRecord.name &&
-                       record.category === newRecord.category &&
-                       record.subtype === newRecord.subtype &&
-                       record.type === newRecord.type &&
-                       amountEqual &&
-                       noteEqual;
+                return record.date === newRecord.date && record.name === newRecord.name && record.category === newRecord.category && record.subtype === newRecord.subtype && record.type === newRecord.type && amountEqual && noteEqual;
             });
         }
-
         function importData() {
             const input = document.createElement('input');
             input.type = 'file';
@@ -2568,40 +2259,20 @@
                     try {
                         const data = JSON.parse(event.target.result);
                         const importedRecords = data.records || [];
-                        if (importedRecords.length === 0) {
-                            showToast('导入文件中没有记录', true);
-                            return;
-                        }
-                        let addedCount = 0;
-                        let duplicateCount = 0;
+                        if (importedRecords.length === 0) { showToast('导入文件中没有记录', true); return; }
+                        let addedCount = 0, duplicateCount = 0;
                         for (const importedRecord of importedRecords) {
-                            if (isRecordDuplicate(importedRecord, appState.records)) {
-                                duplicateCount++;
-                                continue;
-                            }
-                            const newRecord = {
-                                ...importedRecord,
-                                id: Date.now() + '_' + Math.random().toString(36).substr(2, 9)
-                            };
+                            if (isRecordDuplicate(importedRecord, appState.records)) { duplicateCount++; continue; }
+                            const newRecord = { ...importedRecord, id: Date.now() + '_' + Math.random().toString(36).substr(2, 9) };
                             appState.records.unshift(newRecord);
                             addedCount++;
                         }
                         saveLocalData();
-                        updatePersonFilter();
-                        updateYearFilter();
-                        loadRecords();
-                        loadDateRecords();
-                        loadMyIncomeStatsForDate(appState.currentViewDate);
-                        updateRecycleCount();
-                        renderRecycleTable();
+                        updatePersonFilter(); updateYearFilter(); loadRecords(); loadDateRecords(); loadMyIncomeStatsForDate(appState.currentViewDate);
+                        updateRecycleCount(); renderRecycleTable();
                         showToast(`✅ 导入完成：新增 ${addedCount} 条，跳过重复 ${duplicateCount} 条`);
-                        if (duplicateCount > 0) {
-                            setTimeout(() => showToast(`重复记录未导入，请检查`, false), 2000);
-                        }
-                    } catch (error) {
-                        console.error('导入解析失败:', error);
-                        showToast('❌ 文件格式错误或数据损坏', true);
-                    }
+                        if (duplicateCount > 0) setTimeout(() => showToast(`重复记录未导入，请检查`, false), 2000);
+                    } catch (error) { showToast('❌ 文件格式错误或数据损坏', true); }
                 };
                 reader.readAsText(file);
             };
@@ -2615,17 +2286,15 @@
         function updateRecycleStats() {
             const total = appState.recycleBin.length;
             const today = getCurrentDateChina();
-            const weekAgo = new Date();
-            weekAgo.setDate(weekAgo.getDate() - 7);
+            const weekAgo = new Date(); weekAgo.setDate(weekAgo.getDate() - 7);
             const weekAgoStr = formatDateChina(weekAgo);
             const todayCount = appState.recycleBin.filter(item => item.deletedAt.split('T')[0] === today).length;
             const weekCount = appState.recycleBin.filter(item => item.deletedAt.split('T')[0] >= weekAgoStr).length;
             const size = new Blob([JSON.stringify(appState.recycleBin)]).size;
-            const sizeKB = (size / 1024).toFixed(1);
             elements.recycleTotal.textContent = total;
             elements.recycleToday.textContent = todayCount;
             elements.recycleWeek.textContent = weekCount;
-            elements.recycleSize.textContent = sizeKB + 'KB';
+            elements.recycleSize.textContent = (size / 1024).toFixed(1) + 'KB';
         }
         function renderRecycleTable() {
             const tbody = elements.recycleBody;
@@ -2651,10 +2320,7 @@
                         <td class="${isIncome ? 'stat-income' : 'stat-expense'}">${isIncome ? '+' : ''}¥${Math.abs(record.amount).toFixed(2)}</td>
                         <td class="stat-rebate">${rebate !== 0 ? (rebate > 0 ? '+' : '') + '¥' + Math.abs(rebate).toFixed(2) : '-'}</td>
                         <td>${record.note || '-'}</td>
-                        <td>
-                            <button class="action-btn restore" onclick="restoreRecord('${record.id}')">还原</button>
-                            <button class="action-btn delete-permanent" onclick="permanentDelete('${record.id}')">彻底删除</button>
-                        </td>
+                        <td><button class="action-btn restore" onclick="restoreRecord('${record.id}')">还原</button><button class="action-btn delete-permanent" onclick="permanentDelete('${record.id}')">彻底删除</button></td>
                     </tr>
                 `;
             });
@@ -2677,14 +2343,8 @@
             appState.records.unshift({ id: record.id, date: record.date, name: record.name, category: record.category, subtype: record.subtype, type: record.type, amount: record.amount, note: record.note, totalAmount: record.totalAmount, rebateRate: record.rebateRate, rebate: record.rebate, createdAt: record.createdAt });
             appState.recycleBin.splice(recordIndex, 1);
             saveLocalData();
-            updatePersonFilter();
-            updateYearFilter();
-            loadRecords();
-            loadDateRecords();
-            loadMyIncomeStatsForDate(appState.currentViewDate);
-            updateRecycleCount();
-            renderRecycleTable();
-            updateRecycleStats();
+            updatePersonFilter(); updateYearFilter(); loadRecords(); loadDateRecords(); loadMyIncomeStatsForDate(appState.currentViewDate);
+            updateRecycleCount(); renderRecycleTable(); updateRecycleStats();
             showToast('记录已还原');
         }
         function restoreSelected() {
@@ -2700,14 +2360,8 @@
                 }
             });
             saveLocalData();
-            updatePersonFilter();
-            updateYearFilter();
-            loadRecords();
-            loadDateRecords();
-            loadMyIncomeStatsForDate(appState.currentViewDate);
-            updateRecycleCount();
-            renderRecycleTable();
-            updateRecycleStats();
+            updatePersonFilter(); updateYearFilter(); loadRecords(); loadDateRecords(); loadMyIncomeStatsForDate(appState.currentViewDate);
+            updateRecycleCount(); renderRecycleTable(); updateRecycleStats();
             showToast(`已还原 ${recordIds.length} 条记录`);
         }
         function restoreAll() {
@@ -2718,14 +2372,8 @@
                 });
                 appState.recycleBin = [];
                 saveLocalData();
-                updatePersonFilter();
-                updateYearFilter();
-                loadRecords();
-                loadDateRecords();
-                loadMyIncomeStatsForDate(appState.currentViewDate);
-                updateRecycleCount();
-                renderRecycleTable();
-                updateRecycleStats();
+                updatePersonFilter(); updateYearFilter(); loadRecords(); loadDateRecords(); loadMyIncomeStatsForDate(appState.currentViewDate);
+                updateRecycleCount(); renderRecycleTable(); updateRecycleStats();
                 showToast(`已还原所有 ${appState.records.length} 条记录`);
             }
         }
@@ -2733,9 +2381,7 @@
             if (confirm('确定要彻底删除这条记录吗？此操作不可恢复！')) {
                 appState.recycleBin = appState.recycleBin.filter(r => r.id !== recordId);
                 saveLocalData();
-                updateRecycleCount();
-                renderRecycleTable();
-                updateRecycleStats();
+                updateRecycleCount(); renderRecycleTable(); updateRecycleStats();
                 showToast('记录已彻底删除');
             }
         }
@@ -2744,9 +2390,7 @@
             if (confirm(`确定要清空回收站吗？将永久删除 ${appState.recycleBin.length} 条记录！`)) {
                 appState.recycleBin = [];
                 saveLocalData();
-                updateRecycleCount();
-                renderRecycleTable();
-                updateRecycleStats();
+                updateRecycleCount(); renderRecycleTable(); updateRecycleStats();
                 showToast('回收站已清空');
             }
         }
@@ -2775,7 +2419,6 @@
                 showToast('数据加载失败，将使用空数据', true);
             }
         }
-
         async function saveLocalData() {
             try {
                 const data = { records: appState.records, recycleBin: appState.recycleBin, savedAt: new Date().toISOString(), version: '36.0' };
@@ -2787,7 +2430,6 @@
                 showToast('数据保存失败，请检查浏览器存储权限', true);
             }
         }
-
         function updatePersonFilter() {
             const filter = elements.filterPerson;
             filter.innerHTML = '<option value="all">全部人员</option>';
@@ -2800,7 +2442,6 @@
                 filter.appendChild(option);
             });
         }
-
         function updateYearFilter() {
             const yearSelect = elements.selectYear;
             yearSelect.innerHTML = '<option value="all">全部年份</option>';
@@ -2814,7 +2455,6 @@
                 yearSelect.appendChild(option);
             });
         }
-
         async function updateStorageInfo() {
             try {
                 const sizeInfo = await dbManager.getDatabaseSize();
