@@ -3,213 +3,1024 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>个人收支管理系统 - 中国时区版</title>
+    <title>个人收支管理系统 - 中国时区版（完整无省略）</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif; }
-        :root { --primary: #3498db; --primary-dark: #2980b9; --income: #2ecc71; --expense: #e74c3c; --warning: #f39c12; --cloud: #9b59b6; --profit: #e67e22; --rebate: #ff9800; --category3: #e67e22; --category4: #34495e; --light: #f8f9fa; --dark: #2c3e50; --border: #ecf0f1; --shadow: 0 3px 8px rgba(0, 0, 0, 0.06); --radius: 6px; --transition: all 0.2s ease; --recycle: #95a5a6; --recycle-hover: #7f8c8d; }
-        body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 12px; }
-        .container { max-width: 1200px; margin: 0 auto; }
-        .login-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; justify-content: center; align-items: center; z-index: 9999; transition: opacity 0.3s ease; }
-        .login-overlay.hidden { opacity: 0; pointer-events: none; }
-        .login-box { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); text-align: center; min-width: 350px; animation: slideIn 0.5s ease; }
-        .login-icon { font-size: 48px; color: var(--primary); margin-bottom: 20px; }
-        .login-title { font-size: 24px; font-weight: 600; color: var(--dark); margin-bottom: 8px; }
-        .login-subtitle { font-size: 14px; color: #7f8c8d; margin-bottom: 30px; }
-        .password-input { width: 100%; padding: 12px 16px; border: 2px solid var(--border); border-radius: 8px; font-size: 16px; margin-bottom: 20px; transition: var(--transition); }
-        .password-input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1); }
-        .login-btn { width: 100%; padding: 12px; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: var(--transition); margin-bottom: 15px; }
-        .login-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); }
-        .login-btn:active { transform: translateY(0); }
-        .error-message { color: var(--expense); font-size: 14px; margin-top: 10px; display: none; }
-        .error-message.show { display: block; }
-        .attempts-warning { color: var(--warning); font-size: 12px; margin-top: 10px; }
-        .navbar { background: white; border-radius: var(--radius); padding: 10px 12px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow); flex-wrap: wrap; gap: 10px; }
-        .nav-left { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-        .nav-icon { font-size: 18px; color: var(--primary); }
-        .nav-title { font-size: 16px; font-weight: 600; color: var(--dark); }
-        .nav-subtitle { font-size: 10px; color: #7f8c8d; margin-top: 1px; }
-        .btn { display: inline-block; padding: 8px 12px; border: none; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer; transition: var(--transition); text-align: center; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
-        .btn:hover { transform: translateY(-1px); box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); }
-        .btn:active { transform: translateY(0); box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }
-        .btn-success { background: linear-gradient(135deg, var(--income), #27ae60); color: white; }
-        .btn-danger { background: linear-gradient(135deg, var(--expense), #c0392b); color: white; }
-        .btn-outline { background: white; color: var(--primary); border: 2px solid var(--primary); }
-        .btn-outline:hover { background: var(--primary); color: white; }
-        .btn-warning { background: linear-gradient(135deg, var(--warning), #e67e22); color: white; }
-        .btn-cloud { background: linear-gradient(135deg, var(--cloud), #8e44ad); color: white; }
-        .btn-recycle { background: linear-gradient(135deg, var(--recycle), var(--recycle-hover)); color: white; }
-        .btn-recycle:hover { background: linear-gradient(135deg, var(--recycle-hover), #6c7b7d); }
-        .btn-sm { padding: 4px 8px; font-size: 10px; border-radius: 4px; }
-        .btn-group { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
-        .main-grid { display: grid; grid-template-columns: 1fr 2fr; gap: 12px; margin-bottom: 12px; }
-        .card { background: white; border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); margin-bottom: 12px; }
-        .card-header { padding: 10px 12px; display: flex; justify-content: space-between; align-items: center; }
-        .card-header.primary { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); }
-        .card-header.warning { background: linear-gradient(135deg, var(--warning), #e67e22); }
-        .card-header.recycle { background: linear-gradient(135deg, var(--recycle), var(--recycle-hover)); }
-        .card-title { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: white; }
-        .card-body { padding: 12px; }
-        .detail-card .table-container { width: 100%; max-width: 850px; overflow-x: auto; border: 1px solid var(--border); border-radius: 5px; }
-        .detail-card .data-table th, .detail-card .data-table td { min-width: 80px; text-align: center; }
-        .detail-card .data-table th:first-child { min-width: 60px; }
-        .detail-card .data-table th:last-child { min-width: 80px; }
-        .clear-btn { background: linear-gradient(135deg, #95a5a6, #7f8c8d) !important; color: white !important; margin-left: 8px; }
-        .clear-btn:hover { background: linear-gradient(135deg, #7f8c8d, #6c7b7d) !important; }
-        .recycle-panel { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 10000; justify-content: center; align-items: center; }
-        .recycle-panel.show { display: flex; }
-        .recycle-container { background: white; border-radius: 12px; padding: 20px; width: 90%; max-width: 800px; max-height: 80vh; overflow-y: auto; animation: slideIn 0.3s ease; }
-        .recycle-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid var(--border); }
-        .recycle-title { font-size: 18px; font-weight: 600; color: var(--dark); display: flex; align-items: center; gap: 8px; }
-        .close-btn { background: var(--expense); color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; }
-        .recycle-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 20px; }
-        .recycle-stat { background: var(--light); padding: 10px; border-radius: 6px; text-align: center; border-left: 4px solid var(--recycle); }
-        .recycle-stat-number { font-size: 18px; font-weight: bold; color: var(--recycle); }
-        .recycle-stat-label { font-size: 11px; color: #7f8c8d; margin-top: 2px; }
-        .recycle-toolbar { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
-        .recycle-search { flex: 1; padding: 8px 12px; border: 2px solid var(--border); border-radius: 20px; font-size: 11px; min-width: 200px; }
-        .recycle-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        .recycle-table th, .recycle-table td { padding: 8px; text-align: left; border-bottom: 1px solid var(--border); font-size: 10px; }
-        .recycle-table th { background: var(--light); font-weight: 600; color: var(--dark); position: sticky; top: 0; }
-        .recycle-table tr:hover { background: rgba(149, 165, 166, 0.05); }
-        .deleted-time { color: #7f8c8d; font-size: 9px; }
-        .form-group { margin-bottom: 12px; }
-        .form-label { display: block; margin-bottom: 4px; color: var(--dark); font-weight: 500; font-size: 11px; }
-        .form-input { width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 5px; font-size: 12px; transition: var(--transition); background: white; }
-        .form-input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.1); }
-        .form-input.error { border-color: var(--expense); box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.1); }
-        .error-msg { color: var(--expense); font-size: 9px; margin-top: 2px; display: none; }
-        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
-        .category-selector { display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px; }
-        .category-group { display: flex; gap: 4px; }
-        .category-label { font-size: 11px; font-weight: 600; color: var(--dark); margin-bottom: 3px; display: block; }
-        .category-btn { flex: 1; padding: 8px 6px; border: 2px solid transparent; border-radius: 6px; background: white; font-size: 10px; font-weight: 600; cursor: pointer; transition: var(--transition); display: flex; align-items: center; justify-content: center; gap: 2px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .category-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 8px rgba(0,0,0,0.15); }
-        .category-btn.macau-up { color: var(--category3); border-color: var(--category3); }
-        .category-btn.macau-up.active { background: var(--category3); color: white; box-shadow: 0 4px 8px rgba(230, 126, 34, 0.3); }
-        .category-btn.macau-down { color: var(--category4); border-color: var(--category4); }
-        .category-btn.macau-down.active { background: var(--category4); color: white; box-shadow: 0 4px 8px rgba(52, 73, 94, 0.3); }
-        .category-btn.guangdong-up { color: var(--category3); border-color: var(--category3); }
-        .category-btn.guangdong-up.active { background: var(--category3); color: white; box-shadow: 0 4px 8px rgba(230, 126, 34, 0.3); }
-        .category-btn.guangdong-down { color: var(--category4); border-color: var(--category4); }
-        .category-btn.guangdong-down.active { background: var(--category4); color: white; box-shadow: 0 4px 8px rgba(52, 73, 94, 0.3); }
-        .search-container { display: flex; gap: 8px; margin-bottom: 10px; align-items: center; }
-        .search-box { flex: 1; padding: 8px 12px; border: 2px solid var(--border); border-radius: 20px; font-size: 11px; background: white; box-shadow: 0 2px 4px rgba(0,0,0,0.05); transition: var(--transition); }
-        .search-box:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.1); }
-        .batch-toolbar { display: none; align-items: center; gap: 8px; padding: 8px 12px; background: var(--warning); color: white; border-radius: 5px; margin-bottom: 10px; animation: slideIn 0.3s ease; }
-        .batch-toolbar.show { display: flex; }
-        .batch-count { font-weight: 600; margin-right: 8px; }
-        .table-container { overflow-x: auto; margin-top: 10px; border-radius: 5px; border: 1px solid var(--border); }
-        .data-table { width: 100%; border-collapse: collapse; min-width: 700px; }
-        .data-table thead { background: #f8f9fa; position: sticky; top: 0; z-index: 10; }
-        .data-table th { padding: 8px 10px; text-align: left; font-weight: 600; color: var(--dark); border-bottom: 2px solid var(--border); font-size: 10px; }
-        .data-table td { padding: 8px 10px; border-bottom: 1px solid var(--border); font-size: 10px; }
-        .data-table tbody tr:hover { background: rgba(52, 152, 219, 0.05); }
-        .data-table tbody tr.selected { background: rgba(52, 152, 219, 0.1); }
-        .type-badge { display: inline-block; padding: 3px 6px; border-radius: 12px; font-size: 9px; font-weight: 600; }
-        .type-income { background: rgba(46, 204, 113, 0.15); color: var(--income); }
-        .type-expense { background: rgba(231, 76, 60, 0.15); color: var(--expense); }
-        .type-profit { background: rgba(230, 126, 34, 0.15); color: var(--profit); }
-        .checkbox { width: 16px; height: 16px; cursor: pointer; }
-        .filter-row { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
-        .filter-group { display: flex; align-items: center; gap: 4px; }
-        .filter-label { font-size: 10px; font-weight: 500; color: var(--dark); }
-        .filter-select { padding: 6px 8px; border: 1px solid var(--border); border-radius: 5px; font-size: 10px; background: white; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .date-selector { display: flex; align-items: center; gap: 6px; margin-bottom: 10px; }
-        .date-selector label { font-size: 11px; font-weight: 500; color: var(--dark); }
-        .date-selector input { padding: 6px 8px; border: 1px solid var(--border); border-radius: 5px; font-size: 10px; background: white; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 8px; margin-top: 10px; }
-        .stat-card { background: white; border-radius: var(--radius); padding: 10px; box-shadow: var(--shadow); border: 1px solid var(--border); }
-        .stat-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
-        .stat-title { font-size: 11px; font-weight: 600; color: var(--dark); }
-        .stat-amount { font-size: 14px; font-weight: 700; }
-        .stat-income { color: var(--income); }
-        .stat-expense { color: var(--expense); }
-        .stat-profit { color: var(--profit); }
-        .stat-rebate { color: var(--rebate); }
-        .stat-recycle { color: var(--recycle); }
-        .stat-details { font-size: 9px; color: #7f8c8d; margin-top: 4px; }
-        .action-btn { padding: 4px 6px; border: none; border-radius: 4px; font-size: 9px; font-weight: 500; cursor: pointer; transition: var(--transition); margin-right: 4px; }
-        .action-btn.restore { background: rgba(46, 204, 113, 0.1); color: var(--income); }
-        .action-btn.restore:hover { background: var(--income); color: white; }
-        .action-btn.delete-permanent { background: rgba(231, 76, 60, 0.1); color: var(--expense); }
-        .action-btn.delete-permanent:hover { background: var(--expense); color: white; }
-        .category-badge { display: inline-block; padding: 2px 6px; border-radius: 12px; font-size: 8px; font-weight: 500; }
-        .category-badge.macau-up { background: rgba(230, 126, 34, 0.15); color: var(--category3); }
-        .category-badge.macau-down { background: rgba(52, 73, 94, 0.15); color: var(--category4); }
-        .category-badge.guangdong-up { background: rgba(230, 126, 34, 0.15); color: var(--category3); }
-        .category-badge.guangdong-down { background: rgba(52, 73, 94, 0.15); color: var(--category4); }
-        .category-badge.my-income { background: rgba(46, 204, 113, 0.2); color: var(--income); border: 1px dashed var(--income); }
-        .category-badge.my-expense { background: rgba(231, 76, 60, 0.2); color: var(--expense); border: 1px dashed var(--expense); }
-        .empty-state { text-align: center; padding: 16px; color: #999; font-size: 11px; }
-        .my-income-row { background: rgba(46, 204, 113, 0.05) !important; border-left: 3px solid var(--income); }
-        .my-expense-row { background: rgba(231, 76, 60, 0.05) !important; border-left: 3px solid var(--expense); }
-        .income-hint { color: var(--income); font-weight: 600; font-size: 10px; }
-        .expense-hint { color: var(--expense); font-weight: 600; font-size: 10px; }
-        .profit-hint { color: var(--profit); font-weight: 600; font-size: 10px; }
-        .rebate-hint { color: var(--rebate); font-weight: 600; font-size: 10px; }
-        .undo-toast { position: fixed; top: 20px; right: 20px; background: var(--warning); color: white; padding: 12px 16px; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); z-index: 1001; display: none; align-items: center; gap: 10px; animation: slideInRight 0.3s ease; }
-        .undo-toast.show { display: flex; }
-        .undo-btn { background: white; color: var(--warning); border: none; padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: 600; cursor: pointer; }
-        .logout-btn { background: var(--expense); color: white; border: none; padding: 6px 12px; border-radius: 4px; font-size: 10px; cursor: pointer; margin-left: 10px; }
-        .logout-btn:hover { background: #c0392b; }
-        .rebate-summary { margin-top: 10px; padding: 8px; background: #fff8e1; border-radius: 4px; border-left: 3px solid var(--rebate); font-size: 10px; color: #e65100; }
-        .rebate-item { display: inline-block; margin-right: 12px; }
-        .rebate-value { font-weight: 600; color: var(--rebate); }
-        .total-rebate { display: inline-block; margin-left: 20px; padding: 4px 8px; background: linear-gradient(135deg, #ff6b6b, #ee5a24); color: white; border-radius: 4px; font-weight: 600; }
-        .total-rebate-value { font-size: 12px; }
-        .storage-info { position: fixed; bottom: 10px; right: 10px; background: rgba(0, 0, 0, 0.8); color: white; padding: 8px 12px; border-radius: 6px; font-size: 10px; z-index: 1000; display: none; }
-        
-        /* 【修改】收支明细卡片宽度固定在770px */
+        /* ========== 完整样式，无省略 ========== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif;
+        }
+        :root {
+            --primary: #3498db;
+            --primary-dark: #2980b9;
+            --income: #2ecc71;
+            --expense: #e74c3c;
+            --warning: #f39c12;
+            --cloud: #9b59b6;
+            --profit: #e67e22;
+            --rebate: #ff9800;
+            --category3: #e67e22;
+            --category4: #34495e;
+            --light: #f8f9fa;
+            --dark: #2c3e50;
+            --border: #ecf0f1;
+            --shadow: 0 3px 8px rgba(0, 0, 0, 0.06);
+            --radius: 6px;
+            --transition: all 0.2s ease;
+            --recycle: #95a5a6;
+            --recycle-hover: #7f8c8d;
+        }
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 12px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .login-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.3s ease;
+        }
+        .login-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        .login-box {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            min-width: 350px;
+            animation: slideIn 0.5s ease;
+        }
+        .login-icon {
+            font-size: 48px;
+            color: var(--primary);
+            margin-bottom: 20px;
+        }
+        .login-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 8px;
+        }
+        .login-subtitle {
+            font-size: 14px;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+        }
+        .password-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 16px;
+            margin-bottom: 20px;
+            transition: var(--transition);
+        }
+        .password-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-bottom: 15px;
+        }
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        .login-btn:active {
+            transform: translateY(0);
+        }
+        .error-message {
+            color: var(--expense);
+            font-size: 14px;
+            margin-top: 10px;
+            display: none;
+        }
+        .error-message.show {
+            display: block;
+        }
+        .attempts-warning {
+            color: var(--warning);
+            font-size: 12px;
+            margin-top: 10px;
+        }
+        .navbar {
+            background: white;
+            border-radius: var(--radius);
+            padding: 10px 12px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow);
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .nav-icon {
+            font-size: 18px;
+            color: var(--primary);
+        }
+        .nav-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        .nav-subtitle {
+            font-size: 10px;
+            color: #7f8c8d;
+            margin-top: 1px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+        .btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .btn-success {
+            background: linear-gradient(135deg, var(--income), #27ae60);
+            color: white;
+        }
+        .btn-danger {
+            background: linear-gradient(135deg, var(--expense), #c0392b);
+            color: white;
+        }
+        .btn-outline {
+            background: white;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+        }
+        .btn-warning {
+            background: linear-gradient(135deg, var(--warning), #e67e22);
+            color: white;
+        }
+        .btn-cloud {
+            background: linear-gradient(135deg, var(--cloud), #8e44ad);
+            color: white;
+        }
+        .btn-recycle {
+            background: linear-gradient(135deg, var(--recycle), var(--recycle-hover));
+            color: white;
+        }
+        .btn-recycle:hover {
+            background: linear-gradient(135deg, var(--recycle-hover), #6c7b7d);
+        }
+        .btn-sm {
+            padding: 4px 8px;
+            font-size: 10px;
+            border-radius: 4px;
+        }
+        .btn-group {
+            display: flex;
+            gap: 6px;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        .card {
+            background: white;
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            margin-bottom: 12px;
+        }
+        .card-header {
+            padding: 10px 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .card-header.primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        }
+        .card-header.warning {
+            background: linear-gradient(135deg, var(--warning), #e67e22);
+        }
+        .card-header.recycle {
+            background: linear-gradient(135deg, var(--recycle), var(--recycle-hover));
+        }
+        .card-title {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            color: white;
+        }
+        .card-body {
+            padding: 12px;
+        }
+        .detail-card .table-container {
+            width: 100%;
+            max-width: 850px;
+            overflow-x: auto;
+            border: 1px solid var(--border);
+            border-radius: 5px;
+        }
+        .detail-card .data-table th,
+        .detail-card .data-table td {
+            min-width: 80px;
+            text-align: center;
+        }
+        .detail-card .data-table th:first-child {
+            min-width: 60px;
+        }
+        .detail-card .data-table th:last-child {
+            min-width: 80px;
+        }
+        .clear-btn {
+            background: linear-gradient(135deg, #95a5a6, #7f8c8d) !important;
+            color: white !important;
+            margin-left: 8px;
+        }
+        .clear-btn:hover {
+            background: linear-gradient(135deg, #7f8c8d, #6c7b7d) !important;
+        }
+        .recycle-panel {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+        }
+        .recycle-panel.show {
+            display: flex;
+        }
+        .recycle-container {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+            animation: slideIn 0.3s ease;
+        }
+        .recycle-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--border);
+        }
+        .recycle-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .close-btn {
+            background: var(--expense);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .recycle-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .recycle-stat {
+            background: var(--light);
+            padding: 10px;
+            border-radius: 6px;
+            text-align: center;
+            border-left: 4px solid var(--recycle);
+        }
+        .recycle-stat-number {
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--recycle);
+        }
+        .recycle-stat-label {
+            font-size: 11px;
+            color: #7f8c8d;
+            margin-top: 2px;
+        }
+        .recycle-toolbar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        .recycle-search {
+            flex: 1;
+            padding: 8px 12px;
+            border: 2px solid var(--border);
+            border-radius: 20px;
+            font-size: 11px;
+            min-width: 200px;
+        }
+        .recycle-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        .recycle-table th,
+        .recycle-table td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+            font-size: 10px;
+        }
+        .recycle-table th {
+            background: var(--light);
+            font-weight: 600;
+            color: var(--dark);
+            position: sticky;
+            top: 0;
+        }
+        .recycle-table tr:hover {
+            background: rgba(149, 165, 166, 0.05);
+        }
+        .deleted-time {
+            color: #7f8c8d;
+            font-size: 9px;
+        }
+        .form-group {
+            margin-bottom: 12px;
+        }
+        .form-label {
+            display: block;
+            margin-bottom: 4px;
+            color: var(--dark);
+            font-weight: 500;
+            font-size: 11px;
+        }
+        .form-input {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid var(--border);
+            border-radius: 5px;
+            font-size: 12px;
+            transition: var(--transition);
+            background: white;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.1);
+        }
+        .form-input.error {
+            border-color: var(--expense);
+            box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.1);
+        }
+        .error-msg {
+            color: var(--expense);
+            font-size: 9px;
+            margin-top: 2px;
+            display: none;
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        .category-selector {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+        .category-group {
+            display: flex;
+            gap: 4px;
+        }
+        .category-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 3px;
+            display: block;
+        }
+        .category-btn {
+            flex: 1;
+            padding: 8px 6px;
+            border: 2px solid transparent;
+            border-radius: 6px;
+            background: white;
+            font-size: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .category-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+        .category-btn.macau-up {
+            color: var(--category3);
+            border-color: var(--category3);
+        }
+        .category-btn.macau-up.active {
+            background: var(--category3);
+            color: white;
+            box-shadow: 0 4px 8px rgba(230, 126, 34, 0.3);
+        }
+        .category-btn.macau-down {
+            color: var(--category4);
+            border-color: var(--category4);
+        }
+        .category-btn.macau-down.active {
+            background: var(--category4);
+            color: white;
+            box-shadow: 0 4px 8px rgba(52, 73, 94, 0.3);
+        }
+        .category-btn.guangdong-up {
+            color: var(--category3);
+            border-color: var(--category3);
+        }
+        .category-btn.guangdong-up.active {
+            background: var(--category3);
+            color: white;
+            box-shadow: 0 4px 8px rgba(230, 126, 34, 0.3);
+        }
+        .category-btn.guangdong-down {
+            color: var(--category4);
+            border-color: var(--category4);
+        }
+        .category-btn.guangdong-down.active {
+            background: var(--category4);
+            color: white;
+            box-shadow: 0 4px 8px rgba(52, 73, 94, 0.3);
+        }
+        .search-container {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+        .search-box {
+            flex: 1;
+            padding: 8px 12px;
+            border: 2px solid var(--border);
+            border-radius: 20px;
+            font-size: 11px;
+            background: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            transition: var(--transition);
+        }
+        .search-box:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.1);
+        }
+        .batch-toolbar {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background: var(--warning);
+            color: white;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            animation: slideIn 0.3s ease;
+        }
+        .batch-toolbar.show {
+            display: flex;
+        }
+        .batch-count {
+            font-weight: 600;
+            margin-right: 8px;
+        }
+        .table-container {
+            overflow-x: auto;
+            margin-top: 10px;
+            border-radius: 5px;
+            border: 1px solid var(--border);
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 700px;
+        }
+        .data-table thead {
+            background: #f8f9fa;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .data-table th {
+            padding: 8px 10px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--dark);
+            border-bottom: 2px solid var(--border);
+            font-size: 10px;
+        }
+        .data-table td {
+            padding: 8px 10px;
+            border-bottom: 1px solid var(--border);
+            font-size: 10px;
+        }
+        .data-table tbody tr:hover {
+            background: rgba(52, 152, 219, 0.05);
+        }
+        .data-table tbody tr.selected {
+            background: rgba(52, 152, 219, 0.1);
+        }
+        .type-badge {
+            display: inline-block;
+            padding: 3px 6px;
+            border-radius: 12px;
+            font-size: 9px;
+            font-weight: 600;
+        }
+        .type-income {
+            background: rgba(46, 204, 113, 0.15);
+            color: var(--income);
+        }
+        .type-expense {
+            background: rgba(231, 76, 60, 0.15);
+            color: var(--expense);
+        }
+        .type-profit {
+            background: rgba(230, 126, 34, 0.15);
+            color: var(--profit);
+        }
+        .checkbox {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+        .filter-row {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .filter-label {
+            font-size: 10px;
+            font-weight: 500;
+            color: var(--dark);
+        }
+        .filter-select {
+            padding: 6px 8px;
+            border: 1px solid var(--border);
+            border-radius: 5px;
+            font-size: 10px;
+            background: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        .date-selector {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 10px;
+        }
+        .date-selector label {
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--dark);
+        }
+        .date-selector input {
+            padding: 6px 8px;
+            border: 1px solid var(--border);
+            border-radius: 5px;
+            font-size: 10px;
+            background: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .stat-card {
+            background: white;
+            border-radius: var(--radius);
+            padding: 10px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+        .stat-title {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        .stat-amount {
+            font-size: 14px;
+            font-weight: 700;
+        }
+        .stat-income {
+            color: var(--income);
+        }
+        .stat-expense {
+            color: var(--expense);
+        }
+        .stat-profit {
+            color: var(--profit);
+        }
+        .stat-rebate {
+            color: var(--rebate);
+        }
+        .stat-recycle {
+            color: var(--recycle);
+        }
+        .stat-details {
+            font-size: 9px;
+            color: #7f8c8d;
+            margin-top: 4px;
+        }
+        .action-btn {
+            padding: 4px 6px;
+            border: none;
+            border-radius: 4px;
+            font-size: 9px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-right: 4px;
+        }
+        .action-btn.restore {
+            background: rgba(46, 204, 113, 0.1);
+            color: var(--income);
+        }
+        .action-btn.restore:hover {
+            background: var(--income);
+            color: white;
+        }
+        .action-btn.delete-permanent {
+            background: rgba(231, 76, 60, 0.1);
+            color: var(--expense);
+        }
+        .action-btn.delete-permanent:hover {
+            background: var(--expense);
+            color: white;
+        }
+        .category-badge {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 12px;
+            font-size: 8px;
+            font-weight: 500;
+        }
+        .category-badge.macau-up {
+            background: rgba(230, 126, 34, 0.15);
+            color: var(--category3);
+        }
+        .category-badge.macau-down {
+            background: rgba(52, 73, 94, 0.15);
+            color: var(--category4);
+        }
+        .category-badge.guangdong-up {
+            background: rgba(230, 126, 34, 0.15);
+            color: var(--category3);
+        }
+        .category-badge.guangdong-down {
+            background: rgba(52, 73, 94, 0.15);
+            color: var(--category4);
+        }
+        .category-badge.my-income {
+            background: rgba(46, 204, 113, 0.2);
+            color: var(--income);
+            border: 1px dashed var(--income);
+        }
+        .category-badge.my-expense {
+            background: rgba(231, 76, 60, 0.2);
+            color: var(--expense);
+            border: 1px dashed var(--expense);
+        }
+        .empty-state {
+            text-align: center;
+            padding: 16px;
+            color: #999;
+            font-size: 11px;
+        }
+        .my-income-row {
+            background: rgba(46, 204, 113, 0.05) !important;
+            border-left: 3px solid var(--income);
+        }
+        .my-expense-row {
+            background: rgba(231, 76, 60, 0.05) !important;
+            border-left: 3px solid var(--expense);
+        }
+        .income-hint {
+            color: var(--income);
+            font-weight: 600;
+            font-size: 10px;
+        }
+        .expense-hint {
+            color: var(--expense);
+            font-weight: 600;
+            font-size: 10px;
+        }
+        .profit-hint {
+            color: var(--profit);
+            font-weight: 600;
+            font-size: 10px;
+        }
+        .rebate-hint {
+            color: var(--rebate);
+            font-weight: 600;
+            font-size: 10px;
+        }
+        .undo-toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--warning);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            z-index: 1001;
+            display: none;
+            align-items: center;
+            gap: 10px;
+            animation: slideInRight 0.3s ease;
+        }
+        .undo-toast.show {
+            display: flex;
+        }
+        .undo-btn {
+            background: white;
+            color: var(--warning);
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .logout-btn {
+            background: var(--expense);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 10px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        .logout-btn:hover {
+            background: #c0392b;
+        }
+        .rebate-summary {
+            margin-top: 10px;
+            padding: 8px;
+            background: #fff8e1;
+            border-radius: 4px;
+            border-left: 3px solid var(--rebate);
+            font-size: 10px;
+            color: #e65100;
+        }
+        .rebate-item {
+            display: inline-block;
+            margin-right: 12px;
+        }
+        .rebate-value {
+            font-weight: 600;
+            color: var(--rebate);
+        }
+        .total-rebate {
+            display: inline-block;
+            margin-left: 20px;
+            padding: 4px 8px;
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+        .total-rebate-value {
+            font-size: 12px;
+        }
+        .storage-info {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 10px;
+            z-index: 1000;
+            display: none;
+        }
         .detail-card {
             width: 770px !important;
             max-width: 770px !important;
         }
-        
-        @media (max-width: 900px) { 
-            .main-grid { grid-template-columns: 1fr; } 
-            .container { max-width: 100%; padding: 0 6px; } 
-            .login-box { min-width: 300px; padding: 30px 20px; } 
-            .navbar { flex-direction: column; align-items: stretch; } 
-            .nav-left { justify-content: center; text-align: center; margin-bottom: 10px; } 
-            .btn-group { justify-content: center; } 
-            /* 【响应式】在小屏幕上收支明细卡片自适应 */
+        @media (max-width: 900px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+            .container {
+                max-width: 100%;
+                padding: 0 6px;
+            }
+            .login-box {
+                min-width: 300px;
+                padding: 30px 20px;
+            }
+            .navbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .nav-left {
+                justify-content: center;
+                text-align: center;
+                margin-bottom: 10px;
+            }
+            .btn-group {
+                justify-content: center;
+            }
             .detail-card {
                 width: 100% !important;
                 max-width: 100% !important;
             }
         }
-        @media (max-width: 768px) { 
-            .form-row { grid-template-columns: 1fr; } 
-            .stats-grid { grid-template-columns: 1fr; } 
-            .filter-row { flex-direction: column; } 
-            .category-group { flex-direction: column; } 
-            .recycle-toolbar { flex-direction: column; } 
-            .recycle-search { min-width: auto; } 
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            .filter-row {
+                flex-direction: column;
+            }
+            .category-group {
+                flex-direction: column;
+            }
+            .recycle-toolbar {
+                flex-direction: column;
+            }
+            .recycle-search {
+                min-width: auto;
+            }
         }
-        @media (max-width: 480px) { 
-            .stat-card { padding: 6px; } 
-            .stat-title { font-size: 10px; } 
-            .stat-amount { font-size: 12px; } 
-            .category-btn { font-size: 9px; padding: 6px 4px; } 
-            .btn { padding: 6px 10px; font-size: 10px; } 
-            .login-box { min-width: 280px; padding: 25px 15px; } 
-            .recycle-container { padding: 15px; width: 95%; } 
-            /* 【响应式】在超小屏幕上收支明细卡片自适应 */
+        @media (max-width: 480px) {
+            .stat-card {
+                padding: 6px;
+            }
+            .stat-title {
+                font-size: 10px;
+            }
+            .stat-amount {
+                font-size: 12px;
+            }
+            .category-btn {
+                font-size: 9px;
+                padding: 6px 4px;
+            }
+            .btn {
+                padding: 6px 10px;
+                font-size: 10px;
+            }
+            .login-box {
+                min-width: 280px;
+                padding: 25px 15px;
+            }
+            .recycle-container {
+                padding: 15px;
+                width: 95%;
+            }
             .detail-card {
                 width: 100% !important;
                 max-width: 100% !important;
             }
         }
-        @keyframes slideIn { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
-        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
-        .shake { animation: shake 0.5s ease-in-out; }
-        .fade-out { animation: fadeOut 0.3s ease-in-out; }
+        @keyframes slideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+            }
+            to {
+                opacity: 0;
+            }
+        }
+        @keyframes shake {
+            0%, 100% {
+                transform: translateX(0);
+            }
+            25% {
+                transform: translateX(-5px);
+            }
+            75% {
+                transform: translateX(5px);
+            }
+        }
+        .shake {
+            animation: shake 0.5s ease-in-out;
+        }
+        .fade-out {
+            animation: fadeOut 0.3s ease-in-out;
+        }
     </style>
 </head>
 <body>
-    <!-- 密码登录界面 -->
     <div class="login-overlay" id="login-overlay">
         <div class="login-box">
             <div class="login-icon">🔒</div>
@@ -222,7 +1033,6 @@
         </div>
     </div>
 
-    <!-- 主应用内容 -->
     <div class="container" id="main-app" style="display: none;">
         <div class="undo-toast" id="undo-toast">
             <span>记录已删除，可在回收站找回</span>
@@ -241,6 +1051,7 @@
                 <button class="btn btn-recycle btn-sm" onclick="openRecyclePanel()">🗑️ 回收站 (<span id="recycle-count">0</span>)</button>
                 <button class="btn btn-outline btn-sm" onclick="exportData()">导出数据</button>
                 <button class="btn btn-outline btn-sm" onclick="importData()">导入数据</button>
+                <button class="btn btn-cloud btn-sm" onclick="exportDailyBackup()">📦 导出备份</button>
                 <button class="btn btn-warning btn-sm" onclick="clearCurrentMonthWithPassword()">清除当月</button>
                 <button class="btn btn-danger btn-sm" onclick="clearAllDataWithPassword()">清空数据</button>
                 <button class="logout-btn" onclick="logout()">退出登录</button>
@@ -422,7 +1233,6 @@
                         <div id="summary-stats" class="stats-grid"></div>
                     </div>
                 </div>
-                <!-- 【目标卡片】收支明细卡片，宽度已固定在770px -->
                 <div class="card detail-card">
                     <div class="card-header primary">
                         <div class="card-title"><span>📊</span><span>收支明细</span></div>
@@ -433,9 +1243,9 @@
                             <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px;">
                                 <div style="font-size: 10px; background: #f0f8ff; padding: 4px 8px; border-radius: 4px; border-left: 3px solid #3498db;">
                                     <strong>筛选条件：</strong>
-                                    <span id="filter-year-display">全部年份</span> | 
-                                    <span id="filter-month-display">全部月份</span> | 
-                                    <span id="filter-category-display">全部分类</span> | 
+                                    <span id="filter-year-display">全部年份</span> |
+                                    <span id="filter-month-display">全部月份</span> |
+                                    <span id="filter-category-display">全部分类</span> |
                                     <span id="filter-name-display">全部人员</span>
                                 </div>
                             </div>
@@ -464,7 +1274,6 @@
         </div>
     </div>
 
-    <!-- 回收站面板 -->
     <div class="recycle-panel" id="recycle-panel">
         <div class="recycle-container">
             <div class="recycle-header">
@@ -513,7 +1322,6 @@
         </div>
     </div>
 
-    <!-- 存储信息显示 -->
     <div class="storage-info" id="storage-info">
         <div>存储模式: <span id="storage-mode">IndexedDB</span></div>
         <div>数据大小: <span id="data-size">0 KB</span></div>
@@ -521,7 +1329,7 @@
     </div>
 
     <script>
-        // IndexedDB 数据库管理类
+        // ==================== IndexedDB 数据库管理类 ====================
         class DatabaseManager {
             constructor(dbName = 'FinanceManagementDB', version = 1) {
                 this.dbName = dbName;
@@ -529,13 +1337,15 @@
                 this.db = null;
                 this.storeName = 'financeData';
                 this.backupStoreName = 'backupData';
-                this.dailyBackupKey = 'daily_backup';
             }
             async open() {
                 return new Promise((resolve, reject) => {
                     const request = indexedDB.open(this.dbName, this.version);
                     request.onerror = () => reject(request.error);
-                    request.onsuccess = () => { this.db = request.result; resolve(this.db); };
+                    request.onsuccess = () => {
+                        this.db = request.result;
+                        resolve(this.db);
+                    };
                     request.onupgradeneeded = (event) => {
                         const db = event.target.result;
                         if (!db.objectStoreNames.contains(this.storeName)) {
@@ -545,10 +1355,8 @@
                             store.createIndex('createdAt', 'createdAt', { unique: false });
                         }
                         if (!db.objectStoreNames.contains(this.backupStoreName)) {
-                            const backupStore = db.createObjectStore(this.backupStoreName, { keyPath: 'timestamp' });
-                            backupStore.createIndex('type', 'type', { unique: false });
+                            db.createObjectStore(this.backupStoreName, { keyPath: 'timestamp' });
                         }
-                        // 确保 daily_backup 存储存在（不需要单独创建store，使用backupStoreName存储特定key即可）
                     };
                 });
             }
@@ -612,32 +1420,47 @@
                     return { bytes: 0, kb: '0.00', mb: '0.00' };
                 }
             }
-            async createBackup(data) {
-                if (!this.db) await this.open();
-                return new Promise((resolve, reject) => {
-                    const transaction = this.db.transaction([this.backupStoreName], 'readwrite');
-                    const store = transaction.objectStore(this.backupStoreName);
-                    const backupData = { timestamp: new Date().getTime(), type: 'auto_backup', data: data };
-                    const request = store.put(backupData);
-                    request.onsuccess = () => resolve(true);
-                    request.onerror = () => reject(request.error);
-                });
-            }
-            // 每日自动备份：直接覆盖 daily_backup 键
+            // 每日自动备份（覆盖）
             async saveDailyBackup(data) {
                 if (!this.db) await this.open();
                 return new Promise((resolve, reject) => {
                     const transaction = this.db.transaction([this.backupStoreName], 'readwrite');
                     const store = transaction.objectStore(this.backupStoreName);
-                    const backupData = { timestamp: new Date().getTime(), type: 'daily_backup', data: data, backupDate: getCurrentDateChina() };
+                    const backupData = {
+                        timestamp: new Date().getTime(),
+                        type: 'daily_backup',
+                        data: data,
+                        backupDate: getCurrentDateChina()
+                    };
                     const request = store.put(backupData);
                     request.onsuccess = () => resolve(true);
                     request.onerror = () => reject(request.error);
                 });
             }
+            // 读取最新的每日备份
+            async loadDailyBackup() {
+                if (!this.db) await this.open();
+                return new Promise((resolve, reject) => {
+                    const transaction = this.db.transaction([this.backupStoreName], 'readonly');
+                    const store = transaction.objectStore(this.backupStoreName);
+                    const index = store.index('type');
+                    const request = index.openCursor(IDBKeyRange.only('daily_backup'), 'prev');
+                    let latest = null;
+                    request.onsuccess = (event) => {
+                        const cursor = event.target.result;
+                        if (cursor) {
+                            latest = cursor.value;
+                            cursor.continue();
+                        } else {
+                            resolve(latest);
+                        }
+                    };
+                    request.onerror = () => reject(request.error);
+                });
+            }
         }
 
-        // 应用状态
+        // 全局应用状态
         let appState = {
             records: [],
             recycleBin: [],
@@ -653,7 +1476,7 @@
             isLoggedIn: false
         };
 
-        // DOM元素引用
+        // DOM 元素快捷访问
         const elements = {
             passwordInput: document.getElementById('password-input'),
             loginOverlay: document.getElementById('login-overlay'),
@@ -709,14 +1532,11 @@
             recordCount: document.getElementById('record-count')
         };
 
-        // 数据库管理器实例
         const dbManager = new DatabaseManager();
-
-        // 密码配置
         const CORRECT_PASSWORD = "160601";
         const CLEAR_PASSWORD = "891105";
 
-        // 中国时区时间函数
+        // ==================== 中国时区时间工具 ====================
         function getCurrentDateChina() {
             const now = new Date();
             const chinaTime = new Date(now.getTime() + (8 * 60 * 60 * 1000));
@@ -744,7 +1564,7 @@
             return `${year}-${month}-${day} ${hours}:${minutes}`;
         }
 
-        // 工具函数
+        // ==================== 提示工具 ====================
         function showToast(message, isError = false) {
             const toast = document.createElement('div');
             toast.textContent = message;
@@ -754,7 +1574,6 @@
             setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translateY(-20px)'; setTimeout(() => document.body.removeChild(toast), 300); }, 3000);
         }
 
-        // 显示撤销提示
         function showUndoToast() {
             let countdown = 5;
             elements.undoToast.classList.add('show');
@@ -770,7 +1589,7 @@
             if (appState.undoTimer) { clearInterval(appState.undoTimer); appState.undoTimer = null; }
         }
 
-        // 检查密码
+        // ==================== 登录/退出 ====================
         function checkPassword() {
             const password = elements.passwordInput.value;
             if (password === CORRECT_PASSWORD) {
@@ -798,7 +1617,6 @@
             }
         }
 
-        // 退出登录
         function logout() {
             if (confirm('确定要退出登录吗？')) {
                 appState.isLoggedIn = false;
@@ -813,7 +1631,7 @@
             }
         }
 
-        // 初始化应用
+        // ==================== 初始化 & 自动备份 ====================
         async function init() {
             const today = getCurrentDateChina();
             elements.recordDate.value = today;
@@ -823,9 +1641,7 @@
             await loadLocalData();
             updateRecycleCount();
             updateStorageInfo();
-            // 执行每日自动备份（页面加载时检查）
             await performDailyBackup();
-            // 设置定时器，每隔1小时检查一次是否需要备份（解决跨天问题）
             setInterval(async () => {
                 await performDailyBackup();
             }, 60 * 60 * 1000);
@@ -833,13 +1649,11 @@
             console.log('当前中国时区日期设置为:', today);
         }
 
-        // 每日自动备份函数（仅当今天的日期与上次备份日期不同时才执行）
         async function performDailyBackup() {
             try {
                 const lastBackupDate = localStorage.getItem('lastDailyBackupDate');
                 const today = getCurrentDateChina();
                 if (lastBackupDate !== today) {
-                    // 需要备份
                     const backupData = {
                         records: appState.records,
                         recycleBin: appState.recycleBin,
@@ -852,17 +1666,39 @@
                 }
             } catch (error) {
                 console.error('每日自动备份失败:', error);
-                // 备份失败不打扰用户，仅控制台记录
             }
         }
 
-        // 监听回车键登录
+        async function exportDailyBackup() {
+            try {
+                const backup = await dbManager.loadDailyBackup();
+                if (!backup) {
+                    showToast('暂无每日备份数据，请稍后再试', true);
+                    return;
+                }
+                const backupData = backup.data;
+                const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `每日备份_${backup.backupDate || getCurrentDateChina()}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                showToast('✅ 备份已导出');
+            } catch (error) {
+                console.error('导出备份失败:', error);
+                showToast('导出备份失败', true);
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             elements.passwordInput.addEventListener('keypress', function(e) { if (e.key === 'Enter') checkPassword(); });
             init();
         });
 
-        // 数据验证函数
+        // ==================== 表单验证 ====================
         function validateName() {
             const name = elements.personName.value.trim();
             const errorElement = document.getElementById('name-error');
@@ -899,7 +1735,7 @@
             errorElement.style.display = 'none';
         }
 
-        // 选择分类
+        // ==================== 分类选择 ====================
         function selectCategory(category, subtype) {
             appState.selectedCategory = category;
             appState.selectedSubtype = subtype;
@@ -909,7 +1745,7 @@
             if (activeBtn) activeBtn.classList.add('active');
         }
 
-        // 计算返点函数（粤港上家支出乘以-0.1）
+        // ==================== 返点计算 ====================
         function calculateRebate(record) {
             const amount = Math.abs(record.amount);
             const category = record.category;
@@ -917,20 +1753,15 @@
             const type = record.type;
             const totalAmount = parseFloat(record.totalAmount) || 0;
             const rebateRate = parseFloat(record.rebateRate) || 0;
-
-            // 粤港上家返点：收入*0.1，支出*-0.1
             if (category === 'guangdong' && subtype === 'up') {
                 return type === 'expense' ? -amount * 0.1 : amount * 0.1;
-            }
-            // 其他分类：如果有总额和返水率，则计算总额*返水率
-            else if (totalAmount > 0 && rebateRate > 0) {
+            } else if (totalAmount > 0 && rebateRate > 0) {
                 return totalAmount * (rebateRate / 100);
             }
-            // 默认返点为0
             return 0;
         }
 
-        // 保存记录
+        // ==================== 保存记录 ====================
         function saveRecord() {
             if (!validateName() || !validateDate() || !validateAmount()) {
                 showToast('请正确填写所有必填项', true);
@@ -946,14 +1777,13 @@
             const totalAmount = parseFloat(elements.recordTotal.value) || 0;
             const rebateRate = parseFloat(elements.recordRebateRate.value) || 0;
 
-            const isDuplicate = appState.records.some(record => 
-                record.date === date && record.name === name && 
-                Math.abs(record.amount) === amount && record.category === category && 
+            const isDuplicate = appState.records.some(record =>
+                record.date === date && record.name === name &&
+                Math.abs(record.amount) === amount && record.category === category &&
                 record.subtype === subtype && record.note === note
             );
             if (isDuplicate) { showToast('发现重复记录，请勿重复提交', true); return; }
 
-            // 创建记录对象
             const record = {
                 id: Date.now() + '_' + Math.random().toString(36).substr(2, 9),
                 date,
@@ -968,10 +1798,7 @@
                 rebate: 0,
                 createdAt: new Date().toISOString()
             };
-
-            // 计算返点
             record.rebate = calculateRebate(record);
-
             appState.records.unshift(record);
             clearInputsExceptNote();
             saveLocalData();
@@ -983,7 +1810,6 @@
             showToast('记录已保存');
         }
 
-        // 清除输入框
         function clearInputsExceptNote() {
             elements.personName.value = '';
             elements.recordAmount.value = '';
@@ -1004,7 +1830,6 @@
             elements.personName.focus();
         }
 
-        // 设置日期为今天
         function setTodayDate() {
             const today = getCurrentDateChina();
             elements.viewDate.value = today;
@@ -1013,7 +1838,6 @@
             loadMyIncomeStatsForDate(today);
         }
 
-        // 搜索记录
         function searchRecords() {
             appState.searchTerm = elements.searchInput.value.toLowerCase().trim();
             loadRecords();
@@ -1024,7 +1848,7 @@
             loadRecords();
         }
 
-        // 加载指定日期的记录
+        // ==================== 日期记录加载 ====================
         function loadDateRecords() {
             const selectedDate = elements.viewDate.value;
             if (!selectedDate) return;
@@ -1036,7 +1860,6 @@
             updateDateRebateSummary(dateRecords);
         }
 
-        // 渲染日期记录表格
         function renderDateRecordsTable(records) {
             const tbody = elements.dateRecordsBody;
             if (records.length === 0) { tbody.innerHTML = '<tr><td colspan="7" class="empty-state">该日期暂无记录</td></tr>'; return; }
@@ -1062,7 +1885,6 @@
             tbody.innerHTML = html;
         }
 
-        // 更新日期返点统计（总返点=澳门下家+粤港下家）
         function updateDateRebateSummary(records) {
             if (!elements.dateRebateSummary) return;
             let macauDownRebate = 0, guangdongDownRebate = 0;
@@ -1070,7 +1892,6 @@
                 if (record.category === 'macau' && record.subtype === 'down') macauDownRebate += record.rebate || 0;
                 else if (record.category === 'guangdong' && record.subtype === 'down') guangdongDownRebate += record.rebate || 0;
             });
-            // 总返点=澳门下家+粤港下家（去掉粤港上家返点）
             const totalRebate = macauDownRebate + guangdongDownRebate;
             let html = `
                 <div class="rebate-item">澳门下家返点:<span class="rebate-value">${macauDownRebate.toFixed(2)}元</span></div>
@@ -1080,7 +1901,7 @@
             elements.dateRebateSummary.innerHTML = html;
         }
 
-        // 加载选中日期的我的收支统计
+        // ==================== 我的收支统计 ====================
         function loadMyIncomeStatsForDate(date) {
             const dateRecords = appState.records.filter(record => record.date === date);
             const macauUpRecords = dateRecords.filter(r => r.category === 'macau' && r.subtype === 'up');
@@ -1095,21 +1916,36 @@
             const guangdongMyIncome = guangdongDownTotal.profit - guangdongUpTotal.profit;
             const guangdongUpRebate = calculateGuangdongUpRebate(guangdongUpRecords);
             const totalMyIncome = macauMyIncome + guangdongMyIncome;
-            renderMyIncomeStats({ macau: { up: macauUpTotal, down: macauDownTotal, my: macauMyIncome }, guangdong: { up: guangdongUpTotal, down: guangdongDownTotal, my: guangdongMyIncome }, guangdongUpRebate, total: totalMyIncome }, date);
+            renderMyIncomeStats({
+                macau: { up: macauUpTotal, down: macauDownTotal, my: macauMyIncome },
+                guangdong: { up: guangdongUpTotal, down: guangdongDownTotal, my: guangdongMyIncome },
+                guangdongUpRebate,
+                total: totalMyIncome
+            }, date);
         }
 
-        // 计算粤港上家总返点
         function calculateGuangdongUpRebate(guangdongUpRecords) {
             let totalRebate = 0;
             guangdongUpRecords.forEach(record => totalRebate += record.rebate || 0);
             return totalRebate;
         }
 
-        // 渲染我的收支统计
+        function calculateStatsOld(recordList) {
+            let income = 0, expense = 0;
+            recordList.forEach(record => { if (record.amount > 0) income += record.amount; else expense += record.amount; });
+            return { income, expense: Math.abs(expense), profit: income + expense, count: recordList.length };
+        }
+
+        function getCategoryLabel(category, subtype) {
+            if (subtype === 'up') return category === 'macau' ? '澳门上家' : '粤港上家';
+            else if (subtype === 'down') return category === 'macau' ? '澳门下家' : '粤港下家';
+            else return category === 'macau' ? '澳门' : '粤港';
+        }
+
         function renderMyIncomeStats(stats, date) {
             const container = elements.myIncomeStats;
             container.innerHTML = '';
-            // 澳门统计卡片
+            // 澳门
             const macauIsIncome = stats.macau.my >= 0;
             const macauColorClass = macauIsIncome ? 'stat-income' : 'stat-expense';
             const macauHintClass = macauIsIncome ? 'income-hint' : 'expense-hint';
@@ -1133,7 +1969,7 @@
                     </div>
                 </div>
             `;
-            // 粤港统计卡片
+            // 粤港
             const guangdongIsIncome = stats.guangdong.my >= 0;
             const guangdongColorClass = guangdongIsIncome ? 'stat-income' : 'stat-expense';
             const guangdongHintClass = guangdongIsIncome ? 'income-hint' : 'expense-hint';
@@ -1162,7 +1998,7 @@
                     </div>
                 </div>
             `;
-            // 总计统计卡片
+            // 总计
             const totalIsIncome = stats.total >= 0;
             const totalColorClass = totalIsIncome ? 'stat-income' : 'stat-expense';
             const totalHintClass = totalIsIncome ? 'income-hint' : 'expense-hint';
@@ -1184,21 +2020,7 @@
             `;
         }
 
-        // 计算统计数据（旧版）
-        function calculateStatsOld(recordList) {
-            let income = 0, expense = 0;
-            recordList.forEach(record => { if (record.amount > 0) income += record.amount; else expense += record.amount; });
-            return { income, expense: Math.abs(expense), profit: income + expense, count: recordList.length };
-        }
-
-        // 获取分类标签
-        function getCategoryLabel(category, subtype) {
-            if (subtype === 'up') return category === 'macau' ? '澳门上家' : '粤港上家';
-            else if (subtype === 'down') return category === 'macau' ? '澳门下家' : '粤港下家';
-            else return category === 'macau' ? '澳门' : '粤港';
-        }
-
-        // 加载记录
+        // ==================== 记录列表加载（带筛选） ====================
         function loadRecords() {
             const selectedYear = elements.selectYear.value;
             const selectedMonth = elements.selectMonth.value;
@@ -1224,7 +2046,6 @@
             updateDetailRebateSummary(filteredRecords);
         }
 
-        // 更新详细记录返点统计（总返点=澳门下家+粤港下家）
         function updateDetailRebateSummary(records) {
             if (!elements.detailRebateSummary) return;
             let macauDownRebate = 0, guangdongDownRebate = 0;
@@ -1232,7 +2053,6 @@
                 if (record.category === 'macau' && record.subtype === 'down') macauDownRebate += record.rebate || 0;
                 else if (record.category === 'guangdong' && record.subtype === 'down') guangdongDownRebate += record.rebate || 0;
             });
-            // 总返点=澳门下家+粤港下家（去掉粤港上家返点）
             const totalRebate = macauDownRebate + guangdongDownRebate;
             let html = `
                 <div class="rebate-item">澳门下家返点:<span class="rebate-value">${macauDownRebate.toFixed(2)}元</span></div>
@@ -1242,7 +2062,6 @@
             elements.detailRebateSummary.innerHTML = html;
         }
 
-        // 更新筛选条件显示
         function updateFilterDisplay() {
             elements.filterYearDisplay.textContent = elements.selectYear.value === 'all' ? '全部年份' : `${elements.selectYear.value}年`;
             elements.filterMonthDisplay.textContent = elements.selectMonth.value === 'all' ? '全部月份' : `${elements.selectMonth.value}月`;
@@ -1250,11 +2069,10 @@
             elements.filterNameDisplay.textContent = elements.filterPerson.value === 'all' ? '全部人员' : elements.filterPerson.value;
         }
 
-        // 处理回车事件
         function handleNameKeyPress(event) { if (event.key === 'Enter' && validateName()) saveRecord(); }
         function handleAmountKeyPress(event) { if (event.key === 'Enter' && validateAmount()) saveRecord(); }
 
-        // 更新转置表格
+        // ==================== 转置收支明细表 ====================
         function updateDetailTransposedTable(filteredRecords) {
             const tableHead = document.querySelector('#detail-transposed-table thead tr');
             const transposedBody = elements.transposedBody;
@@ -1327,7 +2145,6 @@
             totalLabelCell.innerHTML = '<strong>总计</strong>';
             totalLabelCell.style.fontWeight = '600';
             totalRow.appendChild(totalLabelCell);
-            let grandTotalByPerson = {};
             allPersons.forEach(name => {
                 const cell = document.createElement('td');
                 let personTotal = 0;
@@ -1336,7 +2153,6 @@
                     if (personTotal > 0) { cell.className = 'stat-income'; cell.innerHTML = `+¥${personTotal.toFixed(2)}`; }
                     else { cell.className = 'stat-expense'; cell.innerHTML = `-¥${Math.abs(personTotal).toFixed(2)}`; }
                 } else cell.innerHTML = '';
-                grandTotalByPerson[name] = personTotal;
                 totalRow.appendChild(cell);
             });
             const grandTotalCell = document.createElement('td');
@@ -1354,7 +2170,7 @@
             } else { totalProfit.innerHTML = '0'; totalProfit.className = ''; }
         }
 
-        // 切换选择所有记录
+        // ==================== 批量选择与删除 ====================
         function toggleSelectAll() {
             const checkboxes = document.querySelectorAll('#records-body input[type="checkbox"]:not(#select-all)');
             const selectAllCheckbox = elements.selectAll;
@@ -1366,14 +2182,12 @@
             updateBatchToolbar();
         }
 
-        // 切换单个记录选择
         function toggleRecordSelection(recordId, checkbox) {
             if (checkbox.checked) appState.selectedRecords.add(recordId);
             else appState.selectedRecords.delete(recordId);
             updateBatchToolbar();
         }
 
-        // 更新批量操作工具栏
         function updateBatchToolbar() {
             const count = appState.selectedRecords.size;
             elements.batchCount.textContent = count;
@@ -1385,7 +2199,6 @@
             else { elements.selectAll.checked = false; elements.selectAll.indeterminate = true; }
         }
 
-        // 清除选择
         function clearSelection() {
             appState.selectedRecords.clear();
             document.querySelectorAll('#records-body input[type="checkbox"]').forEach(checkbox => checkbox.checked = false);
@@ -1394,7 +2207,6 @@
             updateBatchToolbar();
         }
 
-        // 删除单条记录
         function deleteRecord(recordId) {
             const record = appState.records.find(r => r.id === recordId);
             if (!record) return;
@@ -1416,7 +2228,6 @@
             }
         }
 
-        // 批量删除
         function batchDelete() {
             if (appState.selectedRecords.size === 0) { showToast('请先选择要删除的记录', true); return; }
             if (confirm(`确定要删除选中的 ${appState.selectedRecords.size} 条记录吗？记录将移至回收站。`)) {
@@ -1438,7 +2249,6 @@
             }
         }
 
-        // 撤销删除
         function undoDelete() {
             if (!appState.deletedRecord) { showToast('没有可撤销的操作', true); return; }
             if (appState.deletedRecord.type === 'single') appState.records.unshift(appState.deletedRecord.record);
@@ -1455,7 +2265,7 @@
             showToast('已撤销删除操作');
         }
 
-        // 渲染我的收支记录
+        // ==================== 我的收支记录渲染（虚拟记录） ====================
         function renderMyIncomeRecords(records, selectedYear, selectedMonth) {
             const tbody = elements.recordsBody;
             const container = elements.summaryStats;
@@ -1537,7 +2347,7 @@
             `;
         }
 
-        // 渲染记录表格
+        // ==================== 记录表格渲染 ====================
         function renderRecordsTable(records) {
             const tbody = elements.recordsBody;
             if (records.length === 0) { tbody.innerHTML = '<tr><td colspan="9" class="empty-state">暂无记录</td></tr>'; return; }
@@ -1567,7 +2377,7 @@
             tbody.innerHTML = html;
         }
 
-        // 计算统计函数
+        // ==================== 统计卡片 ====================
         function calculateStatsNew(recordList) {
             let sumUpstream = 0, sumDownstream = 0, count = recordList.length;
             recordList.forEach(record => {
@@ -1581,7 +2391,6 @@
             return { sumUpstream: Number(sumUpstream.toFixed(2)), sumDownstream: Number(sumDownstream.toFixed(2)), netIncome: Number(netIncome.toFixed(2)), count: count };
         }
 
-        // 渲染统计卡片
         function renderSummaryStats(records, selectedYear, selectedMonth, filterCategory) {
             const container = elements.summaryStats;
             const allStats = calculateStatsNew(records);
@@ -1654,7 +2463,7 @@
             }
         }
 
-        // 带密码保护的功能
+        // ==================== 密码保护清除功能 ====================
         function clearCurrentMonthWithPassword() {
             const password = prompt('请输入密码以保护数据安全：');
             if (password === CLEAR_PASSWORD) clearCurrentMonth();
@@ -1717,7 +2526,7 @@
             }
         }
 
-        // 导出/导入数据
+        // ==================== 导出/导入数据 ====================
         function exportData() {
             if (appState.records.length === 0) { showToast('没有数据可导出', true); return; }
             const data = { records: appState.records, recycleBin: appState.recycleBin, exportedAt: new Date().toISOString(), version: '36.0' };
@@ -1733,10 +2542,8 @@
             showToast('✅ 数据已导出');
         }
 
-        // 辅助函数：判断新记录是否与现有记录重复
         function isRecordDuplicate(newRecord, existingRecords) {
             return existingRecords.some(record => {
-                // 比较关键字段：日期、姓名、分类、子类、类型、金额绝对值、特码
                 const amountEqual = Math.abs(record.amount) === Math.abs(newRecord.amount);
                 const noteEqual = (record.note || '') === (newRecord.note || '');
                 return record.date === newRecord.date &&
@@ -1749,7 +2556,6 @@
             });
         }
 
-        // 修改后的导入函数（合并模式，过滤重复）
         function importData() {
             const input = document.createElement('input');
             input.type = 'file';
@@ -1766,34 +2572,20 @@
                             showToast('导入文件中没有记录', true);
                             return;
                         }
-
-                        // 合并模式：保留现有记录，过滤重复
                         let addedCount = 0;
                         let duplicateCount = 0;
-
                         for (const importedRecord of importedRecords) {
-                            // 检查是否与现有记录重复
                             if (isRecordDuplicate(importedRecord, appState.records)) {
                                 duplicateCount++;
                                 continue;
                             }
-
-                            // 生成新的唯一ID，避免冲突
                             const newRecord = {
                                 ...importedRecord,
-                                id: Date.now() + '_' + Math.random().toString(36).substr(2, 9),
-                                // 确保日期格式统一（已是中国时区格式，无需转换）
+                                id: Date.now() + '_' + Math.random().toString(36).substr(2, 9)
                             };
                             appState.records.unshift(newRecord);
                             addedCount++;
                         }
-
-                        // 回收站处理：默认保留原有回收站，不合并导入的回收站（避免误恢复）
-                        // 如果希望也合并回收站，可取消下面注释，但一般不建议
-                        // if (data.recycleBin && data.recycleBin.length) {
-                        //     appState.recycleBin = [...appState.recycleBin, ...data.recycleBin];
-                        // }
-
                         saveLocalData();
                         updatePersonFilter();
                         updateYearFilter();
@@ -1802,7 +2594,6 @@
                         loadMyIncomeStatsForDate(appState.currentViewDate);
                         updateRecycleCount();
                         renderRecycleTable();
-
                         showToast(`✅ 导入完成：新增 ${addedCount} 条，跳过重复 ${duplicateCount} 条`);
                         if (duplicateCount > 0) {
                             setTimeout(() => showToast(`重复记录未导入，请检查`, false), 2000);
@@ -1817,7 +2608,7 @@
             input.click();
         }
 
-        // 回收站功能
+        // ==================== 回收站功能 ====================
         function openRecyclePanel() { elements.recyclePanel.classList.add('show'); renderRecycleTable(); updateRecycleStats(); }
         function closeRecyclePanel() { elements.recyclePanel.classList.remove('show'); }
         function updateRecycleCount() { elements.recycleCount.textContent = appState.recycleBin.length; }
@@ -1960,7 +2751,7 @@
             }
         }
 
-        // 加载本地数据
+        // ==================== IndexedDB 数据存取 ====================
         async function loadLocalData() {
             try {
                 const data = await dbManager.loadData('finance_main_data');
@@ -1985,12 +2776,10 @@
             }
         }
 
-        // 保存本地数据
         async function saveLocalData() {
             try {
                 const data = { records: appState.records, recycleBin: appState.recycleBin, savedAt: new Date().toISOString(), version: '36.0' };
                 await dbManager.saveData('finance_main_data', data);
-                await dbManager.createBackup(data);
                 console.log('数据已保存到 IndexedDB');
                 updateStorageInfo();
             } catch (error) {
@@ -1999,7 +2788,6 @@
             }
         }
 
-        // 更新人员筛选器
         function updatePersonFilter() {
             const filter = elements.filterPerson;
             filter.innerHTML = '<option value="all">全部人员</option>';
@@ -2013,7 +2801,6 @@
             });
         }
 
-        // 更新年份筛选器
         function updateYearFilter() {
             const yearSelect = elements.selectYear;
             yearSelect.innerHTML = '<option value="all">全部年份</option>';
@@ -2028,7 +2815,6 @@
             });
         }
 
-        // 更新存储信息
         async function updateStorageInfo() {
             try {
                 const sizeInfo = await dbManager.getDatabaseSize();
