@@ -291,14 +291,11 @@
     <div class="storage-info" id="storage-info"><div>存储模式: <span id="storage-mode">IndexedDB</span></div><div>数据大小: <span id="data-size">0 KB</span></div><div>记录数量: <span id="record-count">0</span></div></div>
 
     <script>
-                // ==================== IndexedDB 管理类 ====================
+        // ==================== IndexedDB 管理类 ====================
         class DatabaseManager {
             constructor(dbName = 'FinanceManagementDB', version = 10) {
-                this.dbName = dbName;
-                this.version = version;
-                this.db = null;
-                this.storeName = 'financeData';
-                this.backupStoreName = 'backupData';
+                this.dbName = dbName; this.version = version; this.db = null;
+                this.storeName = 'financeData'; this.backupStoreName = 'backupData';
             }
             async open() {
                 return new Promise((resolve, reject) => {
@@ -403,8 +400,7 @@
         }
         function showUndoToast() {
             let countdown = 5;
-            elements.undoToast.classList.add('show');
-            elements.undoTimer.textContent = countdown;
+            elements.undoToast.classList.add('show'); elements.undoTimer.textContent = countdown;
             appState.undoTimer = setInterval(() => { countdown--; elements.undoTimer.textContent = countdown; if (countdown <= 0) hideUndoToast(); }, 1000);
         }
         function hideUndoToast() { elements.undoToast.classList.remove('show'); if (appState.undoTimer) { clearInterval(appState.undoTimer); appState.undoTimer = null; } }
@@ -445,14 +441,13 @@
         async function requestBackupDirectory() { if (!window.showDirectoryPicker) { showToast('当前浏览器不支持自动保存备份文件，将使用下载方式', true); return null; } try { const dirHandle = await window.showDirectoryPicker(); const permission = await verifyPermission(dirHandle); if (permission) { await dbManager.saveBackupDirectoryHandle(dirHandle); backupDirectoryHandle = dirHandle; showToast('✅ 备份文件夹授权成功，每日将自动备份'); return dirHandle; } else { showToast('未获得文件夹权限，无法自动保存', true); return null; } } catch (err) { showToast('未选择文件夹，无法自动备份', true); return null; } }
         async function writeBackupFile(backupData) { if (!backupDirectoryHandle) { const dir = await requestBackupDirectory(); if (!dir) return false; } try { const fileName = `每日备份.json`; let fileHandle = await backupDirectoryHandle.getFileHandle(fileName, { create: true }); const writable = await fileHandle.createWritable(); const jsonStr = JSON.stringify(backupData, null, 2); await writable.write(jsonStr); await writable.close(); return true; } catch (err) { console.error('写入备份文件失败:', err); return false; } }
         function downloadBackup(backupData) { const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `每日备份.json`; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); showToast('✅ 备份已生成，请点击保存覆盖旧文件'); }
-        async function performDailyFileBackup() { try { const lastBackupDate = localStorage.getItem('lastDailyBackupDate'); const today = getCurrentDateChina(); if (lastBackupDate !== today) { const backupData = { records: appState.records, recycleBin: appState.recycleBin, backupTime: new Date().toISOString(), version: '49.0' }; await dbManager.saveDailyBackup(backupData); const success = await writeBackupFile(backupData); if (success) showToast('✅ 每日备份已自动覆盖保存到文件夹'); else { downloadBackup(backupData); showToast('⚠️ 未授权文件夹，已生成备份文件，请点击保存'); } localStorage.setItem('lastDailyBackupDate', today); } } catch (error) { console.error('每日自动备份失败:', error); showToast('自动备份失败，请检查权限', true); } }
-        async function manualExportBackup() { const backupData = { records: appState.records, recycleBin: appState.recycleBin, backupTime: new Date().toISOString(), version: '49.0' }; const success = await writeBackupFile(backupData); if (success) showToast('✅ 手动备份已覆盖保存'); else downloadBackup(backupData); }
+        async function performDailyFileBackup() { try { const lastBackupDate = localStorage.getItem('lastDailyBackupDate'); const today = getCurrentDateChina(); if (lastBackupDate !== today) { const backupData = { records: appState.records, recycleBin: appState.recycleBin, backupTime: new Date().toISOString(), version: '50.0' }; await dbManager.saveDailyBackup(backupData); const success = await writeBackupFile(backupData); if (success) showToast('✅ 每日备份已自动覆盖保存到文件夹'); else { downloadBackup(backupData); showToast('⚠️ 未授权文件夹，已生成备份文件，请点击保存'); } localStorage.setItem('lastDailyBackupDate', today); } } catch (error) { console.error('每日自动备份失败:', error); showToast('自动备份失败，请检查权限', true); } }
+        async function manualExportBackup() { const backupData = { records: appState.records, recycleBin: appState.recycleBin, backupTime: new Date().toISOString(), version: '50.0' }; const success = await writeBackupFile(backupData); if (success) showToast('✅ 手动备份已覆盖保存'); else downloadBackup(backupData); }
 
         // ==================== 初始化 ====================
         async function init() {
             const today = getCurrentDateChina();
-            elements.recordDate.value = today;
-            elements.viewDate.value = today;
+            elements.recordDate.value = today; elements.viewDate.value = today;
             appState.currentViewDate = today;
             selectCategory('macau', 'down');
             await loadLocalData();
@@ -469,11 +464,8 @@
                 elements.selectYear.value = currentYear;
             }
             elements.selectMonth.value = currentMonth;
-            loadRecords();
-            loadDateRecords();
-            loadMyIncomeStatsForDate(today);
-            updateRecycleCount();
-            updateStorageInfo();
+            loadRecords(); loadDateRecords(); loadMyIncomeStatsForDate(today);
+            updateRecycleCount(); updateStorageInfo();
             await loadBackupDirectory();
             await performDailyFileBackup();
             setInterval(async () => { await performDailyFileBackup(); }, 60 * 60 * 1000);
@@ -568,7 +560,7 @@
         function searchRecords() { appState.searchTerm = elements.searchInput.value.toLowerCase().trim(); loadRecords(); }
         function clearSearch() { elements.searchInput.value = ''; appState.searchTerm = ''; loadRecords(); }
 
-        // ==================== 日期记录（金额列右对齐） ====================
+        // ==================== 日期记录 ====================
         function loadDateRecords() {
             const selectedDate = elements.viewDate.value;
             if (!selectedDate) return;
@@ -581,10 +573,7 @@
         }
         function renderDateRecordsTable(records) {
             const tbody = elements.dateRecordsBody;
-            if (records.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" class="empty-state">该日期暂无记录</td></tr>';
-                return;
-            }
+            if (records.length === 0) { tbody.innerHTML = '<tr><td colspan="7" class="empty-state">该日期暂无记录</td></tr>'; return; }
             let html = '';
             records.forEach(record => {
                 const isIncome = record.amount > 0;
@@ -599,7 +588,7 @@
                     <td><strong>${record.name}</strong></td>
                     <td><span class="category-badge ${record.subtype ? record.category + '-' + record.subtype : record.category}">${categoryLabel}</span></td>
                     <td><span class="type-badge ${isIncome ? 'type-income' : 'type-expense'}">${isIncome ? '收入' : '支出'}</span></td>
-                    <td style="color:${isIncome ? '#27ae60' : '#e74c3c'}; font-weight:600; text-align:right;">${isIncome ? formatMoney(Math.abs(record.amount)) : '-' + formatMoney(Math.abs(record.amount))}</td>
+                    <td style="color:${isIncome ? '#27ae60' : '#e74c3c'}; font-weight:600;">${isIncome ? formatMoney(Math.abs(record.amount)) : '-' + formatMoney(Math.abs(record.amount))}</td>
                     <td>${rebateDisplay}</td>
                     <td>${record.note || '-'}</td>
                     <td><button class="action-btn action-delete" onclick="deleteRecord('${record.id}')">删除</button></td>
@@ -673,7 +662,7 @@
                 `<div class="stat-card"><div class="stat-header"><div class="stat-title">总计收支统计</div><div class="stat-amount ${totalIsIncome ? 'stat-income' : 'stat-expense'}">${totalIsIncome ? '+' : ''}${formatMoney(Math.abs(stats.total))}</div></div><div class="${totalIsIncome ? 'income-hint' : 'expense-hint'}" style="margin-top:5px;">${totalIsIncome ? '收入' : '支出'} ${formatMoney(Math.abs(stats.total))}</div><div class="stat-details">日期：${date}<br>澳门：${macauIsIncome ? '+' : ''}${formatMoney(Math.abs(stats.macau.my))}<br>粤港：${guangdongIsIncome ? '+' : ''}${formatMoney(Math.abs(stats.guangdong.my))}<br><span style="color:${rebateColor}; font-weight:600;">粤港上家返点：${guangdongUpRebate >= 0 ? '+' : ''}${formatMoney(Math.abs(guangdongUpRebate))}</span></div></div>`;
         }
 
-        // ==================== 记录列表（金额列右对齐） ====================
+        // ==================== 记录列表 ====================
         function loadRecords() {
             const selectedYear = elements.selectYear.value;
             const selectedMonth = elements.selectMonth.value;
@@ -742,9 +731,7 @@
                 stats[name][month] += amount;
                 grandTotal += amount;
             });
-            allPersons.forEach(name => {
-                const th = document.createElement('th'); th.style.minWidth = '80px'; th.innerHTML = `<strong>${name}</strong>`; tableHead.appendChild(th);
-            });
+            allPersons.forEach(name => { const th = document.createElement('th'); th.style.minWidth = '80px'; th.innerHTML = `<strong>${name}</strong>`; tableHead.appendChild(th); });
             const totalTh = document.createElement('th'); totalTh.style.minWidth = '80px'; totalTh.innerHTML = '<strong>总计</strong>'; tableHead.appendChild(totalTh);
             monthsToShow.forEach(month => {
                 const row = document.createElement('tr');
@@ -856,7 +843,7 @@
             showToast('已撤销删除操作');
         }
 
-        // ==================== 我的收支虚拟记录（金额列右对齐） ====================
+        // ==================== 我的收支虚拟记录 ====================
         function renderMyIncomeRecords(records, selectedYear, selectedMonth) {
             const tbody = elements.recordsBody, container = elements.summaryStats;
             const byDate = {};
@@ -891,7 +878,7 @@
                     <td>${record.date}</td><td><strong>${record.name}</strong></td>
                     <td><span class="category-badge ${isIncome ? 'my-income' : 'my-expense'}">${isIncome ? '我的收入' : '我的支出'}</span></td>
                     <td><span class="type-badge ${isIncome ? 'type-income' : 'type-expense'}">${isIncome ? '收入' : '支出'}</span></td>
-                    <td style="color:${isIncome ? '#27ae60' : '#e74c3c'}; font-weight:600; text-align:right;">${isIncome ? formatMoney(Math.abs(record.amount)) : '-' + formatMoney(Math.abs(record.amount))}</td>
+                    <td style="color:${isIncome ? '#27ae60' : '#e74c3c'}; font-weight:600;">${isIncome ? formatMoney(Math.abs(record.amount)) : '-' + formatMoney(Math.abs(record.amount))}</td>
                     <td>-</td><td>${record.note || '-'}</td><td><span style="color:#8c9aa5; font-size:10px;">计算得出</span></td>
                 </tr>`;
             });
@@ -919,7 +906,7 @@
                     <td>${record.date}</td><td><strong>${record.name}</strong></td>
                     <td><span class="category-badge ${record.subtype ? record.category + '-' + record.subtype : record.category}">${getCategoryLabel(record.category, record.subtype)}</span></td>
                     <td><span class="type-badge ${isIncome ? 'type-income' : 'type-expense'}">${isIncome ? '收入' : '支出'}</span></td>
-                    <td style="color:${isIncome ? '#27ae60' : '#e74c3c'}; font-weight:600; text-align:right;">${isIncome ? formatMoney(Math.abs(record.amount)) : '-' + formatMoney(Math.abs(record.amount))}</td>
+                    <td style="color:${isIncome ? '#27ae60' : '#e74c3c'}; font-weight:600;">${isIncome ? formatMoney(Math.abs(record.amount)) : '-' + formatMoney(Math.abs(record.amount))}</td>
                     <td>${rebateDisp}</td><td>${record.note || '-'}</td>
                     <td><button class="action-btn action-delete" onclick="deleteRecord('${record.id}')">删除</button></td>
                 </tr>`;
@@ -986,7 +973,7 @@
         // ==================== 导出/导入 ====================
         function exportData() {
             if (!appState.records.length) { showToast('没有数据可导出', true); return; }
-            const data = { records: appState.records, recycleBin: appState.recycleBin, exportedAt: new Date().toISOString(), version: '49.0' };
+            const data = { records: appState.records, recycleBin: appState.recycleBin, exportedAt: new Date().toISOString(), version: '50.0' };
             const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
             const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `收支数据_${getCurrentDateChina()}.json`;
             document.body.appendChild(a); a.click(); document.body.removeChild(a);
@@ -1049,7 +1036,7 @@
                     <td>${record.date}</td><td><strong>${record.name}</strong></td>
                     <td><span class="category-badge ${record.subtype ? record.category + '-' + record.subtype : record.category}">${getCategoryLabel(record.category, record.subtype)}</span></td>
                     <td><span class="type-badge ${isIncome ? 'type-income' : 'type-expense'}">${isIncome ? '收入' : '支出'}</span></td>
-                    <td style="color:${isIncome ? '#27ae60' : '#e74c3c'}; font-weight:600; text-align:right;">${isIncome ? formatMoney(Math.abs(record.amount)) : '-' + formatMoney(Math.abs(record.amount))}</td>
+                    <td style="color:${isIncome ? '#27ae60' : '#e74c3c'}; font-weight:600;">${isIncome ? formatMoney(Math.abs(record.amount)) : '-' + formatMoney(Math.abs(record.amount))}</td>
                     <td>${rebateDisp}</td><td>${record.note || '-'}</td>
                     <td><button class="action-btn restore" onclick="restoreRecord('${record.id}')">还原</button><button class="action-btn delete-permanent" onclick="permanentDelete('${record.id}')">彻底删除</button></td>
                 </tr>`;
@@ -1100,7 +1087,7 @@
             } catch (e) { showToast('数据加载失败', true); }
         }
         async function saveLocalData() {
-            try { await dbManager.saveData('finance_main_data', { records: appState.records, recycleBin: appState.recycleBin, savedAt: new Date().toISOString(), version: '49.0' }); updateStorageInfo(); } catch (e) { showToast('保存失败', true); }
+            try { await dbManager.saveData('finance_main_data', { records: appState.records, recycleBin: appState.recycleBin, savedAt: new Date().toISOString(), version: '50.0' }); updateStorageInfo(); } catch (e) { showToast('保存失败', true); }
         }
         function updatePersonFilter() {
             const sel = elements.filterPerson; sel.innerHTML = '<option value="all">全部人员</option>';
