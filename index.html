@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>个人收支管理系统 - 每日自动覆盖备份（完整版）</title>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <style>
         * {
             margin: 0;
@@ -20,6 +23,7 @@
             --cloud: #8e6ab8;
             --profit: #e67e22;
             --rebate: #ff9800;
+            --rebate-color: #ff9800;
             --category3: #e67e22;
             --category4: #445566;
             --light: #f4f6f9;
@@ -669,15 +673,27 @@
             font-weight: 500;
         }
         /* ========== 金额颜色 ========== */
-        .amount-positive {
-            color: #27ae60;
+        .amount-income {
+            color: #27ae60 !important;
             font-weight: 600;
         }
-        .amount-negative {
-            color: #e74c3c;
+        .amount-expense {
+            color: #e74c3c !important;
             font-weight: 600;
         }
         .amount-zero {
+            color: #a0aeb8;
+        }
+        /* ========== 返点颜色 ========== */
+        .rebate-positive {
+            color: #ff9800 !important;
+            font-weight: 600;
+        }
+        .rebate-negative {
+            color: #ff9800 !important;
+            font-weight: 600;
+        }
+        .rebate-zero {
             color: #a0aeb8;
         }
         /* ========== 其他 ========== */
@@ -1309,7 +1325,7 @@
     <script>
         // ==================== IndexedDB 管理类 ====================
         class DatabaseManager {
-            constructor(dbName = 'FinanceManagementDB', version = 6) {
+            constructor(dbName = 'FinanceManagementDB', version = 7) {
                 this.dbName = dbName;
                 this.version = version;
                 this.db = null;
@@ -1553,18 +1569,6 @@
             return `${year}-${month}-${day} ${hours}:${minutes}`;
         }
 
-        // ==================== 金额格式化 ====================
-        function formatAmount(amount) {
-            if (amount > 0) return `<span class="amount-positive">¥${amount.toFixed(2)}</span>`;
-            else if (amount < 0) return `<span class="amount-negative">-¥${Math.abs(amount).toFixed(2)}</span>`;
-            else return `<span class="amount-zero">¥0.00</span>`;
-        }
-        function formatAmountText(amount) {
-            if (amount > 0) return `¥${amount.toFixed(2)}`;
-            else if (amount < 0) return `-¥${Math.abs(amount).toFixed(2)}`;
-            else return `¥0.00`;
-        }
-
         // ==================== 提示 ====================
         function showToast(message, isError = false) {
             const toast = document.createElement('div');
@@ -1708,7 +1712,7 @@
                         records: appState.records,
                         recycleBin: appState.recycleBin,
                         backupTime: new Date().toISOString(),
-                        version: '41.0'
+                        version: '42.0'
                     };
                     await dbManager.saveDailyBackup(backupData);
                     const success = await writeBackupFile(backupData);
@@ -1730,7 +1734,7 @@
                 records: appState.records,
                 recycleBin: appState.recycleBin,
                 backupTime: new Date().toISOString(),
-                version: '41.0'
+                version: '42.0'
             };
             const success = await writeBackupFile(backupData);
             if (success) {
@@ -1895,9 +1899,15 @@
                 const isIncome = record.amount > 0;
                 const categoryLabel = getCategoryLabel(record.category, record.subtype);
                 const rebate = record.rebate || 0;
-                const rebateClass = rebate > 0 ? 'amount-positive' : (rebate < 0 ? 'amount-negative' : 'amount-zero');
-                const rebateText = rebate !== 0 ? formatAmountText(rebate) : '-';
-                html += `<tr><td><strong>${record.name}</strong></td><td><span class="category-badge ${record.subtype ? record.category + '-' + record.subtype : record.category}">${categoryLabel}</span></td><td><span class="type-badge ${isIncome ? 'type-income' : 'type-expense'}">${isIncome ? '收入' : '支出'}</span></td><td class="${isIncome ? 'amount-positive' : 'amount-negative'}">${formatAmountText(record.amount)}</td><td class="${rebateClass}">${rebateText}</td><td>${record.note || '-'}</td><td><button class="action-btn action-delete" onclick="deleteRecord('${record.id}')">删除</button></td></tr>`;
+                html += `<tr>
+                    <td><strong>${record.name}</strong></td>
+                    <td><span class="category-badge ${record.subtype ? record.category + '-' + record.subtype : record.category}">${categoryLabel}</span></td>
+                    <td><span class="type-badge ${isIncome ? 'type-income' : 'type-expense'}">${isIncome ? '收入' : '支出'}</span></td>
+                    <td style="color: ${isIncome ? '#27ae60' : '#e74c3c'}; font-weight: 600;">${isIncome ? '¥' + Math.abs(record.amount).toFixed(2) : '-¥' + Math.abs(record.amount).toFixed(2)}</td>
+                    <td style="color: #ff9800; font-weight: 600;">${rebate !== 0 ? (rebate > 0 ? '¥' + rebate.toFixed(2) : '-¥' + Math.abs(rebate).toFixed(2)) : '-'}</td>
+                    <td>${record.note || '-'}</td>
+                    <td><button class="action-btn action-delete" onclick="deleteRecord('${record.id}')">删除</button></td>
+                </tr>`;
             });
             tbody.innerHTML = html;
         }
@@ -2056,16 +2066,16 @@
                     const cell = document.createElement('td');
                     const profit = personMonthStats[name]?.[month] || 0;
                     if (profit !== 0) {
-                        if (profit > 0) { cell.className = 'amount-positive'; cell.innerHTML = `¥${profit.toFixed(2)}`; }
-                        else { cell.className = 'amount-negative'; cell.innerHTML = `-¥${Math.abs(profit).toFixed(2)}`; }
+                        if (profit > 0) { cell.style.color = '#27ae60'; cell.style.fontWeight = '600'; cell.innerHTML = `¥${profit.toFixed(2)}`; }
+                        else { cell.style.color = '#e74c3c'; cell.style.fontWeight = '600'; cell.innerHTML = `-¥${Math.abs(profit).toFixed(2)}`; }
                         monthTotal += profit;
                     } else cell.innerHTML = '';
                     row.appendChild(cell);
                 });
                 const totalCell = document.createElement('td');
                 if (monthTotal !== 0) {
-                    if (monthTotal > 0) { totalCell.className = 'amount-positive'; totalCell.innerHTML = `¥${monthTotal.toFixed(2)}`; }
-                    else { totalCell.className = 'amount-negative'; totalCell.innerHTML = `-¥${Math.abs(monthTotal).toFixed(2)}`; }
+                    if (monthTotal > 0) { totalCell.style.color = '#27ae60'; totalCell.style.fontWeight = '600'; totalCell.innerHTML = `¥${monthTotal.toFixed(2)}`; }
+                    else { totalCell.style.color = '#e74c3c'; totalCell.style.fontWeight = '600'; totalCell.innerHTML = `-¥${Math.abs(monthTotal).toFixed(2)}`; }
                 } else totalCell.innerHTML = '';
                 row.appendChild(totalCell);
                 transposedBody.appendChild(row);
@@ -2080,24 +2090,24 @@
                 let personTotal = 0;
                 monthsToShow.forEach(month => { personTotal += personMonthStats[name]?.[month] || 0; });
                 if (personTotal !== 0) {
-                    if (personTotal > 0) { cell.className = 'amount-positive'; cell.innerHTML = `¥${personTotal.toFixed(2)}`; }
-                    else { cell.className = 'amount-negative'; cell.innerHTML = `-¥${Math.abs(personTotal).toFixed(2)}`; }
+                    if (personTotal > 0) { cell.style.color = '#27ae60'; cell.style.fontWeight = '600'; cell.innerHTML = `¥${personTotal.toFixed(2)}`; }
+                    else { cell.style.color = '#e74c3c'; cell.style.fontWeight = '600'; cell.innerHTML = `-¥${Math.abs(personTotal).toFixed(2)}`; }
                 } else cell.innerHTML = '';
                 totalRow.appendChild(cell);
             });
             const grandTotalCell = document.createElement('td');
             if (grandTotalProfit !== 0) {
-                if (grandTotalProfit > 0) { grandTotalCell.className = 'amount-positive'; grandTotalCell.innerHTML = `¥${grandTotalProfit.toFixed(2)}`; }
-                else { grandTotalCell.className = 'amount-negative'; grandTotalCell.innerHTML = `-¥${Math.abs(grandTotalProfit).toFixed(2)}`; }
-            } else grandTotalCell.innerHTML = '';
+                if (grandTotalProfit > 0) { grandTotalCell.style.color = '#27ae60'; grandTotalCell.style.fontWeight = '600'; grandTotalCell.innerHTML = `¥${grandTotalProfit.toFixed(2)}`; }
+                else { grandTotalCell.style.color = '#e74c3c'; grandTotalCell.style.fontWeight = '600'; grandTotalCell.innerHTML = `-¥${Math.abs(grandTotalProfit).toFixed(2)}`; }
+            } else grandTotalCell.innerHTML = '¥0.00';
             totalRow.appendChild(grandTotalCell);
             transposedBody.appendChild(totalRow);
             personCount.textContent = allPersons.length;
             monthCount.textContent = monthsToShow.length;
             if (grandTotalProfit !== 0) {
-                if (grandTotalProfit > 0) { totalProfit.className = 'amount-positive'; totalProfit.innerHTML = `¥${grandTotalProfit.toFixed(2)}`; }
-                else { totalProfit.className = 'amount-negative'; totalProfit.innerHTML = `-¥${Math.abs(grandTotalProfit).toFixed(2)}`; }
-            } else { totalProfit.innerHTML = '¥0.00'; totalProfit.className = ''; }
+                if (grandTotalProfit > 0) { totalProfit.style.color = '#27ae60'; totalProfit.style.fontWeight = '600'; totalProfit.innerHTML = `¥${grandTotalProfit.toFixed(2)}`; }
+                else { totalProfit.style.color = '#e74c3c'; totalProfit.style.fontWeight = '600'; totalProfit.innerHTML = `-¥${Math.abs(grandTotalProfit).toFixed(2)}`; }
+            } else { totalProfit.innerHTML = '¥0.00'; totalProfit.style.color = ''; totalProfit.style.fontWeight = ''; }
         }
 
         // ==================== 批量选择与删除 ====================
@@ -2215,7 +2225,17 @@
                 const rowClass = isIncome ? 'my-income-row' : 'my-expense-row';
                 const badgeClass = isIncome ? 'my-income' : 'my-expense';
                 const badgeText = isIncome ? '我的收入' : '我的支出';
-                html += `<tr class="${rowClass}"><td><input type="checkbox" class="checkbox" value="${record.id}" onchange="toggleRecordSelection('${record.id}', this)"></td><td>${record.date}</td><td><strong>${record.name}</strong></td><td><span class="category-badge ${badgeClass}">${badgeText}</span></td><td><span class="type-badge ${isIncome ? 'type-income' : 'type-expense'}">${isIncome ? '收入' : '支出'}</span></td><td class="${isIncome ? 'amount-positive' : 'amount-negative'}">${formatAmountText(record.amount)}</td><td>-</td><td>${record.note || '-'}</td><td><span style="color: #8c9aa5; font-size: 10px;">计算得出</span></td></tr>`;
+                html += `<tr class="${rowClass}">
+                    <td><input type="checkbox" class="checkbox" value="${record.id}" onchange="toggleRecordSelection('${record.id}', this)"></td>
+                    <td>${record.date}</td>
+                    <td><strong>${record.name}</strong></td>
+                    <td><span class="category-badge ${badgeClass}">${badgeText}</span></td>
+                    <td><span class="type-badge ${isIncome ? 'type-income' : 'type-expense'}">${isIncome ? '收入' : '支出'}</span></td>
+                    <td style="color: ${isIncome ? '#27ae60' : '#e74c3c'}; font-weight: 600;">${isIncome ? '¥' + Math.abs(record.amount).toFixed(2) : '-¥' + Math.abs(record.amount).toFixed(2)}</td>
+                    <td>-</td>
+                    <td>${record.note || '-'}</td>
+                    <td><span style="color: #8c9aa5; font-size: 10px;">计算得出</span></td>
+                </tr>`;
             });
             tbody.innerHTML = html;
             const myIncomeStats = calculateStatsOld(myIncomeRecords);
@@ -2234,10 +2254,18 @@
                 const isIncome = record.amount > 0;
                 const categoryLabel = getCategoryLabel(record.category, record.subtype);
                 const rebate = record.rebate || 0;
-                const rebateClass = rebate > 0 ? 'amount-positive' : (rebate < 0 ? 'amount-negative' : 'amount-zero');
-                const rebateText = rebate !== 0 ? formatAmountText(rebate) : '-';
                 const isSelected = appState.selectedRecords.has(record.id);
-                html += `<tr class="${isSelected ? 'selected' : ''}"><td><input type="checkbox" class="checkbox" value="${record.id}" ${isSelected ? 'checked' : ''} onchange="toggleRecordSelection('${record.id}', this)"></td><td>${record.date}</td><td><strong>${record.name}</strong></td><td><span class="category-badge ${record.subtype ? record.category + '-' + record.subtype : record.category}">${categoryLabel}</span></td><td><span class="type-badge ${isIncome ? 'type-income' : 'type-expense'}">${isIncome ? '收入' : '支出'}</span></td><td class="${isIncome ? 'amount-positive' : 'amount-negative'}">${formatAmountText(record.amount)}</td><td class="${rebateClass}">${rebateText}</td><td>${record.note || '-'}</td><td><button class="action-btn action-delete" onclick="deleteRecord('${record.id}')">删除</button></td></tr>`;
+                html += `<tr class="${isSelected ? 'selected' : ''}">
+                    <td><input type="checkbox" class="checkbox" value="${record.id}" ${isSelected ? 'checked' : ''} onchange="toggleRecordSelection('${record.id}', this)"></td>
+                    <td>${record.date}</td>
+                    <td><strong>${record.name}</strong></td>
+                    <td><span class="category-badge ${record.subtype ? record.category + '-' + record.subtype : record.category}">${categoryLabel}</span></td>
+                    <td><span class="type-badge ${isIncome ? 'type-income' : 'type-expense'}">${isIncome ? '收入' : '支出'}</span></td>
+                    <td style="color: ${isIncome ? '#27ae60' : '#e74c3c'}; font-weight: 600;">${isIncome ? '¥' + Math.abs(record.amount).toFixed(2) : '-¥' + Math.abs(record.amount).toFixed(2)}</td>
+                    <td style="color: #ff9800; font-weight: 600;">${rebate !== 0 ? (rebate > 0 ? '¥' + rebate.toFixed(2) : '-¥' + Math.abs(rebate).toFixed(2)) : '-'}</td>
+                    <td>${record.note || '-'}</td>
+                    <td><button class="action-btn action-delete" onclick="deleteRecord('${record.id}')">删除</button></td>
+                </tr>`;
             });
             tbody.innerHTML = html;
         }
@@ -2334,7 +2362,7 @@
         // ==================== 导出/导入数据 ====================
         function exportData() {
             if (appState.records.length === 0) { showToast('没有数据可导出', true); return; }
-            const data = { records: appState.records, recycleBin: appState.recycleBin, exportedAt: new Date().toISOString(), version: '41.0' };
+            const data = { records: appState.records, recycleBin: appState.recycleBin, exportedAt: new Date().toISOString(), version: '42.0' };
             const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -2415,9 +2443,18 @@
                 const deletedTime = new Date(record.deletedAt).toLocaleString('zh-CN');
                 const originalDate = record.date;
                 const rebate = record.rebate || 0;
-                const rebateClass = rebate > 0 ? 'amount-positive' : (rebate < 0 ? 'amount-negative' : 'amount-zero');
-                const rebateText = rebate !== 0 ? formatAmountText(rebate) : '-';
-                html += `<tr><td><input type="checkbox" class="checkbox" value="${record.id}" id="recycle-${record.id}"></td><td><span class="deleted-time">${deletedTime}</span></td><td>${originalDate}</td><td><strong>${record.name}</strong></td><td><span class="category-badge ${record.subtype ? record.category + '-' + record.subtype : record.category}">${categoryLabel}</span></td><td><span class="type-badge ${isIncome ? 'type-income' : 'type-expense'}">${isIncome ? '收入' : '支出'}</span></td><td class="${isIncome ? 'amount-positive' : 'amount-negative'}">${formatAmountText(record.amount)}</td><td class="${rebateClass}">${rebateText}</td><td>${record.note || '-'}</td><td><button class="action-btn restore" onclick="restoreRecord('${record.id}')">还原</button><button class="action-btn delete-permanent" onclick="permanentDelete('${record.id}')">彻底删除</button></td></tr>`;
+                html += `<tr>
+                    <td><input type="checkbox" class="checkbox" value="${record.id}" id="recycle-${record.id}"></td>
+                    <td><span class="deleted-time">${deletedTime}</span></td>
+                    <td>${originalDate}</td>
+                    <td><strong>${record.name}</strong></td>
+                    <td><span class="category-badge ${record.subtype ? record.category + '-' + record.subtype : record.category}">${categoryLabel}</span></td>
+                    <td><span class="type-badge ${isIncome ? 'type-income' : 'type-expense'}">${isIncome ? '收入' : '支出'}</span></td>
+                    <td style="color: ${isIncome ? '#27ae60' : '#e74c3c'}; font-weight: 600;">${isIncome ? '¥' + Math.abs(record.amount).toFixed(2) : '-¥' + Math.abs(record.amount).toFixed(2)}</td>
+                    <td style="color: #ff9800; font-weight: 600;">${rebate !== 0 ? (rebate > 0 ? '¥' + rebate.toFixed(2) : '-¥' + Math.abs(rebate).toFixed(2)) : '-'}</td>
+                    <td>${record.note || '-'}</td>
+                    <td><button class="action-btn restore" onclick="restoreRecord('${record.id}')">还原</button><button class="action-btn delete-permanent" onclick="permanentDelete('${record.id}')">彻底删除</button></td>
+                </tr>`;
             });
             tbody.innerHTML = html;
         }
@@ -2515,7 +2552,7 @@
         }
         async function saveLocalData() {
             try {
-                const data = { records: appState.records, recycleBin: appState.recycleBin, savedAt: new Date().toISOString(), version: '41.0' };
+                const data = { records: appState.records, recycleBin: appState.recycleBin, savedAt: new Date().toISOString(), version: '42.0' };
                 await dbManager.saveData('finance_main_data', data);
                 updateStorageInfo();
             } catch (error) {
