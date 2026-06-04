@@ -21,11 +21,9 @@
         }
         body { background: var(--bg); min-height:100vh; padding:0; }
         .container { max-width:100%; margin:0 auto; }
-        /* 数字输入框隐藏箭头 */
         input[type="number"]::-webkit-outer-spin-button,
         input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         input[type="number"] { -moz-appearance: textfield; }
-        /* 登录层 */
         .login-overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:linear-gradient(135deg, #4a6fa5 0%, #5b7db5 30%, #6c8ec4 60%, #7a9fd5 100%); display:flex; justify-content:center; align-items:center; z-index:9999; transition:opacity 0.35s ease; }
         .login-overlay.hidden { opacity:0; pointer-events:none; }
         .login-box { background:rgba(255,255,255,0.95); backdrop-filter:blur(10px); padding:44px 40px; border-radius:16px; box-shadow:0 20px 50px rgba(0,0,0,0.2); text-align:center; min-width:370px; animation:fadeInUp 0.5s ease; }
@@ -39,13 +37,11 @@
         .error-message { color:var(--expense); font-size:13px; margin-top:8px; display:none; }
         .error-message.show { display:block; }
         .attempts-warning { color:var(--warning); font-size:11px; margin-top:8px; }
-        /* 导航栏 */
         .navbar { background:linear-gradient(135deg, var(--nav-start) 0%, var(--nav-end) 100%); padding:12px 24px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; position:sticky; top:0; z-index:100; width:100%; margin:0; border-radius:0; box-shadow:0 4px 16px rgba(58,63,110,0.25); }
         .nav-left { display:flex; align-items:center; gap:10px; }
         .nav-icon { font-size:22px; color:#fff; background:rgba(255,255,255,0.15); width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(5px); }
         .nav-title { font-size:17px; font-weight:700; color:#fff; text-shadow:0 1px 2px rgba(0,0,0,0.1); }
         .nav-subtitle { font-size:10px; color:rgba(255,255,255,0.7); margin-top:2px; }
-        /* 按钮 */
         .btn { display:inline-flex; align-items:center; gap:5px; padding:8px 15px; border:none; border-radius:8px; font-size:12px; font-weight:600; cursor:pointer; transition:var(--transition); position:relative; overflow:hidden; }
         .btn:hover { transform:translateY(-2px); box-shadow:var(--shadow-lg); }
         .btn:active { transform:translateY(0); }
@@ -62,7 +58,6 @@
         .clear-btn { background:linear-gradient(135deg, #b0bec5, #90a4ae)!important; color:#fff!important; margin-left:6px; }
         .logout-btn { background:rgba(255,255,255,0.15); color:#ffcccc; border:1.5px solid rgba(255,150,150,0.4); padding:6px 14px; border-radius:8px; font-size:11px; font-weight:600; cursor:pointer; margin-left:8px; }
         .logout-btn:hover { background:rgba(231,76,60,0.25); border-color:rgba(255,120,120,0.6); color:#fff; }
-        /* 布局 */
         .main-grid { display:grid; grid-template-columns:3fr 2fr; gap:14px; padding:14px 16px; width:100%; min-width:0; }
         .main-grid>div { min-width:0; overflow:hidden; }
         .card { background:#fff; border-radius:var(--radius); overflow:hidden; box-shadow:var(--shadow); margin-bottom:14px; border:1px solid #eef1f5; transition:transform 0.3s, box-shadow 0.3s; min-width:0; }
@@ -89,7 +84,6 @@
         .category-btn.guangdong-up.active { background:var(--cat-guangdong-up); color:#fff; border-color:var(--cat-guangdong-up); }
         .category-btn.guangdong-down { color:var(--cat-guangdong-down); border-color:#c8a8d8; }
         .category-btn.guangdong-down.active { background:var(--cat-guangdong-down); color:#fff; border-color:var(--cat-guangdong-down); }
-        /* 表格 */
         .table-container { overflow-x:auto; margin-top:8px; border-radius:var(--radius-sm); border:1px solid #eef1f5; min-width:0; max-width:100%; }
         .data-table { width:100%; border-collapse:collapse; min-width:700px; }
         .data-table thead { background:#f8fafb; position:sticky; top:0; z-index:10; }
@@ -264,7 +258,7 @@
                         <div class="batch-toolbar" id="batch-toolbar"><span class="batch-count" id="batch-count">0</span>条记录被选中<button class="btn btn-danger btn-sm" onclick="batchDelete()">批量删除</button><button class="btn btn-outline btn-sm" onclick="clearSelection()" style="background:rgba(91,106,191,0.1); color:#5b6abf; border:1.5px solid #c5cae9;">取消选择</button></div>
                         <div class="filter-row">
                             <div class="filter-group"><label class="filter-label">选择年份：</label><select id="select-year" class="filter-select" onchange="loadRecords()"><option value="all">全部年份</option></select></div>
-                            <div class="filter-group"><label class="filter-label">选择月份：</label><select id="select-month" class="filter-select" onchange="loadRecords()"><option value="all">全部月份</option></select></div>
+                            <div class="filter-group"><label class="filter-label">选择月份：</label><select id="select-month" class="filter-select" onchange="loadRecords()"><option value="all">全部月份</option><option value="1">1月</option><option value="2">2月</option><option value="3">3月</option><option value="4">4月</option><option value="5">5月</option><option value="6">6月</option><option value="7">7月</option><option value="8">8月</option><option value="9">9月</option><option value="10">10月</option><option value="11">11月</option><option value="12">12月</option></select></div>
                             <div class="filter-group"><label class="filter-label">筛选分类：</label><select id="filter-category" class="filter-select" onchange="loadRecords()"><option value="all">全部分类</option><option value="macau-up">澳门上家</option><option value="macau-down">澳门下家</option><option value="guangdong-up">粤港上家</option><option value="guangdong-down">粤港下家</option><option value="my-income">我的收支</option></select></div>
                             <div class="filter-group"><label class="filter-label">筛选姓名：</label><select id="filter-person" class="filter-select" onchange="loadRecords()"><option value="all">全部人员</option></select></div>
                         </div>
@@ -716,7 +710,7 @@
                         records: appState.records,
                         recycleBin: appState.recycleBin,
                         backupTime: new Date().toISOString(),
-                        version: '46.0'
+                        version: '47.0'
                     };
                     await dbManager.saveDailyBackup(backupData);
                     const success = await writeBackupFile(backupData);
@@ -739,7 +733,7 @@
                 records: appState.records,
                 recycleBin: appState.recycleBin,
                 backupTime: new Date().toISOString(),
-                version: '46.0'
+                version: '47.0'
             };
             const success = await writeBackupFile(backupData);
             if (success) {
@@ -757,25 +751,26 @@
             appState.currentViewDate = today;
             selectCategory('macau', 'down');
             await loadLocalData();
-            // 确保当前年份在选项中
+
+            // 修复：确保筛选器默认选中当前年份和月份，且不干扰手动选择
             const nowChina = new Date(new Date().getTime() + (8 * 60 * 60 * 1000));
             const currentYear = nowChina.getUTCFullYear().toString();
             const currentMonth = (nowChina.getUTCMonth() + 1).toString();
-            // 检查当前年份是否已存在于选项中，不存在则添加
-            if (!elements.selectYear.querySelector(`option[value="${currentYear}"]`)) {
+
+            // 检查并设置年份默认值
+            if (elements.selectYear.querySelector(`option[value="${currentYear}"]`)) {
+                elements.selectYear.value = currentYear;
+            } else {
+                // 如果当前年份不在选项中，添加它并设为默认
                 const option = document.createElement('option');
                 option.value = currentYear;
                 option.textContent = currentYear + '年';
-                // 插入到"全部年份"之后
-                const allOption = elements.selectYear.querySelector('option[value="all"]');
-                if (allOption && allOption.nextSibling) {
-                    elements.selectYear.insertBefore(option, allOption.nextSibling);
-                } else {
-                    elements.selectYear.appendChild(option);
-                }
+                elements.selectYear.appendChild(option);
+                elements.selectYear.value = currentYear;
             }
-            elements.selectYear.value = currentYear;
+            // 设置月份默认值
             elements.selectMonth.value = currentMonth;
+
             loadRecords();
             loadDateRecords();
             loadMyIncomeStatsForDate(today);
@@ -1500,7 +1495,7 @@
                 records: appState.records,
                 recycleBin: appState.recycleBin,
                 exportedAt: new Date().toISOString(),
-                version: '46.0'
+                version: '47.0'
             };
             const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
             const a = document.createElement('a');
@@ -1759,7 +1754,7 @@
                     records: appState.records,
                     recycleBin: appState.recycleBin,
                     savedAt: new Date().toISOString(),
-                    version: '46.0'
+                    version: '47.0'
                 });
                 updateStorageInfo();
             } catch (e) { showToast('保存失败', true); }
@@ -1779,6 +1774,7 @@
 
         function updateYearFilter() {
             const sel = elements.selectYear;
+            const currentValue = sel.value; // 记住当前选中的值
             sel.innerHTML = '<option value="all">全部年份</option>';
             const years = new Set(appState.records.map(r => r.date?.split('-')[0]).filter(Boolean));
             // 始终包含当前中国时间的年份
@@ -1791,6 +1787,10 @@
                 o.textContent = y + '年';
                 sel.appendChild(o);
             });
+            // 尝试恢复之前选中的值，如果还存在的话
+            if (sel.querySelector(`option[value="${currentValue}"]`)) {
+                sel.value = currentValue;
+            }
         }
 
         async function updateStorageInfo() {
