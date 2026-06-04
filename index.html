@@ -8,1230 +8,173 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif;
-        }
+        * { margin:0; padding:0; box-sizing:border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif; }
         :root {
-            --primary: #5b6abf;
-            --primary-dark: #4a56a8;
-            --income: #27ae60;
-            --expense: #e74c3c;
-            --warning: #f0a030;
-            --cloud: #8e6ab8;
-            --profit: #e67e22;
-            --rebate: #ff9800;
-            --rebate-color: #ff9800;
-            --category3: #e67e22;
-            --category4: #445566;
-            --light: #f4f6f9;
-            --dark: #2c3e50;
-            --border: #e0e4e8;
-            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04);
-            --shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-            --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.1);
-            --shadow-xl: 0 12px 32px rgba(0, 0, 0, 0.14);
-            --radius: 10px;
-            --radius-sm: 6px;
-            --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-            --recycle: #8899a6;
-            --recycle-hover: #6b7d8a;
-            --bg: #e8ecf1;
-            --nav-start: #3a3f6e;
-            --nav-end: #5b5f8e;
-            --card-header-start: #f0f4fa;
-            --card-header-end: #e8ecf5;
-            --cat-macau-up: #e67e22;
-            --cat-macau-down: #445566;
-            --cat-guangdong-up: #2980b9;
-            --cat-guangdong-down: #8e44ad;
-        }
-        body {
-            background: var(--bg);
-            min-height: 100vh;
-            padding: 0;
-        }
-        .container {
-            max-width: 100%;
-            margin: 0 auto;
-        }
-        /* ========== 登录覆盖层 ========== */
-        .login-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #4a6fa5 0%, #5b7db5 30%, #6c8ec4 60%, #7a9fd5 100%);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-            transition: opacity 0.35s ease;
-        }
-        .login-overlay.hidden {
-            opacity: 0;
-            pointer-events: none;
-        }
-        .login-box {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            padding: 44px 40px;
-            border-radius: 16px;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
-            text-align: center;
-            min-width: 370px;
-            animation: fadeInUp 0.5s ease;
-        }
-        .login-icon {
-            font-size: 52px;
-            color: var(--primary);
-            margin-bottom: 16px;
-        }
-        .login-title {
-            font-size: 26px;
-            font-weight: 700;
-            color: var(--dark);
-            margin-bottom: 6px;
-            letter-spacing: -0.3px;
-        }
-        .login-subtitle {
-            font-size: 14px;
-            color: #7f8c8d;
-            margin-bottom: 28px;
-        }
-        .password-input {
-            width: 100%;
-            padding: 13px 18px;
-            border: 2px solid var(--border);
-            border-radius: 10px;
-            font-size: 16px;
-            margin-bottom: 18px;
-            transition: var(--transition);
-            background: #fafbfc;
-        }
-        .password-input:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 4px rgba(91, 106, 191, 0.1);
-            background: #fff;
-        }
-        .login-btn {
-            width: 100%;
-            padding: 13px;
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition);
-            margin-bottom: 14px;
-            letter-spacing: 0.3px;
-        }
-        .login-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(91, 106, 191, 0.3);
-        }
-        .login-btn:active {
-            transform: translateY(0);
-        }
-        .error-message {
-            color: var(--expense);
-            font-size: 13px;
-            margin-top: 8px;
-            display: none;
-        }
-        .error-message.show {
-            display: block;
-        }
-        .attempts-warning {
-            color: var(--warning);
-            font-size: 11px;
-            margin-top: 8px;
-        }
-        /* ========== 导航栏 - 深蓝紫渐变 ========== */
-        .navbar {
-            background: linear-gradient(135deg, var(--nav-start) 0%, var(--nav-end) 100%);
-            padding: 12px 24px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 10px;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            width: 100%;
-            margin: 0;
-            border-radius: 0;
-            box-shadow: 0 4px 16px rgba(58, 63, 110, 0.25);
-        }
-        .nav-left {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-        .nav-icon {
-            font-size: 22px;
-            color: #fff;
-            background: rgba(255, 255, 255, 0.15);
-            width: 40px;
-            height: 40px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            backdrop-filter: blur(5px);
-        }
-        .nav-title {
-            font-size: 17px;
-            font-weight: 700;
-            color: #ffffff;
-            letter-spacing: -0.2px;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-        }
-        .nav-subtitle {
-            font-size: 10px;
-            color: rgba(255, 255, 255, 0.7);
-            margin-top: 2px;
-        }
-        /* ========== 按钮 ========== */
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            padding: 8px 15px;
-            border: none;
-            border-radius: 8px;
-            font-size: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition);
-            text-align: center;
-            white-space: nowrap;
-            letter-spacing: 0.2px;
-            position: relative;
-            overflow: hidden;
-        }
-        .btn::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.3);
-            transform: translate(-50%, -50%);
-            transition: width 0.5s, height 0.5s;
-        }
-        .btn:active::after {
-            width: 300px;
-            height: 300px;
-        }
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-lg);
-        }
-        .btn:active {
-            transform: translateY(0);
-        }
-        .btn-success {
-            background: linear-gradient(135deg, #27ae60, #219a52);
-            color: white;
-            box-shadow: 0 3px 10px rgba(39, 174, 96, 0.2);
-        }
-        .btn-success:hover {
-            box-shadow: 0 6px 18px rgba(39, 174, 96, 0.35);
-        }
-        .btn-danger {
-            background: linear-gradient(135deg, #e74c3c, #d63031);
-            color: white;
-            box-shadow: 0 3px 10px rgba(231, 76, 60, 0.2);
-        }
-        .btn-danger:hover {
-            box-shadow: 0 6px 18px rgba(231, 76, 60, 0.35);
-        }
-        .btn-outline {
-            background: rgba(255, 255, 255, 0.15);
-            color: #ffffff;
-            border: 1.5px solid rgba(255, 255, 255, 0.3);
-            backdrop-filter: blur(5px);
-        }
-        .btn-outline:hover {
-            background: rgba(255, 255, 255, 0.25);
-            border-color: rgba(255, 255, 255, 0.5);
-            color: #fff;
-            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
-        }
-        .btn-warning {
-            background: linear-gradient(135deg, #f0a030, #e8930c);
-            color: white;
-            box-shadow: 0 3px 10px rgba(240, 160, 48, 0.2);
-        }
-        .btn-warning:hover {
-            box-shadow: 0 6px 18px rgba(240, 160, 48, 0.35);
-        }
-        .btn-cloud {
-            background: linear-gradient(135deg, #8e6ab8, #7b52ab);
-            color: white;
-            box-shadow: 0 3px 10px rgba(142, 106, 184, 0.2);
-        }
-        .btn-cloud:hover {
-            box-shadow: 0 6px 18px rgba(142, 106, 184, 0.35);
-        }
-        .btn-recycle {
-            background: rgba(255, 255, 255, 0.2);
-            color: #ffffff;
-            border: 1.5px solid rgba(255, 255, 255, 0.3);
-            backdrop-filter: blur(5px);
-        }
-        .btn-recycle:hover {
-            background: rgba(255, 255, 255, 0.3);
-            border-color: rgba(255, 255, 255, 0.5);
-            color: #fff;
-            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
-        }
-        .btn-sm {
-            padding: 5px 11px;
-            font-size: 11px;
-            border-radius: 6px;
-        }
-        .btn-group {
-            display: flex;
-            gap: 7px;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-        .clear-btn {
-            background: linear-gradient(135deg, #b0bec5, #90a4ae) !important;
-            color: white !important;
-            margin-left: 6px;
-            box-shadow: 0 3px 10px rgba(144, 164, 174, 0.2);
-        }
-        .clear-btn:hover {
-            background: linear-gradient(135deg, #90a4ae, #78909c) !important;
-            box-shadow: 0 6px 18px rgba(144, 164, 174, 0.35);
-        }
-        .logout-btn {
-            background: rgba(255, 255, 255, 0.15);
-            color: #ffcccc;
-            border: 1.5px solid rgba(255, 150, 150, 0.4);
-            padding: 6px 14px;
-            border-radius: 8px;
-            font-size: 11px;
-            font-weight: 600;
-            cursor: pointer;
-            margin-left: 8px;
-            transition: var(--transition);
-            backdrop-filter: blur(5px);
-        }
-        .logout-btn:hover {
-            background: rgba(231, 76, 60, 0.25);
-            border-color: rgba(255, 120, 120, 0.6);
-            color: #fff;
-            box-shadow: 0 4px 14px rgba(231, 76, 60, 0.3);
-        }
-        /* ========== 主布局 - 左侧60%，右侧40% ========== */
-        .main-grid {
-            display: grid;
-            grid-template-columns: 3fr 2fr;
-            gap: 14px;
-            padding: 14px 16px;
-            margin-bottom: 0;
-            width: 100%;
-            min-width: 0;
-        }
-        .main-grid > div {
-            min-width: 0;
-            overflow: hidden;
-        }
-        /* ========== 卡片 - 动态效果 ========== */
-        .card {
-            background: #fff;
-            border-radius: var(--radius);
-            overflow: hidden;
-            box-shadow: var(--shadow);
-            margin-bottom: 14px;
-            border: 1px solid #eef1f5;
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            will-change: transform;
-            min-width: 0;
-        }
-        .card:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-xl);
-        }
-        /* ========== 卡片头 - 浅蓝白渐变 ========== */
-        .card-header {
-            padding: 13px 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #dce3ed;
-        }
-        .card-header.primary {
-            background: linear-gradient(135deg, var(--card-header-start) 0%, var(--card-header-end) 100%);
-        }
-        .card-header.warning {
-            background: linear-gradient(135deg, #fefaf3, #fdf0dc);
-        }
-        .card-header.recycle {
-            background: linear-gradient(135deg, #f6f8f9, #eef1f4);
-        }
-        .card-title {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 14px;
-            font-weight: 700;
-            color: #3a4a5a;
-        }
-        .card-title span:first-child {
-            font-size: 16px;
-        }
-        .card-body {
-            padding: 14px 16px;
-            min-width: 0;
-            overflow: hidden;
-        }
-        /* ========== 表单 ========== */
-        .form-group {
-            margin-bottom: 12px;
-        }
-        .form-label {
-            display: block;
-            margin-bottom: 4px;
-            color: #5a6a7a;
-            font-weight: 600;
-            font-size: 11px;
-            letter-spacing: 0.2px;
-        }
-        .form-input {
-            width: 100%;
-            padding: 9px 12px;
-            border: 1.5px solid #e0e4e8;
-            border-radius: var(--radius-sm);
-            font-size: 13px;
-            transition: var(--transition);
-            background: #fafbfc;
-        }
-        .form-input:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(91, 106, 191, 0.08);
-            background: #fff;
-        }
-        .form-input.error {
-            border-color: var(--expense);
-            box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.06);
-        }
-        .error-msg {
-            color: var(--expense);
-            font-size: 10px;
-            margin-top: 3px;
-            display: none;
-        }
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 8px;
-        }
-        /* ========== 分类选择器 ========== */
-        .category-selector {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            margin-bottom: 10px;
-        }
-        .category-group {
-            display: flex;
-            gap: 5px;
-        }
-        .category-label {
-            font-size: 11px;
-            font-weight: 700;
-            color: var(--dark);
-            margin-bottom: 4px;
-            display: block;
-        }
-        .category-btn {
-            flex: 1;
-            padding: 9px 8px;
-            border: 2px solid #e0e4e8;
-            border-radius: 8px;
-            background: #fff;
-            font-size: 11px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 3px;
-            letter-spacing: 0.3px;
-        }
-        .category-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow);
-        }
-        .category-btn.macau-up {
-            color: var(--cat-macau-up);
-            border-color: #f0c78e;
-        }
-        .category-btn.macau-up.active {
-            background: var(--cat-macau-up);
-            color: white;
-            border-color: var(--cat-macau-up);
-            box-shadow: 0 4px 12px rgba(230, 126, 34, 0.25);
-        }
-        .category-btn.macau-down {
-            color: var(--cat-macau-down);
-            border-color: #a0aeb8;
-        }
-        .category-btn.macau-down.active {
-            background: var(--cat-macau-down);
-            color: white;
-            border-color: var(--cat-macau-down);
-            box-shadow: 0 4px 12px rgba(68, 85, 102, 0.25);
-        }
-        .category-btn.guangdong-up {
-            color: var(--cat-guangdong-up);
-            border-color: #a0c4e8;
-        }
-        .category-btn.guangdong-up.active {
-            background: var(--cat-guangdong-up);
-            color: white;
-            border-color: var(--cat-guangdong-up);
-            box-shadow: 0 4px 12px rgba(41, 128, 185, 0.25);
-        }
-        .category-btn.guangdong-down {
-            color: var(--cat-guangdong-down);
-            border-color: #c8a8d8;
-        }
-        .category-btn.guangdong-down.active {
-            background: var(--cat-guangdong-down);
-            color: white;
-            border-color: var(--cat-guangdong-down);
-            box-shadow: 0 4px 12px rgba(142, 68, 173, 0.25);
-        }
-        /* ========== 表格 ========== */
-        .table-container {
-            overflow-x: auto;
-            margin-top: 8px;
-            border-radius: var(--radius-sm);
-            border: 1px solid #eef1f5;
-            min-width: 0;
-            max-width: 100%;
-        }
-        .data-table {
-            width: 100%;
-            border-collapse: collapse;
-            min-width: 700px;
-        }
-        .data-table thead {
-            background: #f8fafb;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-        }
-        .data-table th {
-            padding: 10px 12px;
-            text-align: left;
-            font-weight: 700;
-            color: #4a5a6a;
-            border-bottom: 2px solid #e8ecf0;
-            font-size: 11px;
-            letter-spacing: 0.2px;
-        }
-        .data-table td {
-            padding: 10px 12px;
-            border-bottom: 1px solid #f0f3f5;
-            font-size: 12px;
-            color: #3a4a5a;
-            transition: background 0.15s ease;
-        }
-        .data-table tbody tr {
-            transition: background 0.15s ease;
-        }
-        .data-table tbody tr:hover {
-            background: #f4f7fb;
-        }
-        .data-table tbody tr.selected {
-            background: #eef4fc;
-        }
-        /* ========== 徽章 ========== */
-        .type-badge {
-            display: inline-block;
-            padding: 4px 10px;
-            border-radius: 14px;
-            font-size: 10px;
-            font-weight: 700;
-            letter-spacing: 0.3px;
-        }
-        .type-income {
-            background: #e6f9f0;
-            color: #1e8449;
-        }
-        .type-expense {
-            background: #fdecea;
-            color: #c0392b;
-        }
-        .type-profit {
-            background: #fef5e7;
-            color: #d68910;
-        }
-        .category-badge {
-            display: inline-block;
-            padding: 3px 8px;
-            border-radius: 12px;
-            font-size: 9px;
-            font-weight: 600;
-        }
-        .category-badge.macau-up {
-            background: #fef5e7;
-            color: var(--cat-macau-up);
-        }
-        .category-badge.macau-down {
-            background: #eef1f5;
-            color: var(--cat-macau-down);
-        }
-        .category-badge.guangdong-up {
-            background: #e8f4fd;
-            color: var(--cat-guangdong-up);
-        }
-        .category-badge.guangdong-down {
-            background: #f5eef8;
-            color: var(--cat-guangdong-down);
-        }
-        .category-badge.my-income {
-            background: #e6f9f0;
-            color: #1e8449;
-            border: 1px dashed #27ae60;
-        }
-        .category-badge.my-expense {
-            background: #fdecea;
-            color: #c0392b;
-            border: 1px dashed #e74c3c;
-        }
-        /* ========== 统计卡片 ========== */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-            gap: 10px;
-            margin-top: 10px;
-        }
-        .stat-card {
-            background: #fff;
-            border-radius: var(--radius);
-            padding: 13px 15px;
-            box-shadow: var(--shadow-sm);
-            border: 1px solid #eef1f5;
-            transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .stat-card:hover {
-            transform: translateY(-3px);
-            box-shadow: var(--shadow-lg);
-        }
-        .stat-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-        }
-        .stat-title {
-            font-size: 12px;
-            font-weight: 700;
-            color: #4a5a6a;
-        }
-        .stat-amount {
-            font-size: 17px;
-            font-weight: 800;
-            letter-spacing: -0.3px;
-        }
-        .stat-income {
-            color: #27ae60;
-        }
-        .stat-expense {
-            color: #e74c3c;
-        }
-        .stat-profit {
-            color: #d68910;
-        }
-        .stat-rebate {
-            color: #ff9800;
-        }
-        .stat-recycle {
-            color: #8899a6;
-        }
-        .stat-details {
-            font-size: 10px;
-            color: #8c9aa5;
-            margin-top: 5px;
-        }
-        .stat-label {
-            font-size: 10px;
-            color: #8c9aa5;
-            font-weight: 500;
-        }
-        /* ========== 金额颜色 ========== */
-        .amount-income {
-            color: #27ae60 !important;
-            font-weight: 600;
-        }
-        .amount-expense {
-            color: #e74c3c !important;
-            font-weight: 600;
-        }
-        .amount-zero {
-            color: #a0aeb8;
-        }
-        /* ========== 返点颜色 ========== */
-        .rebate-positive {
-            color: #ff9800 !important;
-            font-weight: 600;
-        }
-        .rebate-negative {
-            color: #ff9800 !important;
-            font-weight: 600;
-        }
-        .rebate-zero {
-            color: #a0aeb8;
-        }
-        /* ========== 其他 ========== */
-        .checkbox {
-            width: 17px;
-            height: 17px;
-            cursor: pointer;
-            accent-color: var(--primary);
-        }
-        .search-container {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 10px;
-            align-items: center;
-        }
-        .search-box {
-            flex: 1;
-            padding: 9px 14px;
-            border: 1.5px solid #e0e4e8;
-            border-radius: 20px;
-            font-size: 12px;
-            background: #fafbfc;
-            transition: var(--transition);
-        }
-        .search-box:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(91, 106, 191, 0.08);
-            background: #fff;
-        }
-        .batch-toolbar {
-            display: none;
-            align-items: center;
-            gap: 10px;
-            padding: 10px 14px;
-            background: linear-gradient(135deg, #fef9f0, #fef3e2);
-            color: #d68910;
-            border-radius: var(--radius-sm);
-            margin-bottom: 10px;
-            font-weight: 600;
-            font-size: 12px;
-            border: 1px solid #fde6c0;
-            animation: fadeInUp 0.3s ease;
-        }
-        .batch-toolbar.show {
-            display: flex;
-        }
-        .filter-row {
-            display: flex;
-            gap: 10px;
-            margin-top: 10px;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-        .filter-group {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        .filter-label {
-            font-size: 11px;
-            font-weight: 600;
-            color: #5a6a7a;
-        }
-        .filter-select {
-            padding: 7px 10px;
-            border: 1.5px solid #e0e4e8;
-            border-radius: var(--radius-sm);
-            font-size: 11px;
-            background: #fafbfc;
-            transition: var(--transition);
-        }
-        .filter-select:focus {
-            outline: none;
-            border-color: var(--primary);
-        }
-        .date-selector {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 10px;
-        }
-        .date-selector label {
-            font-size: 12px;
-            font-weight: 600;
-            color: #4a5a6a;
-        }
-        .date-selector input {
-            padding: 7px 10px;
-            border: 1.5px solid #e0e4e8;
-            border-radius: var(--radius-sm);
-            font-size: 11px;
-            background: #fafbfc;
-            transition: var(--transition);
-        }
-        .date-selector input:focus {
-            outline: none;
-            border-color: var(--primary);
-        }
-        .action-btn {
-            padding: 5px 10px;
-            border: none;
-            border-radius: 5px;
-            font-size: 10px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition);
-            margin-right: 4px;
-        }
-        .action-btn.restore {
-            background: #e6f9f0;
-            color: #1e8449;
-        }
-        .action-btn.restore:hover {
-            background: #27ae60;
-            color: white;
-            transform: translateY(-1px);
-        }
-        .action-btn.delete-permanent {
-            background: #fdecea;
-            color: #c0392b;
-        }
-        .action-btn.delete-permanent:hover {
-            background: #e74c3c;
-            color: white;
-            transform: translateY(-1px);
-        }
-        .action-btn.action-delete {
-            background: #fdecea;
-            color: #c0392b;
-        }
-        .action-btn.action-delete:hover {
-            background: #e74c3c;
-            color: white;
-            transform: translateY(-1px);
-        }
-        .empty-state {
-            text-align: center;
-            padding: 20px;
-            color: #a0aeb8;
-            font-size: 12px;
-        }
-        .my-income-row {
-            background: #f6fdf9 !important;
-            border-left: 3px solid #27ae60;
-        }
-        .my-expense-row {
-            background: #fef9f9 !important;
-            border-left: 3px solid #e74c3c;
-        }
-        .income-hint {
-            color: #27ae60;
-            font-weight: 700;
-            font-size: 11px;
-        }
-        .expense-hint {
-            color: #e74c3c;
-            font-weight: 700;
-            font-size: 11px;
-        }
-        .profit-hint {
-            color: #d68910;
-            font-weight: 700;
-            font-size: 11px;
-        }
-        .rebate-hint {
-            color: #ff9800;
-            font-weight: 700;
-            font-size: 11px;
-        }
-        /* ========== Toast ========== */
-        .undo-toast {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: #3a4a5a;
-            color: white;
-            padding: 13px 18px;
-            border-radius: 10px;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-            z-index: 1001;
-            display: none;
-            align-items: center;
-            gap: 12px;
-            font-size: 13px;
-        }
-        .undo-toast.show {
-            display: flex;
-        }
-        .undo-btn {
-            background: white;
-            color: #3a4a5a;
-            border: none;
-            padding: 5px 12px;
-            border-radius: 6px;
-            font-size: 11px;
-            font-weight: 700;
-            cursor: pointer;
-        }
-        /* ========== 回收站面板 ========== */
-        .recycle-panel {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.45);
-            z-index: 10000;
-            justify-content: center;
-            align-items: center;
-        }
-        .recycle-panel.show {
-            display: flex;
-        }
-        .recycle-container {
-            background: white;
-            border-radius: 14px;
-            padding: 22px;
-            width: 90%;
-            max-width: 820px;
-            max-height: 80vh;
-            overflow-y: auto;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
-        }
-        .recycle-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 18px;
-            padding-bottom: 14px;
-            border-bottom: 2px solid #eef1f5;
-        }
-        .recycle-title {
-            font-size: 18px;
-            font-weight: 700;
-            color: var(--dark);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .close-btn {
-            background: #e74c3c;
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 32px;
-            height: 32px;
-            cursor: pointer;
-            font-size: 18px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: var(--transition);
-        }
-        .close-btn:hover {
-            background: #c0392b;
-            transform: rotate(90deg);
-        }
-        .recycle-stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 10px;
-            margin-bottom: 18px;
-        }
-        .recycle-stat {
-            background: #f8fafb;
-            padding: 12px;
-            border-radius: 8px;
-            text-align: center;
-            border-left: 4px solid #8899a6;
-        }
-        .recycle-stat-number {
-            font-size: 20px;
-            font-weight: 800;
-            color: #556775;
-        }
-        .recycle-stat-label {
-            font-size: 10px;
-            color: #8c9aa5;
-            margin-top: 2px;
-        }
-        .recycle-toolbar {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 14px;
-            flex-wrap: wrap;
-        }
-        .recycle-search {
-            flex: 1;
-            padding: 9px 14px;
-            border: 1.5px solid #e0e4e8;
-            border-radius: 20px;
-            font-size: 12px;
-            min-width: 180px;
-            transition: var(--transition);
-        }
-        .recycle-search:focus {
-            outline: none;
-            border-color: var(--primary);
-        }
-        .recycle-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 8px;
-        }
-        .recycle-table th,
-        .recycle-table td {
-            padding: 9px 10px;
-            text-align: left;
-            border-bottom: 1px solid #eef1f5;
-            font-size: 11px;
-        }
-        .recycle-table th {
-            background: #f8fafb;
-            font-weight: 700;
-            color: #4a5a6a;
-            position: sticky;
-            top: 0;
-        }
-        .recycle-table tr:hover {
-            background: #f4f7fb;
-        }
-        .deleted-time {
-            color: #8c9aa5;
-            font-size: 10px;
-        }
-        /* ========== 返点汇总 ========== */
-        .rebate-summary {
-            margin-top: 10px;
-            padding: 10px 14px;
-            background: #fef9f0;
-            border-radius: var(--radius-sm);
-            border-left: 3px solid #ff9800;
-            font-size: 11px;
-            color: #d68910;
-        }
-        .rebate-item {
-            display: inline-block;
-            margin-right: 14px;
-        }
-        .rebate-value {
-            font-weight: 700;
-            color: #ff9800;
-        }
-        .total-rebate {
-            display: inline-block;
-            margin-left: 16px;
-            padding: 5px 10px;
-            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
-            color: white;
-            border-radius: 5px;
-            font-weight: 700;
-        }
-        .total-rebate-value {
-            font-size: 13px;
-        }
-        /* ========== 详情卡片 - 严格限制宽度 + 独立滚动条 ========== */
-        .detail-card {
-            min-width: 0;
-            overflow: hidden;
-        }
-        .detail-card .card-body {
-            min-width: 0;
-            overflow: hidden;
-            max-width: 100%;
-        }
-        .detail-card .table-container {
-            width: 100%;
-            max-width: 100%;
-            min-width: 0;
-            max-height: 400px;
-            overflow: auto;
-            border: 1px solid #eef1f5;
-            border-radius: var(--radius-sm);
-            display: block;
-        }
-        .detail-card .data-table {
-            min-width: 600px;
-            width: max-content;
-            table-layout: auto;
-        }
-        .detail-card .data-table th,
-        .detail-card .data-table td {
-            min-width: 80px;
-            text-align: center;
-            white-space: nowrap;
-            padding: 8px 10px;
-        }
-        .detail-card .data-table th:first-child,
-        .detail-card .data-table td:first-child {
-            min-width: 55px;
-            position: sticky;
-            left: 0;
-            background: #f8fafb;
-            z-index: 5;
-        }
-        .detail-card .data-table td:first-child {
-            background: #fff;
-        }
-        .detail-card .data-table tr:hover td:first-child {
-            background: #f4f7fb;
-        }
-        .filter-info {
-            font-size: 11px;
-            color: #8c9aa5;
-            margin-bottom: 10px;
-        }
-        /* ========== 存储信息 ========== */
-        .storage-info {
-            position: fixed;
-            bottom: 12px;
-            right: 12px;
-            background: rgba(44, 62, 80, 0.9);
-            color: white;
-            padding: 9px 14px;
-            border-radius: 8px;
-            font-size: 10px;
-            z-index: 1000;
-            display: none;
-        }
-        /* ========== 动画 ========== */
-        @keyframes fadeInUp {
-            from {
-                transform: translateY(30px);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-        @keyframes slideInRight {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-        @keyframes shake {
-            0%,
-            100% {
-                transform: translateX(0);
-            }
-            25% {
-                transform: translateX(-5px);
-            }
-            75% {
-                transform: translateX(5px);
-            }
-        }
-        .shake {
-            animation: shake 0.5s ease-in-out;
-        }
-        /* ========== 响应式 ========== */
-        @media (max-width: 900px) {
-            .main-grid {
-                grid-template-columns: 1fr;
-                padding: 10px;
-            }
-            .navbar {
-                flex-direction: column;
-                align-items: stretch;
-                padding: 12px 14px;
-            }
-            .nav-left {
-                justify-content: center;
-                text-align: center;
-                margin-bottom: 8px;
-            }
-            .btn-group {
-                justify-content: center;
-            }
-            .detail-card .table-container {
-                max-height: 300px;
-            }
-        }
-        @media (max-width: 768px) {
-            .form-row {
-                grid-template-columns: 1fr;
-            }
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-            .filter-row {
-                flex-direction: column;
-            }
-            .category-group {
-                flex-direction: column;
-            }
-            .recycle-toolbar {
-                flex-direction: column;
-            }
-            .recycle-search {
-                min-width: auto;
-            }
-            .detail-card .table-container {
-                max-height: 250px;
-            }
-        }
-        @media (max-width: 480px) {
-            .stat-card {
-                padding: 8px 10px;
-            }
-            .stat-title {
-                font-size: 11px;
-            }
-            .stat-amount {
-                font-size: 14px;
-            }
-            .category-btn {
-                font-size: 10px;
-                padding: 7px 5px;
-            }
-            .btn {
-                padding: 7px 11px;
-                font-size: 11px;
-            }
-            .login-box {
-                min-width: 280px;
-                padding: 30px 20px;
-            }
-            .recycle-container {
-                padding: 14px;
-                width: 95%;
-            }
-        }
+            --primary: #5b6abf; --primary-dark: #4a56a8; --income: #27ae60; --expense: #e74c3c;
+            --warning: #f0a030; --cloud: #8e6ab8; --profit: #e67e22; --rebate: #ff9800;
+            --cat-macau-up: #e67e22; --cat-macau-down: #445566; --cat-guangdong-up: #2980b9; --cat-guangdong-down: #8e44ad;
+            --light: #f4f6f9; --dark: #2c3e50; --border: #e0e4e8; --shadow-sm: 0 1px 3px rgba(0,0,0,0.04);
+            --shadow: 0 2px 8px rgba(0,0,0,0.06); --shadow-lg: 0 8px 24px rgba(0,0,0,0.1); --shadow-xl: 0 12px 32px rgba(0,0,0,0.14);
+            --radius: 10px; --radius-sm: 6px; --transition: all 0.25s cubic-bezier(0.4,0,0.2,1);
+            --recycle: #8899a6; --bg: #e8ecf1; --nav-start: #3a3f6e; --nav-end: #5b5f8e;
+            --card-header-start: #f0f4fa; --card-header-end: #e8ecf5;
+        }
+        body { background: var(--bg); min-height:100vh; padding:0; }
+        .container { max-width:100%; margin:0 auto; }
+        /* 登录层 */
+        .login-overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:linear-gradient(135deg, #4a6fa5 0%, #5b7db5 30%, #6c8ec4 60%, #7a9fd5 100%); display:flex; justify-content:center; align-items:center; z-index:9999; transition:opacity 0.35s ease; }
+        .login-overlay.hidden { opacity:0; pointer-events:none; }
+        .login-box { background:rgba(255,255,255,0.95); backdrop-filter:blur(10px); padding:44px 40px; border-radius:16px; box-shadow:0 20px 50px rgba(0,0,0,0.2); text-align:center; min-width:370px; animation:fadeInUp 0.5s ease; }
+        .login-icon { font-size:52px; color:var(--primary); margin-bottom:16px; }
+        .login-title { font-size:26px; font-weight:700; color:var(--dark); margin-bottom:6px; }
+        .login-subtitle { font-size:14px; color:#7f8c8d; margin-bottom:28px; }
+        .password-input { width:100%; padding:13px 18px; border:2px solid var(--border); border-radius:10px; font-size:16px; margin-bottom:18px; transition:var(--transition); background:#fafbfc; }
+        .password-input:focus { outline:none; border-color:var(--primary); box-shadow:0 0 0 4px rgba(91,106,191,0.1); background:#fff; }
+        .login-btn { width:100%; padding:13px; background:linear-gradient(135deg, var(--primary), var(--primary-dark)); color:white; border:none; border-radius:10px; font-size:16px; font-weight:600; cursor:pointer; transition:var(--transition); margin-bottom:14px; }
+        .login-btn:hover { transform:translateY(-2px); box-shadow:0 8px 20px rgba(91,106,191,0.3); }
+        .error-message { color:var(--expense); font-size:13px; margin-top:8px; display:none; }
+        .error-message.show { display:block; }
+        .attempts-warning { color:var(--warning); font-size:11px; margin-top:8px; }
+        /* 导航栏 */
+        .navbar { background:linear-gradient(135deg, var(--nav-start) 0%, var(--nav-end) 100%); padding:12px 24px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; position:sticky; top:0; z-index:100; width:100%; margin:0; border-radius:0; box-shadow:0 4px 16px rgba(58,63,110,0.25); }
+        .nav-left { display:flex; align-items:center; gap:10px; }
+        .nav-icon { font-size:22px; color:#fff; background:rgba(255,255,255,0.15); width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(5px); }
+        .nav-title { font-size:17px; font-weight:700; color:#fff; text-shadow:0 1px 2px rgba(0,0,0,0.1); }
+        .nav-subtitle { font-size:10px; color:rgba(255,255,255,0.7); margin-top:2px; }
+        /* 按钮 */
+        .btn { display:inline-flex; align-items:center; gap:5px; padding:8px 15px; border:none; border-radius:8px; font-size:12px; font-weight:600; cursor:pointer; transition:var(--transition); position:relative; overflow:hidden; }
+        .btn:hover { transform:translateY(-2px); box-shadow:var(--shadow-lg); }
+        .btn:active { transform:translateY(0); }
+        .btn::after { content:''; position:absolute; top:50%; left:50%; width:0; height:0; border-radius:50%; background:rgba(255,255,255,0.3); transform:translate(-50%,-50%); transition:width 0.5s, height 0.5s; }
+        .btn:active::after { width:300px; height:300px; }
+        .btn-success { background:linear-gradient(135deg, #27ae60, #219a52); color:#fff; }
+        .btn-danger { background:linear-gradient(135deg, #e74c3c, #d63031); color:#fff; }
+        .btn-outline { background:rgba(255,255,255,0.15); color:#fff; border:1.5px solid rgba(255,255,255,0.3); backdrop-filter:blur(5px); }
+        .btn-outline:hover { background:rgba(255,255,255,0.25); border-color:rgba(255,255,255,0.5); }
+        .btn-warning { background:linear-gradient(135deg, #f0a030, #e8930c); color:#fff; }
+        .btn-cloud { background:linear-gradient(135deg, #8e6ab8, #7b52ab); color:#fff; }
+        .btn-recycle { background:rgba(255,255,255,0.2); color:#fff; border:1.5px solid rgba(255,255,255,0.3); }
+        .btn-sm { padding:5px 11px; font-size:11px; border-radius:6px; }
+        .clear-btn { background:linear-gradient(135deg, #b0bec5, #90a4ae)!important; color:#fff!important; margin-left:6px; }
+        .logout-btn { background:rgba(255,255,255,0.15); color:#ffcccc; border:1.5px solid rgba(255,150,150,0.4); padding:6px 14px; border-radius:8px; font-size:11px; font-weight:600; cursor:pointer; margin-left:8px; }
+        .logout-btn:hover { background:rgba(231,76,60,0.25); border-color:rgba(255,120,120,0.6); color:#fff; }
+        /* 布局 */
+        .main-grid { display:grid; grid-template-columns:3fr 2fr; gap:14px; padding:14px 16px; width:100%; min-width:0; }
+        .main-grid>div { min-width:0; overflow:hidden; }
+        .card { background:#fff; border-radius:var(--radius); overflow:hidden; box-shadow:var(--shadow); margin-bottom:14px; border:1px solid #eef1f5; transition:transform 0.3s, box-shadow 0.3s; min-width:0; }
+        .card:hover { transform:translateY(-4px); box-shadow:var(--shadow-xl); }
+        .card-header { padding:13px 16px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #dce3ed; }
+        .card-header.primary { background:linear-gradient(135deg, var(--card-header-start), var(--card-header-end)); }
+        .card-title { display:flex; align-items:center; gap:8px; font-size:14px; font-weight:700; color:#3a4a5a; }
+        .card-body { padding:14px 16px; min-width:0; overflow:hidden; }
+        .form-group { margin-bottom:12px; }
+        .form-label { display:block; margin-bottom:4px; color:#5a6a7a; font-weight:600; font-size:11px; }
+        .form-input { width:100%; padding:9px 12px; border:1.5px solid #e0e4e8; border-radius:var(--radius-sm); font-size:13px; transition:var(--transition); background:#fafbfc; }
+        .form-input:focus { outline:none; border-color:var(--primary); box-shadow:0 0 0 3px rgba(91,106,191,0.08); background:#fff; }
+        .form-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:8px; }
+        .category-selector { display:flex; flex-direction:column; gap:8px; margin-bottom:10px; }
+        .category-group { display:flex; gap:5px; }
+        .category-label { font-size:11px; font-weight:700; color:var(--dark); margin-bottom:4px; }
+        .category-btn { flex:1; padding:9px 8px; border:2px solid #e0e4e8; border-radius:8px; background:#fff; font-size:11px; font-weight:600; cursor:pointer; transition:var(--transition); display:flex; align-items:center; justify-content:center; gap:3px; }
+        .category-btn:hover { transform:translateY(-2px); box-shadow:var(--shadow); }
+        .category-btn.macau-up { color:var(--cat-macau-up); border-color:#f0c78e; }
+        .category-btn.macau-up.active { background:var(--cat-macau-up); color:#fff; border-color:var(--cat-macau-up); }
+        .category-btn.macau-down { color:var(--cat-macau-down); border-color:#a0aeb8; }
+        .category-btn.macau-down.active { background:var(--cat-macau-down); color:#fff; border-color:var(--cat-macau-down); }
+        .category-btn.guangdong-up { color:var(--cat-guangdong-up); border-color:#a0c4e8; }
+        .category-btn.guangdong-up.active { background:var(--cat-guangdong-up); color:#fff; border-color:var(--cat-guangdong-up); }
+        .category-btn.guangdong-down { color:var(--cat-guangdong-down); border-color:#c8a8d8; }
+        .category-btn.guangdong-down.active { background:var(--cat-guangdong-down); color:#fff; border-color:var(--cat-guangdong-down); }
+        /* 表格 */
+        .table-container { overflow-x:auto; margin-top:8px; border-radius:var(--radius-sm); border:1px solid #eef1f5; min-width:0; max-width:100%; }
+        .data-table { width:100%; border-collapse:collapse; min-width:700px; }
+        .data-table thead { background:#f8fafb; position:sticky; top:0; z-index:10; }
+        .data-table th { padding:10px 12px; text-align:left; font-weight:700; color:#4a5a6a; border-bottom:2px solid #e8ecf0; font-size:11px; }
+        .data-table td { padding:10px 12px; border-bottom:1px solid #f0f3f5; font-size:12px; color:#3a4a5a; }
+        .data-table tbody tr:hover { background:#f4f7fb; }
+        .data-table tbody tr.selected { background:#eef4fc; }
+        .type-badge { display:inline-block; padding:4px 10px; border-radius:14px; font-size:10px; font-weight:700; }
+        .type-income { background:#e6f9f0; color:#1e8449; }
+        .type-expense { background:#fdecea; color:#c0392b; }
+        .category-badge { display:inline-block; padding:3px 8px; border-radius:12px; font-size:9px; font-weight:600; }
+        .category-badge.macau-up { background:#fef5e7; color:var(--cat-macau-up); }
+        .category-badge.macau-down { background:#eef1f5; color:var(--cat-macau-down); }
+        .category-badge.guangdong-up { background:#e8f4fd; color:var(--cat-guangdong-up); }
+        .category-badge.guangdong-down { background:#f5eef8; color:var(--cat-guangdong-down); }
+        .category-badge.my-income { background:#e6f9f0; color:#1e8449; border:1px dashed #27ae60; }
+        .category-badge.my-expense { background:#fdecea; color:#c0392b; border:1px dashed #e74c3c; }
+        .stats-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(190px,1fr)); gap:10px; margin-top:10px; }
+        .stat-card { background:#fff; border-radius:var(--radius); padding:13px 15px; box-shadow:var(--shadow-sm); border:1px solid #eef1f5; transition:transform 0.25s, box-shadow 0.25s; }
+        .stat-card:hover { transform:translateY(-3px); box-shadow:var(--shadow-lg); }
+        .stat-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+        .stat-title { font-size:12px; font-weight:700; color:#4a5a6a; }
+        .stat-amount { font-size:17px; font-weight:800; }
+        .stat-income { color:#27ae60; }
+        .stat-expense { color:#e74c3c; }
+        .checkbox { width:17px; height:17px; cursor:pointer; accent-color:var(--primary); }
+        .search-container { display:flex; gap:8px; margin-bottom:10px; align-items:center; }
+        .search-box { flex:1; padding:9px 14px; border:1.5px solid #e0e4e8; border-radius:20px; font-size:12px; background:#fafbfc; }
+        .search-box:focus { outline:none; border-color:var(--primary); box-shadow:0 0 0 3px rgba(91,106,191,0.08); background:#fff; }
+        .batch-toolbar { display:none; align-items:center; gap:10px; padding:10px 14px; background:linear-gradient(135deg, #fef9f0, #fef3e2); color:#d68910; border-radius:var(--radius-sm); margin-bottom:10px; font-weight:600; font-size:12px; border:1px solid #fde6c0; }
+        .batch-toolbar.show { display:flex; }
+        .filter-row { display:flex; gap:10px; margin-top:10px; flex-wrap:wrap; align-items:center; }
+        .filter-group { display:flex; align-items:center; gap:5px; }
+        .filter-label { font-size:11px; font-weight:600; color:#5a6a7a; }
+        .filter-select { padding:7px 10px; border:1.5px solid #e0e4e8; border-radius:var(--radius-sm); font-size:11px; background:#fafbfc; }
+        .filter-select:focus { outline:none; border-color:var(--primary); }
+        .date-selector { display:flex; align-items:center; gap:8px; margin-bottom:10px; }
+        .date-selector label { font-size:12px; font-weight:600; color:#4a5a6a; }
+        .date-selector input { padding:7px 10px; border:1.5px solid #e0e4e8; border-radius:var(--radius-sm); font-size:11px; background:#fafbfc; }
+        .action-btn { padding:5px 10px; border:none; border-radius:5px; font-size:10px; font-weight:600; cursor:pointer; transition:var(--transition); margin-right:4px; }
+        .action-btn.restore { background:#e6f9f0; color:#1e8449; }
+        .action-btn.restore:hover { background:#27ae60; color:#fff; }
+        .action-btn.delete-permanent { background:#fdecea; color:#c0392b; }
+        .action-btn.delete-permanent:hover { background:#e74c3c; color:#fff; }
+        .action-btn.action-delete { background:#fdecea; color:#c0392b; }
+        .action-btn.action-delete:hover { background:#e74c3c; color:#fff; }
+        .empty-state { text-align:center; padding:20px; color:#a0aeb8; font-size:12px; }
+        .my-income-row { background:#f6fdf9!important; border-left:3px solid #27ae60; }
+        .my-expense-row { background:#fef9f9!important; border-left:3px solid #e74c3c; }
+        .income-hint { color:#27ae60; font-weight:700; font-size:11px; }
+        .expense-hint { color:#e74c3c; font-weight:700; font-size:11px; }
+        .rebate-hint { color:#ff9800; font-weight:700; font-size:11px; }
+        .undo-toast { position:fixed; top:20px; right:20px; background:#3a4a5a; color:#fff; padding:13px 18px; border-radius:10px; box-shadow:0 8px 24px rgba(0,0,0,0.2); z-index:1001; display:none; align-items:center; gap:12px; font-size:13px; }
+        .undo-toast.show { display:flex; }
+        .undo-btn { background:#fff; color:#3a4a5a; border:none; padding:5px 12px; border-radius:6px; font-size:11px; font-weight:700; cursor:pointer; }
+        .recycle-panel { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.45); z-index:10000; justify-content:center; align-items:center; }
+        .recycle-panel.show { display:flex; }
+        .recycle-container { background:#fff; border-radius:14px; padding:22px; width:90%; max-width:820px; max-height:80vh; overflow-y:auto; box-shadow:0 20px 50px rgba(0,0,0,0.25); }
+        .recycle-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; padding-bottom:14px; border-bottom:2px solid #eef1f5; }
+        .close-btn { background:#e74c3c; color:#fff; border:none; border-radius:50%; width:32px; height:32px; cursor:pointer; font-size:18px; display:flex; align-items:center; justify-content:center; transition:var(--transition); }
+        .close-btn:hover { background:#c0392b; transform:rotate(90deg); }
+        .recycle-stats { display:grid; grid-template-columns:repeat(auto-fit, minmax(140px,1fr)); gap:10px; margin-bottom:18px; }
+        .recycle-stat { background:#f8fafb; padding:12px; border-radius:8px; text-align:center; border-left:4px solid #8899a6; }
+        .recycle-stat-number { font-size:20px; font-weight:800; color:#556775; }
+        .recycle-stat-label { font-size:10px; color:#8c9aa5; margin-top:2px; }
+        .recycle-toolbar { display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap; }
+        .recycle-search { flex:1; padding:9px 14px; border:1.5px solid #e0e4e8; border-radius:20px; font-size:12px; min-width:180px; }
+        .recycle-table { width:100%; border-collapse:collapse; margin-top:8px; }
+        .recycle-table th, .recycle-table td { padding:9px 10px; border-bottom:1px solid #eef1f5; font-size:11px; }
+        .recycle-table th { background:#f8fafb; font-weight:700; color:#4a5a6a; position:sticky; top:0; }
+        .deleted-time { color:#8c9aa5; font-size:10px; }
+        .rebate-summary { margin-top:10px; padding:10px 14px; background:#fef9f0; border-radius:var(--radius-sm); border-left:3px solid #ff9800; font-size:11px; color:#d68910; }
+        .rebate-item { display:inline-block; margin-right:14px; }
+        .rebate-value { font-weight:700; color:#ff9800; }
+        .total-rebate { display:inline-block; margin-left:16px; padding:5px 10px; background:linear-gradient(135deg, #ff6b6b, #ee5a24); color:#fff; border-radius:5px; font-weight:700; }
+        .detail-card { min-width:0; overflow:hidden; }
+        .detail-card .card-body { min-width:0; overflow:hidden; max-width:100%; }
+        .detail-card .table-container { width:100%; max-width:100%; min-width:0; max-height:400px; overflow:auto; border:1px solid #eef1f5; border-radius:var(--radius-sm); display:block; }
+        .detail-card .data-table { min-width:600px; width:max-content; }
+        .detail-card .data-table th, .detail-card .data-table td { min-width:80px; text-align:center; white-space:nowrap; padding:8px 10px; }
+        .detail-card .data-table th:first-child, .detail-card .data-table td:first-child { min-width:55px; position:sticky; left:0; background:#f8fafb; z-index:5; }
+        .detail-card .data-table td:first-child { background:#fff; }
+        .storage-info { position:fixed; bottom:12px; right:12px; background:rgba(44,62,80,0.9); color:#fff; padding:9px 14px; border-radius:8px; font-size:10px; z-index:1000; display:none; }
+        @keyframes fadeInUp { from { transform:translateY(30px); opacity:0; } to { transform:translateY(0); opacity:1; } }
+        @keyframes shake { 0%,100%{ transform:translateX(0); } 25%{ transform:translateX(-5px); } 75%{ transform:translateX(5px); } }
+        .shake { animation:shake 0.5s ease-in-out; }
+        @media (max-width:900px) { .main-grid { grid-template-columns:1fr; padding:10px; } .navbar { flex-direction:column; align-items:stretch; padding:12px 14px; } .nav-left { justify-content:center; margin-bottom:8px; } .btn-group { justify-content:center; } }
+        @media (max-width:768px) { .form-row { grid-template-columns:1fr; } .stats-grid { grid-template-columns:1fr; } .filter-row { flex-direction:column; } .category-group { flex-direction:column; } }
+        @media (max-width:480px) { .stat-card { padding:8px 10px; } .btn { padding:7px 11px; font-size:11px; } }
     </style>
 </head>
 <body>
@@ -1247,12 +190,13 @@
         </div>
     </div>
 
-    <div class="container" id="main-app" style="display: none;">
+    <div class="container" id="main-app" style="display:none;">
         <div class="undo-toast" id="undo-toast">
             <span>记录已删除，可在回收站找回</span>
             <button class="undo-btn" onclick="undoDelete()">撤销</button>
             <span id="undo-timer">5</span>秒
         </div>
+
         <nav class="navbar">
             <div class="nav-left">
                 <div class="nav-icon">💰</div>
@@ -1277,17 +221,14 @@
                     <div class="card-header primary"><div class="card-title"><span>📝</span><span>录入收支</span></div></div>
                     <div class="card-body">
                         <div class="category-selector">
-                            <div><div class="category-label">澳门分类：</div><div class="category-group"><button class="category-btn macau-up" onclick="selectCategory('macau', 'up')"><span>⬆️ 澳门上家</span></button><button class="category-btn macau-down active" onclick="selectCategory('macau', 'down')"><span>⬇️ 澳门下家</span></button></div></div>
-                            <div><div class="category-label">粤港分类：</div><div class="category-group"><button class="category-btn guangdong-up" onclick="selectCategory('guangdong', 'up')"><span>⬆️ 粤港上家</span></button><button class="category-btn guangdong-down" onclick="selectCategory('guangdong', 'down')"><span>⬇️ 粤港下家</span></button></div></div>
+                            <div><div class="category-label">澳门分类：</div><div class="category-group"><button class="category-btn macau-up" onclick="selectCategory('macau', 'up')">⬆️ 澳门上家</button><button class="category-btn macau-down active" onclick="selectCategory('macau', 'down')">⬇️ 澳门下家</button></div></div>
+                            <div><div class="category-label">粤港分类：</div><div class="category-group"><button class="category-btn guangdong-up" onclick="selectCategory('guangdong', 'up')">⬆️ 粤港上家</button><button class="category-btn guangdong-down" onclick="selectCategory('guangdong', 'down')">⬇️ 粤港下家</button></div></div>
                         </div>
                         <div class="form-row">
                             <div class="form-group"><label class="form-label">姓名</label><input type="text" id="person-name" placeholder="输入姓名" class="form-input"></div>
                             <div class="form-group"><label class="form-label">日期</label><input type="date" id="record-date" class="form-input"></div>
                         </div>
-                        <div class="form-row">
-                            <div class="form-group"><label class="form-label">金额</label><input type="number" id="record-amount" placeholder="输入金额" class="form-input" step="0.01"></div>
-                            <div class="form-group"><label class="form-label">类型</label><select id="record-type" class="form-input"><option value="income">收入</option><option value="expense">支出</option></select></div>
-                        </div>
+                        <div class="form-group"><label class="form-label">金额（正数为收入，负数为支出）</label><input type="number" id="record-amount" placeholder="输入金额，如 -100" class="form-input" step="0.01"></div>
                         <div class="form-row">
                             <div class="form-group"><label class="form-label">总额</label><input type="number" id="record-total" placeholder="输入总额" class="form-input" step="0.01"></div>
                             <div class="form-group"><label class="form-label">返水(%)</label><input type="number" id="record-rebate-rate" placeholder="输入返水率" class="form-input" step="0.01"></div>
@@ -1299,7 +240,7 @@
                 <div class="card">
                     <div class="card-header primary"><div class="card-title"><span>📊</span><span>日期收支记录</span></div></div>
                     <div class="card-body">
-                        <div class="date-selector"><label for="view-date">选择日期：</label><input type="date" id="view-date" onchange="loadDateRecords()"><button class="btn btn-outline btn-sm" onclick="setTodayDate()" style="background: rgba(91,106,191,0.1); color: #5b6abf; border: 1.5px solid #c5cae9;">今天</button></div>
+                        <div class="date-selector"><label for="view-date">选择日期：</label><input type="date" id="view-date" onchange="loadDateRecords()"><button class="btn btn-outline btn-sm" onclick="setTodayDate()" style="background:rgba(91,106,191,0.1); color:#5b6abf; border:1.5px solid #c5cae9;">今天</button></div>
                         <div class="table-container"><table class="data-table"><thead><tr><th>姓名/类型</th><th>分类</th><th>类型</th><th>金额</th><th>返点</th><th>特码</th><th>操作</th></tr></thead><tbody id="date-records-body"><tr><td colspan="7" class="empty-state">请选择日期查看记录</td></tr></tbody></table></div>
                         <div id="date-rebate-summary" class="rebate-summary"></div>
                     </div>
@@ -1313,15 +254,15 @@
                 <div class="card">
                     <div class="card-header primary"><div class="card-title"><span>📈</span><span>查看详细记录</span></div></div>
                     <div class="card-body">
-                        <div class="search-container"><input type="text" id="search-input" class="search-box" placeholder="🔍 搜索姓名或特码..." oninput="searchRecords()"><button class="btn btn-outline btn-sm" onclick="clearSearch()" style="background: rgba(91,106,191,0.1); color: #5b6abf; border: 1.5px solid #c5cae9;">清除</button></div>
-                        <div class="batch-toolbar" id="batch-toolbar"><span class="batch-count" id="batch-count">0</span>条记录被选中<button class="btn btn-danger btn-sm" onclick="batchDelete()">批量删除</button><button class="btn btn-outline btn-sm" onclick="clearSelection()" style="background: rgba(91,106,191,0.1); color: #5b6abf; border: 1.5px solid #c5cae9;">取消选择</button></div>
+                        <div class="search-container"><input type="text" id="search-input" class="search-box" placeholder="🔍 搜索姓名或特码..." oninput="searchRecords()"><button class="btn btn-outline btn-sm" onclick="clearSearch()" style="background:rgba(91,106,191,0.1); color:#5b6abf; border:1.5px solid #c5cae9;">清除</button></div>
+                        <div class="batch-toolbar" id="batch-toolbar"><span class="batch-count" id="batch-count">0</span>条记录被选中<button class="btn btn-danger btn-sm" onclick="batchDelete()">批量删除</button><button class="btn btn-outline btn-sm" onclick="clearSelection()" style="background:rgba(91,106,191,0.1); color:#5b6abf; border:1.5px solid #c5cae9;">取消选择</button></div>
                         <div class="filter-row">
                             <div class="filter-group"><label class="filter-label">选择年份：</label><select id="select-year" class="filter-select" onchange="loadRecords()"><option value="all">全部年份</option></select></div>
-                            <div class="filter-group"><label class="filter-label">选择月份：</label><select id="select-month" class="filter-select" onchange="loadRecords()"><option value="all">全部月份</option><option value="1">1月</option><option value="2">2月</option><option value="3">3月</option><option value="4">4月</option><option value="5">5月</option><option value="6">6月</option><option value="7">7月</option><option value="8">8月</option><option value="9">9月</option><option value="10">10月</option><option value="11">11月</option><option value="12">12月</option></select></div>
+                            <div class="filter-group"><label class="filter-label">选择月份：</label><select id="select-month" class="filter-select" onchange="loadRecords()"><option value="all">全部月份</option></select></div>
                             <div class="filter-group"><label class="filter-label">筛选分类：</label><select id="filter-category" class="filter-select" onchange="loadRecords()"><option value="all">全部分类</option><option value="macau-up">澳门上家</option><option value="macau-down">澳门下家</option><option value="guangdong-up">粤港上家</option><option value="guangdong-down">粤港下家</option><option value="my-income">我的收支</option></select></div>
                             <div class="filter-group"><label class="filter-label">筛选姓名：</label><select id="filter-person" class="filter-select" onchange="loadRecords()"><option value="all">全部人员</option></select></div>
                         </div>
-                        <div class="table-container" style="max-height: 400px; overflow-y: auto;"><table class="data-table"><thead><tr><th><input type="checkbox" class="checkbox" id="select-all" onchange="toggleSelectAll()"></th><th>日期</th><th>姓名/类型</th><th>分类</th><th>类型</th><th>金额</th><th>返点</th><th>特码</th><th>操作</th></tr></thead><tbody id="records-body"><tr><td colspan="9" class="empty-state">暂无记录</td></tr></tbody></table></div>
+                        <div class="table-container" style="max-height:400px; overflow-y:auto;"><table class="data-table"><thead><tr><th><input type="checkbox" class="checkbox" id="select-all" onchange="toggleSelectAll()"></th><th>日期</th><th>姓名/类型</th><th>分类</th><th>类型</th><th>金额</th><th>返点</th><th>特码</th><th>操作</th></tr></thead><tbody id="records-body"><tr><td colspan="9" class="empty-state">暂无记录</td></tr></tbody></table></div>
                         <div id="detail-rebate-summary" class="rebate-summary"></div>
                         <div id="summary-stats" class="stats-grid"></div>
                     </div>
@@ -1329,9 +270,9 @@
                 <div class="card detail-card">
                     <div class="card-header primary"><div class="card-title"><span>📊</span><span>收支明细</span></div></div>
                     <div class="card-body">
-                        <div class="filter-info"><div style="font-size: 11px; color: #8c9aa5; margin-bottom: 10px;">统计范围：仅统计当前筛选条件下的记录</div><div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px;"><div style="font-size: 10px; background: #f4f8fc; padding: 5px 10px; border-radius: 5px; border-left: 3px solid #5b6abf;"><strong>筛选条件：</strong><span id="filter-year-display">全部年份</span> | <span id="filter-month-display">全部月份</span> | <span id="filter-category-display">全部分类</span> | <span id="filter-name-display">全部人员</span></div></div></div>
-                        <div class="table-container"><table class="data-table" id="detail-transposed-table"><thead><tr><th style="min-width: 55px;">月份</th></tr></thead><tbody id="detail-transposed-body"><tr class="empty-state-row"><td colspan="1" class="empty-state">暂无数据，请先设置筛选条件</td></tr></tbody></table></div>
-                        <div style="margin-top: 14px; font-size: 11px; color: #8c9aa5;"><div style="display: flex; justify-content: space-between; align-items: center;"><div>当前显示 <span id="transposed-person-count">0</span> 个人员，<span id="transposed-month-count">0</span> 个月份</div><div>总利润：<span id="transposed-total">0</span> 元</div></div></div>
+                        <div class="filter-info"><div style="font-size:11px; color:#8c9aa5; margin-bottom:10px;">统计范围：仅统计当前筛选条件下的记录</div><div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px;"><div style="font-size:10px; background:#f4f8fc; padding:5px 10px; border-radius:5px; border-left:3px solid #5b6abf;"><strong>筛选条件：</strong><span id="filter-year-display">全部年份</span> | <span id="filter-month-display">全部月份</span> | <span id="filter-category-display">全部分类</span> | <span id="filter-name-display">全部人员</span></div></div></div>
+                        <div class="table-container"><table class="data-table" id="detail-transposed-table"><thead><tr><th style="min-width:55px;">月份</th></tr></thead><tbody id="detail-transposed-body"><tr class="empty-state-row"><td colspan="1" class="empty-state">暂无数据，请先设置筛选条件</td></tr></tbody></table></div>
+                        <div style="margin-top:14px; font-size:11px; color:#8c9aa5;"><div style="display:flex; justify-content:space-between;"><div>当前显示 <span id="transposed-person-count">0</span> 个人员，<span id="transposed-month-count">0</span> 个月份</div><div>总利润：<span id="transposed-total">0</span> 元</div></div></div>
                     </div>
                 </div>
             </div>
@@ -1342,22 +283,19 @@
         <div class="recycle-container">
             <div class="recycle-header"><h2 class="recycle-title">🗑️ 回收站管理</h2><button class="close-btn" onclick="closeRecyclePanel()">×</button></div>
             <div class="recycle-stats"><div class="recycle-stat"><div class="recycle-stat-number" id="recycle-total">0</div><div class="recycle-stat-label">总删除记录</div></div><div class="recycle-stat"><div class="recycle-stat-number" id="recycle-today">0</div><div class="recycle-stat-label">今日删除</div></div><div class="recycle-stat"><div class="recycle-stat-number" id="recycle-week">0</div><div class="recycle-stat-label">本周删除</div></div><div class="recycle-stat"><div class="recycle-stat-number" id="recycle-size">0KB</div><div class="recycle-stat-label">占用空间</div></div></div>
-            <div class="recycle-toolbar"><input type="text" class="recycle-search" id="recycle-search" placeholder="搜索已删除的记录..." oninput="searchRecycleRecords()"><button class="btn btn-recycle btn-sm" onclick="selectAllRecycle()" style="background: rgba(91,106,191,0.1); color: #5b6abf; border: 1.5px solid #c5cae9;">全选</button><button class="btn btn-success btn-sm" onclick="restoreSelected()">还原选中</button><button class="btn btn-warning btn-sm" onclick="restoreAll()">还原全部</button><button class="btn btn-danger btn-sm" onclick="emptyRecycleBin()">清空回收站</button></div>
-            <div class="table-container" style="max-height: 400px; overflow-y: auto;"><table class="recycle-table"><thead><tr><th><input type="checkbox" class="checkbox" id="recycle-select-all" onchange="toggleRecycleSelectAll()"></th><th>删除时间</th><th>原日期</th><th>姓名</th><th>分类</th><th>类型</th><th>金额</th><th>返点</th><th>特码</th><th>操作</th></tr></thead><tbody id="recycle-body"><tr><td colspan="10" class="empty-state">回收站为空</td></tr></tbody></table></div>
+            <div class="recycle-toolbar"><input type="text" class="recycle-search" id="recycle-search" placeholder="搜索已删除的记录..." oninput="searchRecycleRecords()"><button class="btn btn-recycle btn-sm" onclick="selectAllRecycle()" style="background:rgba(91,106,191,0.1); color:#5b6abf; border:1.5px solid #c5cae9;">全选</button><button class="btn btn-success btn-sm" onclick="restoreSelected()">还原选中</button><button class="btn btn-warning btn-sm" onclick="restoreAll()">还原全部</button><button class="btn btn-danger btn-sm" onclick="emptyRecycleBin()">清空回收站</button></div>
+            <div class="table-container" style="max-height:400px; overflow-y:auto;"><table class="recycle-table"><thead><tr><th><input type="checkbox" class="checkbox" id="recycle-select-all" onchange="toggleRecycleSelectAll()"></th><th>删除时间</th><th>原日期</th><th>姓名</th><th>分类</th><th>类型</th><th>金额</th><th>返点</th><th>特码</th><th>操作</th></tr></thead><tbody id="recycle-body"><tr><td colspan="10" class="empty-state">回收站为空</td></tr></tbody></table></div>
         </div>
     </div>
 
     <div class="storage-info" id="storage-info"><div>存储模式: <span id="storage-mode">IndexedDB</span></div><div>数据大小: <span id="data-size">0 KB</span></div><div>记录数量: <span id="record-count">0</span></div></div>
 
     <script>
-        // ==================== IndexedDB 管理类 ====================
+                // ==================== IndexedDB 管理类 ====================
         class DatabaseManager {
-            constructor(dbName = 'FinanceManagementDB', version = 8) {
-                this.dbName = dbName;
-                this.version = version;
-                this.db = null;
-                this.storeName = 'financeData';
-                this.backupStoreName = 'backupData';
+            constructor(dbName = 'FinanceManagementDB', version = 10) {
+                this.dbName = dbName; this.version = version; this.db = null;
+                this.storeName = 'financeData'; this.backupStoreName = 'backupData';
             }
             async open() {
                 return new Promise((resolve, reject) => {
@@ -1378,188 +316,51 @@
                     };
                 });
             }
-            async saveData(key, data) {
-                if (!this.db) await this.open();
-                return new Promise((resolve, reject) => {
-                    const transaction = this.db.transaction([this.storeName], 'readwrite');
-                    const store = transaction.objectStore(this.storeName);
-                    const request = store.put({ id: key, data: data, timestamp: new Date().getTime() });
-                    request.onsuccess = () => resolve(true);
-                    request.onerror = () => reject(request.error);
-                });
-            }
-            async loadData(key) {
-                if (!this.db) await this.open();
-                return new Promise((resolve, reject) => {
-                    const transaction = this.db.transaction([this.storeName], 'readonly');
-                    const store = transaction.objectStore(this.storeName);
-                    const request = store.get(key);
-                    request.onsuccess = () => resolve(request.result ? request.result.data : null);
-                    request.onerror = () => reject(request.error);
-                });
-            }
-            async getAllData() {
-                if (!this.db) await this.open();
-                return new Promise((resolve, reject) => {
-                    const transaction = this.db.transaction([this.storeName], 'readonly');
-                    const store = transaction.objectStore(this.storeName);
-                    const request = store.getAll();
-                    request.onsuccess = () => resolve(request.result);
-                    request.onerror = () => reject(request.error);
-                });
-            }
-            async deleteData(key) {
-                if (!this.db) await this.open();
-                return new Promise((resolve, reject) => {
-                    const transaction = this.db.transaction([this.storeName], 'readwrite');
-                    const store = transaction.objectStore(this.storeName);
-                    const request = store.delete(key);
-                    request.onsuccess = () => resolve(true);
-                    request.onerror = () => reject(request.error);
-                });
-            }
-            async clearAllData() {
-                if (!this.db) await this.open();
-                return new Promise((resolve, reject) => {
-                    const transaction = this.db.transaction([this.storeName], 'readwrite');
-                    const store = transaction.objectStore(this.storeName);
-                    const request = store.clear();
-                    request.onsuccess = () => resolve(true);
-                    request.onerror = () => reject(request.error);
-                });
-            }
-            async getDatabaseSize() {
-                try {
-                    const data = await this.getAllData();
-                    const jsonString = JSON.stringify(data);
-                    const sizeInBytes = new Blob([jsonString]).size;
-                    return { bytes: sizeInBytes, kb: (sizeInBytes / 1024).toFixed(2), mb: (sizeInBytes / (1024 * 1024)).toFixed(2) };
-                } catch (error) {
-                    return { bytes: 0, kb: '0.00', mb: '0.00' };
-                }
-            }
-            async saveDailyBackup(data) {
-                if (!this.db) await this.open();
-                return new Promise((resolve, reject) => {
-                    const transaction = this.db.transaction([this.backupStoreName], 'readwrite');
-                    const store = transaction.objectStore(this.backupStoreName);
-                    const backupData = { timestamp: new Date().getTime(), type: 'daily_backup', data: data, backupDate: getCurrentDateChina() };
-                    const request = store.put(backupData);
-                    request.onsuccess = () => resolve(true);
-                    request.onerror = () => reject(request.error);
-                });
-            }
-            async loadDailyBackup() {
-                if (!this.db) await this.open();
-                return new Promise((resolve, reject) => {
-                    const transaction = this.db.transaction([this.backupStoreName], 'readonly');
-                    const store = transaction.objectStore(this.backupStoreName);
-                    const index = store.index('type');
-                    const request = index.openCursor(IDBKeyRange.only('daily_backup'), 'prev');
-                    let latest = null;
-                    request.onsuccess = (event) => {
-                        const cursor = event.target.result;
-                        if (cursor) {
-                            latest = cursor.value;
-                            cursor.continue();
-                        } else {
-                            resolve(latest);
-                        }
-                    };
-                    request.onerror = () => reject(request.error);
-                });
-            }
-            async saveBackupDirectoryHandle(handle) {
-                if (!this.db) await this.open();
-                return new Promise((resolve, reject) => {
-                    const transaction = this.db.transaction([this.backupStoreName], 'readwrite');
-                    const store = transaction.objectStore(this.backupStoreName);
-                    const data = { timestamp: 'dir_handle', type: 'directory_handle', handle: handle };
-                    const request = store.put(data);
-                    request.onsuccess = () => resolve(true);
-                    request.onerror = () => reject(request.error);
-                });
-            }
-            async loadBackupDirectoryHandle() {
-                if (!this.db) await this.open();
-                return new Promise((resolve, reject) => {
-                    const transaction = this.db.transaction([this.backupStoreName], 'readonly');
-                    const store = transaction.objectStore(this.backupStoreName);
-                    const request = store.get('dir_handle');
-                    request.onsuccess = () => resolve(request.result ? request.result.handle : null);
-                    request.onerror = () => reject(request.error);
-                });
-            }
+            async saveData(key, data) { if (!this.db) await this.open(); return new Promise((resolve, reject) => { const t = this.db.transaction([this.storeName], 'readwrite'); const s = t.objectStore(this.storeName); const r = s.put({ id: key, data: data, timestamp: new Date().getTime() }); r.onsuccess = () => resolve(true); r.onerror = () => reject(r.error); }); }
+            async loadData(key) { if (!this.db) await this.open(); return new Promise((resolve, reject) => { const t = this.db.transaction([this.storeName], 'readonly'); const s = t.objectStore(this.storeName); const r = s.get(key); r.onsuccess = () => resolve(r.result ? r.result.data : null); r.onerror = () => reject(r.error); }); }
+            async getAllData() { if (!this.db) await this.open(); return new Promise((resolve, reject) => { const t = this.db.transaction([this.storeName], 'readonly'); const s = t.objectStore(this.storeName); const r = s.getAll(); r.onsuccess = () => resolve(r.result); r.onerror = () => reject(r.error); }); }
+            async deleteData(key) { if (!this.db) await this.open(); return new Promise((resolve, reject) => { const t = this.db.transaction([this.storeName], 'readwrite'); const s = t.objectStore(this.storeName); const r = s.delete(key); r.onsuccess = () => resolve(true); r.onerror = () => reject(r.error); }); }
+            async clearAllData() { if (!this.db) await this.open(); return new Promise((resolve, reject) => { const t = this.db.transaction([this.storeName], 'readwrite'); const s = t.objectStore(this.storeName); const r = s.clear(); r.onsuccess = () => resolve(true); r.onerror = () => reject(r.error); }); }
+            async getDatabaseSize() { try { const d = await this.getAllData(); const j = JSON.stringify(d); const b = new Blob([j]).size; return { bytes: b, kb: (b / 1024).toFixed(2), mb: (b / (1024 * 1024)).toFixed(2) }; } catch (e) { return { bytes: 0, kb: '0.00', mb: '0.00' }; } }
+            async saveDailyBackup(data) { if (!this.db) await this.open(); return new Promise((resolve, reject) => { const t = this.db.transaction([this.backupStoreName], 'readwrite'); const s = t.objectStore(this.backupStoreName); const r = s.put({ timestamp: new Date().getTime(), type: 'daily_backup', data: data, backupDate: getCurrentDateChina() }); r.onsuccess = () => resolve(true); r.onerror = () => reject(r.error); }); }
+            async loadDailyBackup() { if (!this.db) await this.open(); return new Promise((resolve, reject) => { const t = this.db.transaction([this.backupStoreName], 'readonly'); const s = t.objectStore(this.backupStoreName); const idx = s.index('type'); const r = idx.openCursor(IDBKeyRange.only('daily_backup'), 'prev'); let latest = null; r.onsuccess = (e) => { const c = e.target.result; if (c) { latest = c.value; c.continue(); } else resolve(latest); }; r.onerror = () => reject(r.error); }); }
+            async saveBackupDirectoryHandle(handle) { if (!this.db) await this.open(); return new Promise((resolve, reject) => { const t = this.db.transaction([this.backupStoreName], 'readwrite'); const s = t.objectStore(this.backupStoreName); const r = s.put({ timestamp: 'dir_handle', type: 'directory_handle', handle: handle }); r.onsuccess = () => resolve(true); r.onerror = () => reject(r.error); }); }
+            async loadBackupDirectoryHandle() { if (!this.db) await this.open(); return new Promise((resolve, reject) => { const t = this.db.transaction([this.backupStoreName], 'readonly'); const s = t.objectStore(this.backupStoreName); const r = s.get('dir_handle'); r.onsuccess = () => resolve(r.result ? r.result.handle : null); r.onerror = () => reject(r.error); }); }
         }
 
         // ==================== 全局状态 ====================
         let appState = {
-            records: [],
-            recycleBin: [],
-            selectedCategory: 'macau',
-            selectedSubtype: 'down',
-            selectedPerson: null,
-            currentViewDate: getCurrentDateChina(),
-            deletedRecord: null,
-            undoTimer: null,
-            searchTerm: '',
-            selectedRecords: new Set(),
-            loginAttempts: 0,
-            isLoggedIn: false
+            records: [], recycleBin: [], selectedCategory: 'macau', selectedSubtype: 'down',
+            currentViewDate: getCurrentDateChina(), deletedRecord: null, undoTimer: null,
+            searchTerm: '', selectedRecords: new Set(), loginAttempts: 0, isLoggedIn: false
         };
 
         const elements = {
-            passwordInput: document.getElementById('password-input'),
-            loginOverlay: document.getElementById('login-overlay'),
-            mainApp: document.getElementById('main-app'),
-            errorMessage: document.getElementById('error-message'),
-            attemptsWarning: document.getElementById('attempts-warning'),
-            attemptsLeft: document.getElementById('attempts-left'),
-            personName: document.getElementById('person-name'),
-            recordDate: document.getElementById('record-date'),
-            recordType: document.getElementById('record-type'),
-            recordAmount: document.getElementById('record-amount'),
-            recordNote: document.getElementById('record-note'),
-            recordTotal: document.getElementById('record-total'),
-            recordRebateRate: document.getElementById('record-rebate-rate'),
-            dateRecordsBody: document.getElementById('date-records-body'),
-            recordsBody: document.getElementById('records-body'),
-            summaryStats: document.getElementById('summary-stats'),
-            myIncomeStats: document.getElementById('my-income-stats'),
-            selectYear: document.getElementById('select-year'),
-            selectMonth: document.getElementById('select-month'),
-            filterCategory: document.getElementById('filter-category'),
-            filterPerson: document.getElementById('filter-person'),
-            viewDate: document.getElementById('view-date'),
-            searchInput: document.getElementById('search-input'),
-            batchToolbar: document.getElementById('batch-toolbar'),
-            batchCount: document.getElementById('batch-count'),
-            selectAll: document.getElementById('select-all'),
-            undoToast: document.getElementById('undo-toast'),
-            undoTimer: document.getElementById('undo-timer'),
-            recyclePanel: document.getElementById('recycle-panel'),
-            recycleBody: document.getElementById('recycle-body'),
-            recycleSearch: document.getElementById('recycle-search'),
-            recycleSelectAll: document.getElementById('recycle-select-all'),
-            recycleCount: document.getElementById('recycle-count'),
-            recycleTotal: document.getElementById('recycle-total'),
-            recycleToday: document.getElementById('recycle-today'),
-            recycleWeek: document.getElementById('recycle-week'),
-            recycleSize: document.getElementById('recycle-size'),
-            filterYearDisplay: document.getElementById('filter-year-display'),
-            filterMonthDisplay: document.getElementById('filter-month-display'),
-            filterCategoryDisplay: document.getElementById('filter-category-display'),
-            filterNameDisplay: document.getElementById('filter-name-display'),
-            transposedTable: document.getElementById('detail-transposed-table'),
-            transposedBody: document.getElementById('detail-transposed-body'),
-            transposedPersonCount: document.getElementById('transposed-person-count'),
-            transposedMonthCount: document.getElementById('transposed-month-count'),
-            transposedTotal: document.getElementById('transposed-total'),
-            dateRebateSummary: document.getElementById('date-rebate-summary'),
-            detailRebateSummary: document.getElementById('detail-rebate-summary'),
-            storageInfo: document.getElementById('storage-info'),
-            storageMode: document.getElementById('storage-mode'),
-            dataSize: document.getElementById('data-size'),
+            passwordInput: document.getElementById('password-input'), loginOverlay: document.getElementById('login-overlay'),
+            mainApp: document.getElementById('main-app'), errorMessage: document.getElementById('error-message'),
+            attemptsWarning: document.getElementById('attempts-warning'), attemptsLeft: document.getElementById('attempts-left'),
+            personName: document.getElementById('person-name'), recordDate: document.getElementById('record-date'),
+            recordAmount: document.getElementById('record-amount'), recordNote: document.getElementById('record-note'),
+            recordTotal: document.getElementById('record-total'), recordRebateRate: document.getElementById('record-rebate-rate'),
+            dateRecordsBody: document.getElementById('date-records-body'), recordsBody: document.getElementById('records-body'),
+            summaryStats: document.getElementById('summary-stats'), myIncomeStats: document.getElementById('my-income-stats'),
+            selectYear: document.getElementById('select-year'), selectMonth: document.getElementById('select-month'),
+            filterCategory: document.getElementById('filter-category'), filterPerson: document.getElementById('filter-person'),
+            viewDate: document.getElementById('view-date'), searchInput: document.getElementById('search-input'),
+            batchToolbar: document.getElementById('batch-toolbar'), batchCount: document.getElementById('batch-count'),
+            selectAll: document.getElementById('select-all'), undoToast: document.getElementById('undo-toast'),
+            undoTimer: document.getElementById('undo-timer'), recyclePanel: document.getElementById('recycle-panel'),
+            recycleBody: document.getElementById('recycle-body'), recycleSearch: document.getElementById('recycle-search'),
+            recycleSelectAll: document.getElementById('recycle-select-all'), recycleCount: document.getElementById('recycle-count'),
+            recycleTotal: document.getElementById('recycle-total'), recycleToday: document.getElementById('recycle-today'),
+            recycleWeek: document.getElementById('recycle-week'), recycleSize: document.getElementById('recycle-size'),
+            filterYearDisplay: document.getElementById('filter-year-display'), filterMonthDisplay: document.getElementById('filter-month-display'),
+            filterCategoryDisplay: document.getElementById('filter-category-display'), filterNameDisplay: document.getElementById('filter-name-display'),
+            transposedTable: document.getElementById('detail-transposed-table'), transposedBody: document.getElementById('detail-transposed-body'),
+            transposedPersonCount: document.getElementById('transposed-person-count'), transposedMonthCount: document.getElementById('transposed-month-count'),
+            transposedTotal: document.getElementById('transposed-total'), dateRebateSummary: document.getElementById('date-rebate-summary'),
+            detailRebateSummary: document.getElementById('detail-rebate-summary'), storageInfo: document.getElementById('storage-info'),
+            storageMode: document.getElementById('storage-mode'), dataSize: document.getElementById('data-size'),
             recordCount: document.getElementById('record-count')
         };
 
@@ -1572,35 +373,19 @@
         function getCurrentDateChina() {
             const now = new Date();
             const chinaTime = new Date(now.getTime() + (8 * 60 * 60 * 1000));
-            const year = chinaTime.getUTCFullYear();
-            const month = String(chinaTime.getUTCMonth() + 1).padStart(2, '0');
-            const day = String(chinaTime.getUTCDate()).padStart(2, '0');
-            return `${year}-${month}-${day}`;
+            return `${chinaTime.getUTCFullYear()}-${String(chinaTime.getUTCMonth() + 1).padStart(2, '0')}-${String(chinaTime.getUTCDate()).padStart(2, '0')}`;
         }
         function formatDateChina(date) {
             const d = new Date(date);
             const chinaTime = new Date(d.getTime() + (8 * 60 * 60 * 1000));
-            const year = chinaTime.getUTCFullYear();
-            const month = String(chinaTime.getUTCMonth() + 1).padStart(2, '0');
-            const day = String(chinaTime.getUTCDate()).padStart(2, '0');
-            return `${year}-${month}-${day}`;
-        }
-        function formatDateTimeChina(dateString) {
-            const date = new Date(dateString);
-            const chinaTime = new Date(date.getTime() + (8 * 60 * 60 * 1000));
-            const year = chinaTime.getUTCFullYear();
-            const month = String(chinaTime.getUTCMonth() + 1).padStart(2, '0');
-            const day = String(chinaTime.getUTCDate()).padStart(2, '0');
-            const hours = String(chinaTime.getUTCHours()).padStart(2, '0');
-            const minutes = String(chinaTime.getUTCMinutes()).padStart(2, '0');
-            return `${year}-${month}-${day} ${hours}:${minutes}`;
+            return `${chinaTime.getUTCFullYear()}-${String(chinaTime.getUTCMonth() + 1).padStart(2, '0')}-${String(chinaTime.getUTCDate()).padStart(2, '0')}`;
         }
 
         // ==================== 提示 ====================
         function showToast(message, isError = false) {
             const toast = document.createElement('div');
             toast.textContent = message;
-            toast.style.cssText = `position: fixed; top: 14px; right: 14px; background: ${isError ? '#e74c3c' : '#27ae60'}; color: white; padding: 10px 18px; border-radius: 8px; font-weight: 600; font-size: 13px; box-shadow: 0 6px 20px rgba(0,0,0,0.18); z-index: 1000; opacity: 0; transform: translateY(-20px); transition: all 0.3s ease;`;
+            toast.style.cssText = `position:fixed; top:14px; right:14px; background:${isError ? '#e74c3c' : '#27ae60'}; color:#fff; padding:10px 18px; border-radius:8px; font-weight:600; font-size:13px; box-shadow:0 6px 20px rgba(0,0,0,0.18); z-index:1000; opacity:0; transform:translateY(-20px); transition:all 0.3s ease;`;
             document.body.appendChild(toast);
             setTimeout(() => { toast.style.opacity = '1'; toast.style.transform = 'translateY(0)'; }, 10);
             setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translateY(-20px)'; setTimeout(() => document.body.removeChild(toast), 300); }, 3000);
@@ -1609,167 +394,48 @@
             let countdown = 5;
             elements.undoToast.classList.add('show');
             elements.undoTimer.textContent = countdown;
-            appState.undoTimer = setInterval(() => {
-                countdown--;
-                elements.undoTimer.textContent = countdown;
-                if (countdown <= 0) hideUndoToast();
-            }, 1000);
+            appState.undoTimer = setInterval(() => { countdown--; elements.undoTimer.textContent = countdown; if (countdown <= 0) hideUndoToast(); }, 1000);
         }
-        function hideUndoToast() {
-            elements.undoToast.classList.remove('show');
-            if (appState.undoTimer) { clearInterval(appState.undoTimer); appState.undoTimer = null; }
-        }
+        function hideUndoToast() { elements.undoToast.classList.remove('show'); if (appState.undoTimer) { clearInterval(appState.undoTimer); appState.undoTimer = null; } }
 
         // ==================== 登录/退出 ====================
         function checkPassword() {
             const password = elements.passwordInput.value;
             if (password === CORRECT_PASSWORD) {
-                appState.isLoggedIn = true;
-                appState.loginAttempts = 0;
+                appState.isLoggedIn = true; appState.loginAttempts = 0;
                 elements.loginOverlay.classList.add('hidden');
                 setTimeout(() => { elements.loginOverlay.style.display = 'none'; elements.mainApp.style.display = 'block'; init(); }, 350);
                 showToast('登录成功！');
             } else {
                 appState.loginAttempts++;
-                elements.errorMessage.classList.add('show');
-                elements.passwordInput.classList.add('shake');
+                elements.errorMessage.classList.add('show'); elements.passwordInput.classList.add('shake');
                 setTimeout(() => elements.passwordInput.classList.remove('shake'), 500);
                 const remainingAttempts = 3 - appState.loginAttempts;
                 elements.attemptsLeft.textContent = remainingAttempts;
                 if (remainingAttempts > 0) elements.attemptsWarning.style.display = 'block';
-                else {
-                    elements.attemptsWarning.innerHTML = '尝试次数过多，请刷新页面重试';
-                    setTimeout(() => alert('登录尝试次数过多，系统已锁定。请刷新页面重新开始。'), 1000);
-                    return;
-                }
-                elements.passwordInput.value = '';
-                elements.passwordInput.focus();
+                else { elements.attemptsWarning.innerHTML = '尝试次数过多，请刷新页面重试'; setTimeout(() => alert('登录尝试次数过多，系统已锁定。请刷新页面重新开始。'), 1000); return; }
+                elements.passwordInput.value = ''; elements.passwordInput.focus();
                 showToast('密码错误！', true);
             }
         }
         function logout() {
             if (confirm('确定要退出登录吗？')) {
-                appState.isLoggedIn = false;
-                appState.loginAttempts = 0;
+                appState.isLoggedIn = false; appState.loginAttempts = 0;
                 elements.mainApp.style.display = 'none';
-                elements.loginOverlay.style.display = 'flex';
-                elements.loginOverlay.classList.remove('hidden');
-                elements.passwordInput.value = '';
-                elements.errorMessage.classList.remove('show');
-                elements.attemptsWarning.style.display = 'none';
+                elements.loginOverlay.style.display = 'flex'; elements.loginOverlay.classList.remove('hidden');
+                elements.passwordInput.value = ''; elements.errorMessage.classList.remove('show'); elements.attemptsWarning.style.display = 'none';
                 showToast('已退出登录');
             }
         }
 
-        // ==================== 备份文件夹授权与自动备份 ====================
-        async function loadBackupDirectory() {
-            try {
-                const handle = await dbManager.loadBackupDirectoryHandle();
-                if (handle && await verifyPermission(handle)) {
-                    backupDirectoryHandle = handle;
-                } else {
-                    backupDirectoryHandle = null;
-                }
-            } catch (e) { backupDirectoryHandle = null; }
-        }
-        async function verifyPermission(handle) {
-            const opts = { mode: 'readwrite' };
-            if (await handle.queryPermission(opts) === 'granted') return true;
-            if (await handle.requestPermission(opts) === 'granted') return true;
-            return false;
-        }
-        async function requestBackupDirectory() {
-            if (!window.showDirectoryPicker) {
-                showToast('当前浏览器不支持自动保存备份文件，将使用下载方式', true);
-                return null;
-            }
-            try {
-                const dirHandle = await window.showDirectoryPicker();
-                const permission = await verifyPermission(dirHandle);
-                if (permission) {
-                    await dbManager.saveBackupDirectoryHandle(dirHandle);
-                    backupDirectoryHandle = dirHandle;
-                    showToast('✅ 备份文件夹授权成功，每日将自动备份');
-                    return dirHandle;
-                } else {
-                    showToast('未获得文件夹权限，无法自动保存', true);
-                    return null;
-                }
-            } catch (err) {
-                showToast('未选择文件夹，无法自动备份', true);
-                return null;
-            }
-        }
-        async function writeBackupFile(backupData) {
-            if (!backupDirectoryHandle) {
-                const dir = await requestBackupDirectory();
-                if (!dir) return false;
-            }
-            try {
-                const fileName = `每日备份.json`;
-                let fileHandle = await backupDirectoryHandle.getFileHandle(fileName, { create: true });
-                const writable = await fileHandle.createWritable();
-                const jsonStr = JSON.stringify(backupData, null, 2);
-                await writable.write(jsonStr);
-                await writable.close();
-                return true;
-            } catch (err) {
-                console.error('写入备份文件失败:', err);
-                return false;
-            }
-        }
-        function downloadBackup(backupData) {
-            const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `每日备份.json`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            showToast('✅ 备份已生成，请点击保存覆盖旧文件');
-        }
-        async function performDailyFileBackup() {
-            try {
-                const lastBackupDate = localStorage.getItem('lastDailyBackupDate');
-                const today = getCurrentDateChina();
-                if (lastBackupDate !== today) {
-                    const backupData = {
-                        records: appState.records,
-                        recycleBin: appState.recycleBin,
-                        backupTime: new Date().toISOString(),
-                        version: '43.0'
-                    };
-                    await dbManager.saveDailyBackup(backupData);
-                    const success = await writeBackupFile(backupData);
-                    if (success) {
-                        showToast('✅ 每日备份已自动覆盖保存到文件夹');
-                    } else {
-                        downloadBackup(backupData);
-                        showToast('⚠️ 未授权文件夹，已生成备份文件，请点击保存');
-                    }
-                    localStorage.setItem('lastDailyBackupDate', today);
-                }
-            } catch (error) {
-                console.error('每日自动备份失败:', error);
-                showToast('自动备份失败，请检查权限', true);
-            }
-        }
-        async function manualExportBackup() {
-            const backupData = {
-                records: appState.records,
-                recycleBin: appState.recycleBin,
-                backupTime: new Date().toISOString(),
-                version: '43.0'
-            };
-            const success = await writeBackupFile(backupData);
-            if (success) {
-                showToast('✅ 手动备份已覆盖保存');
-            } else {
-                downloadBackup(backupData);
-            }
-        }
+        // ==================== 备份相关 ====================
+        async function loadBackupDirectory() { try { const handle = await dbManager.loadBackupDirectoryHandle(); if (handle && await verifyPermission(handle)) backupDirectoryHandle = handle; else backupDirectoryHandle = null; } catch (e) { backupDirectoryHandle = null; } }
+        async function verifyPermission(handle) { const opts = { mode: 'readwrite' }; if (await handle.queryPermission(opts) === 'granted') return true; if (await handle.requestPermission(opts) === 'granted') return true; return false; }
+        async function requestBackupDirectory() { if (!window.showDirectoryPicker) { showToast('当前浏览器不支持自动保存备份文件，将使用下载方式', true); return null; } try { const dirHandle = await window.showDirectoryPicker(); const permission = await verifyPermission(dirHandle); if (permission) { await dbManager.saveBackupDirectoryHandle(dirHandle); backupDirectoryHandle = dirHandle; showToast('✅ 备份文件夹授权成功，每日将自动备份'); return dirHandle; } else { showToast('未获得文件夹权限，无法自动保存', true); return null; } } catch (err) { showToast('未选择文件夹，无法自动备份', true); return null; } }
+        async function writeBackupFile(backupData) { if (!backupDirectoryHandle) { const dir = await requestBackupDirectory(); if (!dir) return false; } try { const fileName = `每日备份.json`; let fileHandle = await backupDirectoryHandle.getFileHandle(fileName, { create: true }); const writable = await fileHandle.createWritable(); const jsonStr = JSON.stringify(backupData, null, 2); await writable.write(jsonStr); await writable.close(); return true; } catch (err) { console.error('写入备份文件失败:', err); return false; } }
+        function downloadBackup(backupData) { const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `每日备份.json`; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); showToast('✅ 备份已生成，请点击保存覆盖旧文件'); }
+        async function performDailyFileBackup() { try { const lastBackupDate = localStorage.getItem('lastDailyBackupDate'); const today = getCurrentDateChina(); if (lastBackupDate !== today) { const backupData = { records: appState.records, recycleBin: appState.recycleBin, backupTime: new Date().toISOString(), version: '45.0' }; await dbManager.saveDailyBackup(backupData); const success = await writeBackupFile(backupData); if (success) showToast('✅ 每日备份已自动覆盖保存到文件夹'); else { downloadBackup(backupData); showToast('⚠️ 未授权文件夹，已生成备份文件，请点击保存'); } localStorage.setItem('lastDailyBackupDate', today); } } catch (error) { console.error('每日自动备份失败:', error); showToast('自动备份失败，请检查权限', true); } }
+        async function manualExportBackup() { const backupData = { records: appState.records, recycleBin: appState.recycleBin, backupTime: new Date().toISOString(), version: '45.0' }; const success = await writeBackupFile(backupData); if (success) showToast('✅ 手动备份已覆盖保存'); else downloadBackup(backupData); }
 
         // ==================== 初始化 ====================
         async function init() {
@@ -1779,13 +445,21 @@
             appState.currentViewDate = today;
             selectCategory('macau', 'down');
             await loadLocalData();
+            const nowChina = new Date(new Date().getTime() + (8 * 60 * 60 * 1000));
+            const currentYear = nowChina.getUTCFullYear().toString();
+            const currentMonth = (nowChina.getUTCMonth() + 1).toString();
+            if (elements.selectYear.querySelector(`option[value="${currentYear}"]`)) {
+                elements.selectYear.value = currentYear;
+            }
+            elements.selectMonth.value = currentMonth;
+            loadRecords();
+            loadDateRecords();
+            loadMyIncomeStatsForDate(today);
             updateRecycleCount();
             updateStorageInfo();
             await loadBackupDirectory();
             await performDailyFileBackup();
-            setInterval(async () => {
-                await performDailyFileBackup();
-            }, 60 * 60 * 1000);
+            setInterval(async () => { await performDailyFileBackup(); }, 60 * 60 * 1000);
             if (!appState.isLoggedIn) elements.passwordInput.focus();
         }
         document.addEventListener('DOMContentLoaded', function() {
@@ -1795,8 +469,7 @@
 
         // ==================== 分类选择 ====================
         function selectCategory(category, subtype) {
-            appState.selectedCategory = category;
-            appState.selectedSubtype = subtype;
+            appState.selectedCategory = category; appState.selectedSubtype = subtype;
             document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
             let activeClass = subtype === 'up' ? `${category}-up` : `${category}-down`;
             const activeBtn = document.querySelector(`.category-btn.${activeClass}`);
@@ -1806,30 +479,30 @@
         // ==================== 返点计算 ====================
         function calculateRebate(record) {
             const amount = Math.abs(record.amount);
-            const category = record.category;
-            const subtype = record.subtype;
-            const type = record.type;
+            const category = record.category; const subtype = record.subtype;
             const totalAmount = parseFloat(record.totalAmount) || 0;
             const rebateRate = parseFloat(record.rebateRate) || 0;
             if (category === 'guangdong' && subtype === 'up') {
-                return type === 'expense' ? -amount * 0.1 : amount * 0.1;
+                return record.type === 'expense' ? -amount * 0.1 : amount * 0.1;
             } else if (totalAmount > 0 && rebateRate > 0) {
                 return totalAmount * (rebateRate / 100);
             }
             return 0;
         }
 
-        // ==================== 保存记录（重复提醒但可强制保存） ====================
+        // ==================== 保存记录 ====================
         function saveRecord() {
             const name = elements.personName.value.trim() || '(未填写)';
             const date = elements.recordDate.value || getCurrentDateChina();
             const amount = parseFloat(elements.recordAmount.value) || 0;
-            const type = elements.recordType.value;
             const note = elements.recordNote.value.trim();
             const category = appState.selectedCategory;
             const subtype = appState.selectedSubtype;
             const totalAmount = parseFloat(elements.recordTotal.value) || 0;
             const rebateRate = parseFloat(elements.recordRebateRate.value) || 0;
+
+            if (amount === 0) { showToast('金额不能为0', true); return; }
+            const type = amount > 0 ? 'income' : 'expense';
 
             const potentialDuplicate = appState.records.find(record =>
                 record.date === date && record.name === name &&
@@ -1841,27 +514,16 @@
             const doSave = () => {
                 const record = {
                     id: Date.now() + '_' + Math.random().toString(36).substr(2, 9),
-                    date,
-                    name,
-                    category,
-                    subtype: subtype || '',
-                    type,
+                    date, name, category, subtype: subtype || '', type,
                     amount: type === 'expense' ? -Math.abs(amount) : Math.abs(amount),
-                    note,
-                    totalAmount: totalAmount || null,
-                    rebateRate: rebateRate || null,
-                    rebate: 0,
+                    note, totalAmount: totalAmount || null, rebateRate: rebateRate || null, rebate: 0,
                     createdAt: new Date().toISOString()
                 };
                 record.rebate = calculateRebate(record);
                 appState.records.unshift(record);
                 clearInputsExceptNote();
                 saveLocalData();
-                updatePersonFilter();
-                updateYearFilter();
-                loadRecords();
-                loadDateRecords();
-                loadMyIncomeStatsForDate(appState.currentViewDate);
+                updatePersonFilter(); updateYearFilter(); loadRecords(); loadDateRecords(); loadMyIncomeStatsForDate(appState.currentViewDate);
                 showToast('记录已保存');
             };
 
@@ -1876,38 +538,20 @@
             }
         }
         function clearInputsExceptNote() {
-            elements.personName.value = '';
-            elements.recordAmount.value = '';
-            elements.recordTotal.value = '';
-            elements.recordRebateRate.value = '';
+            elements.personName.value = ''; elements.recordAmount.value = '';
+            elements.recordTotal.value = ''; elements.recordRebateRate.value = '';
             elements.personName.focus();
         }
         function clearInputs() {
-            elements.personName.value = '';
-            elements.recordAmount.value = '';
-            elements.recordTotal.value = '';
-            elements.recordRebateRate.value = '';
-            elements.recordNote.value = '';
-            elements.personName.focus();
+            elements.personName.value = ''; elements.recordAmount.value = '';
+            elements.recordTotal.value = ''; elements.recordRebateRate.value = '';
+            elements.recordNote.value = ''; elements.personName.focus();
         }
-        function setTodayDate() {
-            const today = getCurrentDateChina();
-            elements.viewDate.value = today;
-            appState.currentViewDate = today;
-            loadDateRecords();
-            loadMyIncomeStatsForDate(today);
-        }
-        function searchRecords() {
-            appState.searchTerm = elements.searchInput.value.toLowerCase().trim();
-            loadRecords();
-        }
-        function clearSearch() {
-            elements.searchInput.value = '';
-            appState.searchTerm = '';
-            loadRecords();
-        }
+        function setTodayDate() { const today = getCurrentDateChina(); elements.viewDate.value = today; appState.currentViewDate = today; loadDateRecords(); loadMyIncomeStatsForDate(today); }
+        function searchRecords() { appState.searchTerm = elements.searchInput.value.toLowerCase().trim(); loadRecords(); }
+        function clearSearch() { elements.searchInput.value = ''; appState.searchTerm = ''; loadRecords(); }
 
-        // ==================== 日期记录加载 ====================
+        // ==================== 日期记录 ====================
         function loadDateRecords() {
             const selectedDate = elements.viewDate.value;
             if (!selectedDate) return;
@@ -1926,12 +570,13 @@
                 const isIncome = record.amount > 0;
                 const categoryLabel = getCategoryLabel(record.category, record.subtype);
                 const rebate = record.rebate || 0;
+                const rebateDisplay = rebate !== 0 ? (rebate > 0 ? `<span style="color:#ff9800; font-weight:600;">¥${rebate.toFixed(2)}</span>` : `<span style="color:#e74c3c; font-weight:600;">-¥${Math.abs(rebate).toFixed(2)}</span>`) : '<span style="color:#a0aeb8;">-</span>';
                 html += `<tr>
                     <td><strong>${record.name}</strong></td>
                     <td><span class="category-badge ${record.subtype ? record.category + '-' + record.subtype : record.category}">${categoryLabel}</span></td>
                     <td><span class="type-badge ${isIncome ? 'type-income' : 'type-expense'}">${isIncome ? '收入' : '支出'}</span></td>
-                    <td style="color: ${isIncome ? '#27ae60' : '#e74c3c'}; font-weight: 600;">${isIncome ? '¥' + Math.abs(record.amount).toFixed(2) : '-¥' + Math.abs(record.amount).toFixed(2)}</td>
-                    <td style="color: #ff9800; font-weight: 600;">${rebate !== 0 ? (rebate > 0 ? '¥' + rebate.toFixed(2) : '-¥' + Math.abs(rebate).toFixed(2)) : '-'}</td>
+                    <td style="color:${isIncome?'#27ae60':'#e74c3c'}; font-weight:600;">${isIncome ? '¥' + Math.abs(record.amount).toFixed(2) : '-¥' + Math.abs(record.amount).toFixed(2)}</td>
+                    <td>${rebateDisplay}</td>
                     <td>${record.note || '-'}</td>
                     <td><button class="action-btn action-delete" onclick="deleteRecord('${record.id}')">删除</button></td>
                 </tr>`;
@@ -1967,8 +612,7 @@
             renderMyIncomeStats({
                 macau: { up: macauUpTotal, down: macauDownTotal, my: macauMyIncome },
                 guangdong: { up: guangdongUpTotal, down: guangdongDownTotal, my: guangdongMyIncome },
-                guangdongUpRebate,
-                total: totalMyIncome
+                guangdongUpRebate, total: totalMyIncome
             }, date);
         }
         function calculateGuangdongUpRebate(guangdongUpRecords) {
@@ -1990,14 +634,16 @@
             const container = elements.myIncomeStats;
             container.innerHTML = '';
             const macauIsIncome = stats.macau.my >= 0;
-            container.innerHTML += `<div class="stat-card"><div class="stat-header"><div class="stat-title">澳门收支统计</div><div class="stat-amount ${macauIsIncome ? 'stat-income' : 'stat-expense'}">${macauIsIncome ? '+' : ''}¥${Math.abs(stats.macau.my).toFixed(2)}</div></div><div class="${macauIsIncome ? 'income-hint' : 'expense-hint'}" style="margin-top: 5px;">${macauIsIncome ? '收入' : '支出'} ¥${Math.abs(stats.macau.my).toFixed(2)}</div><div class="stat-details">澳门下家：${stats.macau.down.profit >= 0 ? '+' : ''}¥${Math.abs(stats.macau.down.profit).toFixed(2)}<br>澳门上家：${stats.macau.up.profit >= 0 ? '+' : ''}¥${Math.abs(stats.macau.up.profit).toFixed(2)}</div></div>`;
+            container.innerHTML += `<div class="stat-card"><div class="stat-header"><div class="stat-title">澳门收支统计</div><div class="stat-amount ${macauIsIncome?'stat-income':'stat-expense'}">${macauIsIncome?'+':''}¥${Math.abs(stats.macau.my).toFixed(2)}</div></div><div class="${macauIsIncome?'income-hint':'expense-hint'}" style="margin-top:5px;">${macauIsIncome?'收入':'支出'} ¥${Math.abs(stats.macau.my).toFixed(2)}</div><div class="stat-details">澳门下家：${stats.macau.down.profit>=0?'+':''}¥${Math.abs(stats.macau.down.profit).toFixed(2)}<br>澳门上家：${stats.macau.up.profit>=0?'+':''}¥${Math.abs(stats.macau.up.profit).toFixed(2)}</div></div>`;
             const guangdongIsIncome = stats.guangdong.my >= 0;
-            container.innerHTML += `<div class="stat-card"><div class="stat-header"><div class="stat-title">粤港收支统计</div><div class="stat-amount ${guangdongIsIncome ? 'stat-income' : 'stat-expense'}">${guangdongIsIncome ? '+' : ''}¥${Math.abs(stats.guangdong.my).toFixed(2)}</div></div><div class="${guangdongIsIncome ? 'income-hint' : 'expense-hint'}" style="margin-top: 5px;">${guangdongIsIncome ? '收入' : '支出'} ¥${Math.abs(stats.guangdong.my).toFixed(2)}</div><div class="stat-details">粤港下家：${stats.guangdong.down.profit >= 0 ? '+' : ''}¥${Math.abs(stats.guangdong.down.profit).toFixed(2)}<br>粤港上家：${stats.guangdong.up.profit >= 0 ? '+' : ''}¥${Math.abs(stats.guangdong.up.profit).toFixed(2)}<br>上家返点：${stats.guangdongUpRebate >= 0 ? '+' : ''}¥${Math.abs(stats.guangdongUpRebate).toFixed(2)}</div></div>`;
+            const guangdongUpRebate = stats.guangdongUpRebate;
+            const rebateColor = guangdongUpRebate >= 0 ? '#ff9800' : '#e74c3c';
+            container.innerHTML += `<div class="stat-card"><div class="stat-header"><div class="stat-title">粤港收支统计</div><div class="stat-amount ${guangdongIsIncome?'stat-income':'stat-expense'}">${guangdongIsIncome?'+':''}¥${Math.abs(stats.guangdong.my).toFixed(2)}</div></div><div class="${guangdongIsIncome?'income-hint':'expense-hint'}" style="margin-top:5px;">${guangdongIsIncome?'收入':'支出'} ¥${Math.abs(stats.guangdong.my).toFixed(2)}</div><div class="stat-details">粤港下家：${stats.guangdong.down.profit>=0?'+':''}¥${Math.abs(stats.guangdong.down.profit).toFixed(2)}<br>粤港上家：${stats.guangdong.up.profit>=0?'+':''}¥${Math.abs(stats.guangdong.up.profit).toFixed(2)}<br><span style="color:${rebateColor}; font-weight:600;">上家返点：${guangdongUpRebate>=0?'+':''}¥${Math.abs(guangdongUpRebate).toFixed(2)}</span></div></div>`;
             const totalIsIncome = stats.total >= 0;
-            container.innerHTML += `<div class="stat-card"><div class="stat-header"><div class="stat-title">总计收支统计</div><div class="stat-amount ${totalIsIncome ? 'stat-income' : 'stat-expense'}">${totalIsIncome ? '+' : ''}¥${Math.abs(stats.total).toFixed(2)}</div></div><div class="${totalIsIncome ? 'income-hint' : 'expense-hint'}" style="margin-top: 5px;">${totalIsIncome ? '收入' : '支出'} ¥${Math.abs(stats.total).toFixed(2)}</div><div class="stat-details">日期：${date}<br>澳门：${macauIsIncome ? '+' : ''}¥${Math.abs(stats.macau.my).toFixed(2)}<br>粤港：${guangdongIsIncome ? '+' : ''}¥${Math.abs(stats.guangdong.my).toFixed(2)}<br>粤港上家返点：${stats.guangdongUpRebate >= 0 ? '+' : ''}¥${Math.abs(stats.guangdongUpRebate).toFixed(2)}</div></div>`;
+            container.innerHTML += `<div class="stat-card"><div class="stat-header"><div class="stat-title">总计收支统计</div><div class="stat-amount ${totalIsIncome?'stat-income':'stat-expense'}">${totalIsIncome?'+':''}¥${Math.abs(stats.total).toFixed(2)}</div></div><div class="${totalIsIncome?'income-hint':'expense-hint'}" style="margin-top:5px;">${totalIsIncome?'收入':'支出'} ¥${Math.abs(stats.total).toFixed(2)}</div><div class="stat-details">日期：${date}<br>澳门：${macauIsIncome?'+':''}¥${Math.abs(stats.macau.my).toFixed(2)}<br>粤港：${guangdongIsIncome?'+':''}¥${Math.abs(stats.guangdong.my).toFixed(2)}<br><span style="color:${rebateColor}; font-weight:600;">粤港上家返点：${guangdongUpRebate>=0?'+':''}¥${Math.abs(guangdongUpRebate).toFixed(2)}</span></div></div>`;
         }
 
-        // ==================== 记录列表加载（筛选） ====================
+        // ==================== 记录列表 ====================
         function loadRecords() {
             const selectedYear = elements.selectYear.value;
             const selectedMonth = elements.selectMonth.value;
@@ -2039,147 +685,116 @@
             elements.filterNameDisplay.textContent = elements.filterPerson.value === 'all' ? '全部人员' : elements.filterPerson.value;
         }
 
-        // ==================== 转置收支明细表 ====================
         function updateDetailTransposedTable(filteredRecords) {
             const tableHead = document.querySelector('#detail-transposed-table thead tr');
             const transposedBody = elements.transposedBody;
-            const personCount = elements.transposedPersonCount;
-            const monthCount = elements.transposedMonthCount;
-            const totalProfit = elements.transposedTotal;
-            tableHead.innerHTML = '<th style="min-width: 55px;">月份</th>';
+            tableHead.innerHTML = '<th style="min-width:55px;">月份</th>';
             transposedBody.innerHTML = '';
             if (filteredRecords.length === 0) {
                 transposedBody.innerHTML = '<tr class="empty-state-row"><td colspan="1" class="empty-state">暂无数据</td></tr>';
-                personCount.textContent = '0'; monthCount.textContent = '0'; totalProfit.textContent = '0'; totalProfit.className = '';
+                elements.transposedPersonCount.textContent = '0'; elements.transposedMonthCount.textContent = '0'; elements.transposedTotal.textContent = '0';
                 return;
             }
-            const allPersons = [...new Set(filteredRecords.map(record => record.name))].sort();
+            const allPersons = [...new Set(filteredRecords.map(r => r.name))].sort();
             const selectedYear = elements.selectYear.value;
             const selectedMonth = elements.selectMonth.value;
-            let monthsToShow = [];
-            if (selectedMonth === 'all') monthsToShow = Array.from({ length: 12 }, (_, i) => i + 1);
-            else monthsToShow = [parseInt(selectedMonth)];
-            const personMonthStats = {};
-            let grandTotalProfit = 0;
+            let monthsToShow = selectedMonth === 'all' ? Array.from({length:12}, (_,i)=>i+1) : [parseInt(selectedMonth)];
+            const stats = {};
+            let grandTotal = 0;
             filteredRecords.forEach(record => {
-                const name = record.name;
-                const month = parseInt(record.date.split('-')[1]);
-                const year = parseInt(record.date.split('-')[0]);
+                const name = record.name, month = parseInt(record.date.split('-')[1]), year = parseInt(record.date.split('-')[0]);
                 if (selectedYear !== 'all' && year != selectedYear) return;
-                if (!personMonthStats[name]) personMonthStats[name] = {};
-                if (!personMonthStats[name][month]) personMonthStats[name][month] = 0;
+                if (!stats[name]) stats[name] = {};
+                if (!stats[name][month]) stats[name][month] = 0;
                 const amount = record.type === 'income' ? record.amount : -Math.abs(record.amount);
-                personMonthStats[name][month] += amount;
-                grandTotalProfit += amount;
+                stats[name][month] += amount;
+                grandTotal += amount;
             });
-            allPersons.forEach(name => {
-                const th = document.createElement('th');
-                th.style.minWidth = '80px';
-                th.innerHTML = `<strong>${name}</strong>`;
-                tableHead.appendChild(th);
-            });
-            const totalTh = document.createElement('th');
-            totalTh.style.minWidth = '80px';
-            totalTh.innerHTML = '<strong>总计</strong>';
-            tableHead.appendChild(totalTh);
+            allPersons.forEach(name => { const th = document.createElement('th'); th.style.minWidth='80px'; th.innerHTML=`<strong>${name}</strong>`; tableHead.appendChild(th); });
+            const totalTh = document.createElement('th'); totalTh.style.minWidth='80px'; totalTh.innerHTML='<strong>总计</strong>'; tableHead.appendChild(totalTh);
             monthsToShow.forEach(month => {
                 const row = document.createElement('tr');
-                const monthCell = document.createElement('td');
-                monthCell.innerHTML = `<strong>${month}月</strong>`;
-                monthCell.style.fontWeight = '600';
-                row.appendChild(monthCell);
+                const monthCell = document.createElement('td'); monthCell.innerHTML=`<strong>${month}月</strong>`; monthCell.style.fontWeight='600'; row.appendChild(monthCell);
                 let monthTotal = 0;
                 allPersons.forEach(name => {
                     const cell = document.createElement('td');
-                    const profit = personMonthStats[name]?.[month] || 0;
+                    const profit = stats[name]?.[month] || 0;
                     if (profit !== 0) {
-                        if (profit > 0) { cell.style.color = '#27ae60'; cell.style.fontWeight = '600'; cell.innerHTML = `¥${profit.toFixed(2)}`; }
-                        else { cell.style.color = '#e74c3c'; cell.style.fontWeight = '600'; cell.innerHTML = `-¥${Math.abs(profit).toFixed(2)}`; }
+                        cell.style.color = profit > 0 ? '#27ae60' : '#e74c3c'; cell.style.fontWeight='600';
+                        cell.innerHTML = profit > 0 ? `¥${profit.toFixed(2)}` : `-¥${Math.abs(profit).toFixed(2)}`;
                         monthTotal += profit;
-                    } else cell.innerHTML = '';
+                    }
                     row.appendChild(cell);
                 });
                 const totalCell = document.createElement('td');
                 if (monthTotal !== 0) {
-                    if (monthTotal > 0) { totalCell.style.color = '#27ae60'; totalCell.style.fontWeight = '600'; totalCell.innerHTML = `¥${monthTotal.toFixed(2)}`; }
-                    else { totalCell.style.color = '#e74c3c'; totalCell.style.fontWeight = '600'; totalCell.innerHTML = `-¥${Math.abs(monthTotal).toFixed(2)}`; }
-                } else totalCell.innerHTML = '';
+                    totalCell.style.color = monthTotal > 0 ? '#27ae60' : '#e74c3c'; totalCell.style.fontWeight='600';
+                    totalCell.innerHTML = monthTotal > 0 ? `¥${monthTotal.toFixed(2)}` : `-¥${Math.abs(monthTotal).toFixed(2)}`;
+                }
                 row.appendChild(totalCell);
                 transposedBody.appendChild(row);
             });
             const totalRow = document.createElement('tr');
-            const totalLabelCell = document.createElement('td');
-            totalLabelCell.innerHTML = '<strong>总计</strong>';
-            totalLabelCell.style.fontWeight = '600';
-            totalRow.appendChild(totalLabelCell);
+            const totalLabel = document.createElement('td'); totalLabel.innerHTML='<strong>总计</strong>'; totalLabel.style.fontWeight='600'; totalRow.appendChild(totalLabel);
             allPersons.forEach(name => {
                 const cell = document.createElement('td');
-                let personTotal = 0;
-                monthsToShow.forEach(month => { personTotal += personMonthStats[name]?.[month] || 0; });
+                let personTotal = 0; monthsToShow.forEach(m => personTotal += stats[name]?.[m] || 0);
                 if (personTotal !== 0) {
-                    if (personTotal > 0) { cell.style.color = '#27ae60'; cell.style.fontWeight = '600'; cell.innerHTML = `¥${personTotal.toFixed(2)}`; }
-                    else { cell.style.color = '#e74c3c'; cell.style.fontWeight = '600'; cell.innerHTML = `-¥${Math.abs(personTotal).toFixed(2)}`; }
-                } else cell.innerHTML = '';
+                    cell.style.color = personTotal > 0 ? '#27ae60' : '#e74c3c'; cell.style.fontWeight='600';
+                    cell.innerHTML = personTotal > 0 ? `¥${personTotal.toFixed(2)}` : `-¥${Math.abs(personTotal).toFixed(2)}`;
+                }
                 totalRow.appendChild(cell);
             });
-            const grandTotalCell = document.createElement('td');
-            if (grandTotalProfit !== 0) {
-                if (grandTotalProfit > 0) { grandTotalCell.style.color = '#27ae60'; grandTotalCell.style.fontWeight = '600'; grandTotalCell.innerHTML = `¥${grandTotalProfit.toFixed(2)}`; }
-                else { grandTotalCell.style.color = '#e74c3c'; grandTotalCell.style.fontWeight = '600'; grandTotalCell.innerHTML = `-¥${Math.abs(grandTotalProfit).toFixed(2)}`; }
-            } else grandTotalCell.innerHTML = '¥0.00';
-            totalRow.appendChild(grandTotalCell);
+            const grandCell = document.createElement('td');
+            if (grandTotal !== 0) {
+                grandCell.style.color = grandTotal > 0 ? '#27ae60' : '#e74c3c'; grandCell.style.fontWeight='600';
+                grandCell.innerHTML = grandTotal > 0 ? `¥${grandTotal.toFixed(2)}` : `-¥${Math.abs(grandTotal).toFixed(2)}`;
+            } else grandCell.innerHTML = '¥0.00';
+            totalRow.appendChild(grandCell);
             transposedBody.appendChild(totalRow);
-            personCount.textContent = allPersons.length;
-            monthCount.textContent = monthsToShow.length;
-            if (grandTotalProfit !== 0) {
-                if (grandTotalProfit > 0) { totalProfit.style.color = '#27ae60'; totalProfit.style.fontWeight = '600'; totalProfit.innerHTML = `¥${grandTotalProfit.toFixed(2)}`; }
-                else { totalProfit.style.color = '#e74c3c'; totalProfit.style.fontWeight = '600'; totalProfit.innerHTML = `-¥${Math.abs(grandTotalProfit).toFixed(2)}`; }
-            } else { totalProfit.innerHTML = '¥0.00'; totalProfit.style.color = ''; totalProfit.style.fontWeight = ''; }
+            elements.transposedPersonCount.textContent = allPersons.length;
+            elements.transposedMonthCount.textContent = monthsToShow.length;
+            elements.transposedTotal.style.color = grandTotal > 0 ? '#27ae60' : grandTotal < 0 ? '#e74c3c' : '';
+            elements.transposedTotal.innerHTML = grandTotal !== 0 ? (grandTotal > 0 ? `¥${grandTotal.toFixed(2)}` : `-¥${Math.abs(grandTotal).toFixed(2)}`) : '¥0.00';
         }
 
-        // ==================== 批量选择与删除 ====================
+        // ==================== 批量操作 ====================
         function toggleSelectAll() {
             const checkboxes = document.querySelectorAll('#records-body input[type="checkbox"]:not(#select-all)');
             const selectAllCheckbox = elements.selectAll;
             if (selectAllCheckbox.checked) {
-                checkboxes.forEach(checkbox => { checkbox.checked = true; appState.selectedRecords.add(checkbox.value); });
+                checkboxes.forEach(cb => { cb.checked = true; appState.selectedRecords.add(cb.value); });
             } else {
-                checkboxes.forEach(checkbox => { checkbox.checked = false; appState.selectedRecords.delete(checkbox.value); });
+                checkboxes.forEach(cb => { cb.checked = false; appState.selectedRecords.delete(cb.value); });
             }
             updateBatchToolbar();
         }
-        function toggleRecordSelection(recordId, checkbox) {
-            if (checkbox.checked) appState.selectedRecords.add(recordId);
-            else appState.selectedRecords.delete(recordId);
-            updateBatchToolbar();
-        }
+        function toggleRecordSelection(recordId, checkbox) { if (checkbox.checked) appState.selectedRecords.add(recordId); else appState.selectedRecords.delete(recordId); updateBatchToolbar(); }
         function updateBatchToolbar() {
             const count = appState.selectedRecords.size;
             elements.batchCount.textContent = count;
             elements.batchToolbar.classList.toggle('show', count > 0);
-            const totalCheckboxes = document.querySelectorAll('#records-body input[type="checkbox"]:not(#select-all)');
-            const checkedCheckboxes = document.querySelectorAll('#records-body input[type="checkbox"]:not(#select-all):checked');
-            if (checkedCheckboxes.length === 0) { elements.selectAll.checked = false; elements.selectAll.indeterminate = false; }
-            else if (checkedCheckboxes.length === totalCheckboxes.length) { elements.selectAll.checked = true; elements.selectAll.indeterminate = false; }
+            const total = document.querySelectorAll('#records-body input[type="checkbox"]:not(#select-all)');
+            const checked = document.querySelectorAll('#records-body input[type="checkbox"]:not(#select-all):checked');
+            if (checked.length === 0) { elements.selectAll.checked = false; elements.selectAll.indeterminate = false; }
+            else if (checked.length === total.length) { elements.selectAll.checked = true; elements.selectAll.indeterminate = false; }
             else { elements.selectAll.checked = false; elements.selectAll.indeterminate = true; }
         }
         function clearSelection() {
             appState.selectedRecords.clear();
-            document.querySelectorAll('#records-body input[type="checkbox"]').forEach(checkbox => checkbox.checked = false);
-            elements.selectAll.checked = false;
-            elements.selectAll.indeterminate = false;
+            document.querySelectorAll('#records-body input[type="checkbox"]').forEach(cb => cb.checked = false);
+            elements.selectAll.checked = false; elements.selectAll.indeterminate = false;
             updateBatchToolbar();
         }
         function deleteRecord(recordId) {
             const record = appState.records.find(r => r.id === recordId);
             if (!record) return;
             if (confirm('确定要删除这条记录吗？记录将移至回收站，可随时恢复。')) {
-                const deletedRecord = { ...record, deletedAt: new Date().toISOString(), originalIndex: appState.records.indexOf(record) };
+                const deleted = { ...record, deletedAt: new Date().toISOString() };
                 appState.records = appState.records.filter(r => r.id !== recordId);
-                appState.recycleBin.unshift(deletedRecord);
+                appState.recycleBin.unshift(deleted);
                 appState.selectedRecords.delete(recordId);
-                saveLocalData();
-                updatePersonFilter(); updateYearFilter(); loadRecords(); loadDateRecords(); loadMyIncomeStatsForDate(appState.currentViewDate);
+                saveLocalData(); updatePersonFilter(); updateYearFilter(); loadRecords(); loadDateRecords(); loadMyIncomeStatsForDate(appState.currentViewDate);
                 updateRecycleCount(); renderRecycleTable();
                 showToast('记录已删除，可在回收站找回');
                 showUndoToast();
@@ -2187,441 +802,272 @@
         }
         function batchDelete() {
             if (appState.selectedRecords.size === 0) { showToast('请先选择要删除的记录', true); return; }
-            if (confirm(`确定要删除选中的 ${appState.selectedRecords.size} 条记录吗？记录将移至回收站。`)) {
-                const selectedRecordsData = appState.records.filter(record => appState.selectedRecords.has(record.id));
-                appState.records = appState.records.filter(record => !appState.selectedRecords.has(record.id));
-                selectedRecordsData.forEach(record => { appState.recycleBin.unshift({ ...record, deletedAt: new Date().toISOString(), originalIndex: appState.records.length }); });
+            if (confirm(`确定要删除选中的 ${appState.selectedRecords.size} 条记录吗？`)) {
+                const selected = appState.records.filter(r => appState.selectedRecords.has(r.id));
+                appState.records = appState.records.filter(r => !appState.selectedRecords.has(r.id));
+                selected.forEach(r => appState.recycleBin.unshift({ ...r, deletedAt: new Date().toISOString() }));
                 clearSelection();
-                saveLocalData();
-                updatePersonFilter(); updateYearFilter(); loadRecords(); loadDateRecords(); loadMyIncomeStatsForDate(appState.currentViewDate);
+                saveLocalData(); updatePersonFilter(); updateYearFilter(); loadRecords(); loadDateRecords(); loadMyIncomeStatsForDate(appState.currentViewDate);
                 updateRecycleCount(); renderRecycleTable();
-                showToast(`已将 ${selectedRecordsData.length} 条记录移至回收站`);
+                showToast(`已将 ${selected.length} 条记录移至回收站`);
             }
         }
         function undoDelete() {
             if (!appState.deletedRecord) { showToast('没有可撤销的操作', true); return; }
             if (appState.deletedRecord.type === 'single') appState.records.unshift(appState.deletedRecord.record);
-            else if (appState.deletedRecord.type === 'batch') appState.records.push(...appState.deletedRecord.records);
-            appState.records.sort((a, b) => new Date(b.date) - new Date(a.date));
+            else appState.records.push(...appState.deletedRecord.records);
             appState.deletedRecord = null;
             hideUndoToast();
-            saveLocalData();
-            updatePersonFilter(); updateYearFilter(); loadRecords(); loadDateRecords(); loadMyIncomeStatsForDate(appState.currentViewDate);
+            saveLocalData(); updatePersonFilter(); updateYearFilter(); loadRecords(); loadDateRecords(); loadMyIncomeStatsForDate(appState.currentViewDate);
             showToast('已撤销删除操作');
         }
 
-        // ==================== 我的收支记录渲染（虚拟记录） ====================
+        // ==================== 我的收支虚拟记录 ====================
         function renderMyIncomeRecords(records, selectedYear, selectedMonth) {
-            const tbody = elements.recordsBody;
-            const container = elements.summaryStats;
-            const recordsByDate = {};
-            records.forEach(record => { if (!recordsByDate[record.date]) recordsByDate[record.date] = []; recordsByDate[record.date].push(record); });
-            const myIncomeRecords = [];
-            Object.keys(recordsByDate).forEach(date => {
-                const dateRecords = recordsByDate[date];
-                const macauUpRecords = dateRecords.filter(r => r.category === 'macau' && r.subtype === 'up');
-                const macauDownRecords = dateRecords.filter(r => r.category === 'macau' && r.subtype === 'down');
-                const macauUpTotal = calculateStatsOld(macauUpRecords);
-                const macauDownTotal = calculateStatsOld(macauDownRecords);
-                const macauMyIncome = macauDownTotal.profit - macauUpTotal.profit;
-                const guangdongUpRecords = dateRecords.filter(r => r.category === 'guangdong' && r.subtype === 'up');
-                const guangdongDownRecords = dateRecords.filter(r => r.category === 'guangdong' && r.subtype === 'down');
-                const guangdongUpTotal = calculateStatsOld(guangdongUpRecords);
-                const guangdongDownTotal = calculateStatsOld(guangdongDownRecords);
-                const guangdongMyIncome = guangdongDownTotal.profit - guangdongUpTotal.profit;
-                const guangdongUpRebate = calculateGuangdongUpRebate(guangdongUpRecords);
-                const totalMyIncome = macauMyIncome + guangdongMyIncome;
-                if (totalMyIncome !== 0) {
-                    myIncomeRecords.push({
-                        date, name: '我的收支', category: 'my-income',
-                        type: totalMyIncome >= 0 ? 'income' : 'expense', amount: totalMyIncome,
-                        note: `澳门:${macauMyIncome >= 0 ? '+' : ''}${macauMyIncome.toFixed(2)} 粤港:${guangdongMyIncome >= 0 ? '+' : ''}${guangdongMyIncome.toFixed(2)} 上家返点:${guangdongUpRebate >= 0 ? '+' : ''}${guangdongUpRebate.toFixed(2)}`,
-                        isVirtual: true
+            const tbody = elements.recordsBody, container = elements.summaryStats;
+            const byDate = {};
+            records.forEach(r => { if (!byDate[r.date]) byDate[r.date] = []; byDate[r.date].push(r); });
+            const myRecords = [];
+            Object.keys(byDate).forEach(date => {
+                const dr = byDate[date];
+                const macUp = dr.filter(r => r.category==='macau'&&r.subtype==='up'), macDown = dr.filter(r => r.category==='macau'&&r.subtype==='down');
+                const gdUp = dr.filter(r => r.category==='guangdong'&&r.subtype==='up'), gdDown = dr.filter(r => r.category==='guangdong'&&r.subtype==='down');
+                const macUpT = calculateStatsOld(macUp), macDownT = calculateStatsOld(macDown);
+                const gdUpT = calculateStatsOld(gdUp), gdDownT = calculateStatsOld(gdDown);
+                const macMy = macDownT.profit - macUpT.profit;
+                const gdMy = gdDownT.profit - gdUpT.profit;
+                const gdRebate = calculateGuangdongUpRebate(gdUp);
+                const total = macMy + gdMy;
+                if (total !== 0) {
+                    myRecords.push({
+                        date, name:'我的收支', category:'my-income',
+                        type: total>=0?'income':'expense', amount: total,
+                        note: `澳门:${macMy>=0?'+':''}${macMy.toFixed(2)} 粤港:${gdMy>=0?'+':''}${gdMy.toFixed(2)} 返点:${gdRebate>=0?'+':''}${gdRebate.toFixed(2)}`,
+                        isVirtual:true
                     });
                 }
             });
-            myIncomeRecords.sort((a, b) => new Date(b.date) - new Date(a.date));
-            if (myIncomeRecords.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="9" class="empty-state">暂无我的收支记录</td></tr>';
-                container.innerHTML = '';
-                return;
-            }
+            myRecords.sort((a,b)=>new Date(b.date)-new Date(a.date));
+            if (myRecords.length === 0) { tbody.innerHTML = '<tr><td colspan="9" class="empty-state">暂无我的收支记录</td></tr>'; container.innerHTML = ''; return; }
             let html = '';
-            myIncomeRecords.forEach(record => {
+            myRecords.forEach(record => {
                 const isIncome = record.amount > 0;
-                const rowClass = isIncome ? 'my-income-row' : 'my-expense-row';
-                const badgeClass = isIncome ? 'my-income' : 'my-expense';
-                const badgeText = isIncome ? '我的收入' : '我的支出';
-                html += `<tr class="${rowClass}">
-                    <td><input type="checkbox" class="checkbox" value="${record.id}" onchange="toggleRecordSelection('${record.id}', this)"></td>
-                    <td>${record.date}</td>
-                    <td><strong>${record.name}</strong></td>
-                    <td><span class="category-badge ${badgeClass}">${badgeText}</span></td>
-                    <td><span class="type-badge ${isIncome ? 'type-income' : 'type-expense'}">${isIncome ? '收入' : '支出'}</span></td>
-                    <td style="color: ${isIncome ? '#27ae60' : '#e74c3c'}; font-weight: 600;">${isIncome ? '¥' + Math.abs(record.amount).toFixed(2) : '-¥' + Math.abs(record.amount).toFixed(2)}</td>
-                    <td>-</td>
-                    <td>${record.note || '-'}</td>
-                    <td><span style="color: #8c9aa5; font-size: 10px;">计算得出</span></td>
+                html += `<tr class="${isIncome?'my-income-row':'my-expense-row'}">
+                    <td><input type="checkbox" class="checkbox" value="${record.id}"></td>
+                    <td>${record.date}</td><td><strong>${record.name}</strong></td>
+                    <td><span class="category-badge ${isIncome?'my-income':'my-expense'}">${isIncome?'我的收入':'我的支出'}</span></td>
+                    <td><span class="type-badge ${isIncome?'type-income':'type-expense'}">${isIncome?'收入':'支出'}</span></td>
+                    <td style="color:${isIncome?'#27ae60':'#e74c3c'}; font-weight:600;">${isIncome?'¥'+Math.abs(record.amount).toFixed(2):'-¥'+Math.abs(record.amount).toFixed(2)}</td>
+                    <td>-</td><td>${record.note||'-'}</td><td><span style="color:#8c9aa5; font-size:10px;">计算得出</span></td>
                 </tr>`;
             });
             tbody.innerHTML = html;
-            const myIncomeStats = calculateStatsOld(myIncomeRecords);
-            const timeLabel = selectedYear === 'all' ? '全部' : `${selectedYear}年${selectedMonth === 'all' ? '' : selectedMonth + '月'}`;
-            const isIncome = myIncomeStats.profit >= 0;
-            container.innerHTML = `<div class="stat-card"><div class="stat-header"><div class="stat-title">我的收支 ${timeLabel}统计</div><div class="stat-amount ${isIncome ? 'stat-income' : 'stat-expense'}">${isIncome ? '+' : ''}¥${Math.abs(myIncomeStats.profit).toFixed(2)}</div></div><div class="${isIncome ? 'income-hint' : 'expense-hint'}" style="margin-top: 5px;">${isIncome ? '收入' : '支出'} ¥${Math.abs(myIncomeStats.profit).toFixed(2)}</div><div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px;"><div><div class="stat-label">总收入</div><div class="stat-amount stat-income">+¥${myIncomeStats.income.toFixed(2)}</div></div><div><div class="stat-label">总支出</div><div class="stat-amount stat-expense">-¥${myIncomeStats.expense.toFixed(2)}</div></div></div><div class="stat-details">记录数：${myIncomeStats.count}天</div></div>`;
+            const stats = calculateStatsOld(myRecords);
+            const timeLabel = selectedYear==='all'?'全部':`${selectedYear}年${selectedMonth==='all'?'':selectedMonth+'月'}`;
+            container.innerHTML = `<div class="stat-card"><div class="stat-header"><div class="stat-title">我的收支 ${timeLabel}统计</div><div class="stat-amount ${stats.profit>=0?'stat-income':'stat-expense'}">${stats.profit>=0?'+':''}¥${Math.abs(stats.profit).toFixed(2)}</div></div><div class="${stats.profit>=0?'income-hint':'expense-hint'}">${stats.profit>=0?'收入':'支出'} ¥${Math.abs(stats.profit).toFixed(2)}</div><div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-top:8px;"><div><div class="stat-label">总收入</div><div class="stat-amount stat-income">+¥${stats.income.toFixed(2)}</div></div><div><div class="stat-label">总支出</div><div class="stat-amount stat-expense">-¥${stats.expense.toFixed(2)}</div></div></div><div class="stat-details">记录数：${stats.count}天</div></div>`;
         }
-
-        // ==================== 记录表格渲染 ====================
         function renderRecordsTable(records) {
             const tbody = elements.recordsBody;
             if (records.length === 0) { tbody.innerHTML = '<tr><td colspan="9" class="empty-state">暂无记录</td></tr>'; return; }
-            records.sort((a, b) => new Date(b.date) - new Date(a.date));
             let html = '';
             records.forEach(record => {
                 const isIncome = record.amount > 0;
-                const categoryLabel = getCategoryLabel(record.category, record.subtype);
                 const rebate = record.rebate || 0;
+                const rebateDisp = rebate !== 0 ? (rebate>0?`<span style="color:#ff9800;font-weight:600;">¥${rebate.toFixed(2)}</span>`:`<span style="color:#e74c3c;font-weight:600;">-¥${Math.abs(rebate).toFixed(2)}</span>`) : '<span style="color:#a0aeb8;">-</span>';
                 const isSelected = appState.selectedRecords.has(record.id);
-                html += `<tr class="${isSelected ? 'selected' : ''}">
-                    <td><input type="checkbox" class="checkbox" value="${record.id}" ${isSelected ? 'checked' : ''} onchange="toggleRecordSelection('${record.id}', this)"></td>
-                    <td>${record.date}</td>
-                    <td><strong>${record.name}</strong></td>
-                    <td><span class="category-badge ${record.subtype ? record.category + '-' + record.subtype : record.category}">${categoryLabel}</span></td>
-                    <td><span class="type-badge ${isIncome ? 'type-income' : 'type-expense'}">${isIncome ? '收入' : '支出'}</span></td>
-                    <td style="color: ${isIncome ? '#27ae60' : '#e74c3c'}; font-weight: 600;">${isIncome ? '¥' + Math.abs(record.amount).toFixed(2) : '-¥' + Math.abs(record.amount).toFixed(2)}</td>
-                    <td style="color: #ff9800; font-weight: 600;">${rebate !== 0 ? (rebate > 0 ? '¥' + rebate.toFixed(2) : '-¥' + Math.abs(rebate).toFixed(2)) : '-'}</td>
-                    <td>${record.note || '-'}</td>
+                html += `<tr class="${isSelected?'selected':''}">
+                    <td><input type="checkbox" class="checkbox" value="${record.id}" ${isSelected?'checked':''} onchange="toggleRecordSelection('${record.id}', this)"></td>
+                    <td>${record.date}</td><td><strong>${record.name}</strong></td>
+                    <td><span class="category-badge ${record.subtype?record.category+'-'+record.subtype:record.category}">${getCategoryLabel(record.category, record.subtype)}</span></td>
+                    <td><span class="type-badge ${isIncome?'type-income':'type-expense'}">${isIncome?'收入':'支出'}</span></td>
+                    <td style="color:${isIncome?'#27ae60':'#e74c3c'}; font-weight:600;">${isIncome?'¥'+Math.abs(record.amount).toFixed(2):'-¥'+Math.abs(record.amount).toFixed(2)}</td>
+                    <td>${rebateDisp}</td><td>${record.note||'-'}</td>
                     <td><button class="action-btn action-delete" onclick="deleteRecord('${record.id}')">删除</button></td>
                 </tr>`;
             });
             tbody.innerHTML = html;
         }
-
-        // ==================== 统计卡片 ====================
-        function calculateStatsNew(recordList) {
-            let sumUpstream = 0, sumDownstream = 0, count = recordList.length;
-            recordList.forEach(record => {
-                const category = record.category;
-                const amount = record.amount;
-                const subtype = record.subtype;
-                if ((category === 'guangdong' && subtype === 'up') || (category === 'macau' && subtype === 'up')) sumUpstream += amount;
-                else if ((category === 'macau' && subtype === 'down') || (category === 'guangdong' && subtype === 'down')) sumDownstream += amount;
-            });
-            const netIncome = sumDownstream - sumUpstream;
-            return { sumUpstream: Number(sumUpstream.toFixed(2)), sumDownstream: Number(sumDownstream.toFixed(2)), netIncome: Number(netIncome.toFixed(2)), count: count };
-        }
         function renderSummaryStats(records, selectedYear, selectedMonth, filterCategory) {
             const container = elements.summaryStats;
             const allStats = calculateStatsNew(records);
-            const timeLabel = selectedYear === 'all' ? '全部' : `${selectedYear}年${selectedMonth === 'all' ? '' : selectedMonth + '月'}`;
-            container.innerHTML = '';
-            container.innerHTML += `<div class="stat-card"><div class="stat-header"><div class="stat-title">总计 ${timeLabel}统计</div><div class="stat-amount ${allStats.netIncome >= 0 ? 'stat-income' : 'stat-expense'}">${allStats.netIncome >= 0 ? '+' : ''}¥${Math.abs(allStats.netIncome).toFixed(2)}</div></div><div class="${allStats.netIncome >= 0 ? 'income-hint' : 'expense-hint'}" style="margin-top: 5px;">${allStats.netIncome >= 0 ? '收入' : '支出'} ¥${Math.abs(allStats.netIncome).toFixed(2)}</div><div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px;"><div><div class="stat-label">上家总收支（粤港+澳门）</div><div class="stat-amount ${allStats.sumUpstream >= 0 ? 'stat-income' : 'stat-expense'}">${allStats.sumUpstream >= 0 ? '+' : ''}¥${Math.abs(allStats.sumUpstream).toFixed(2)}</div></div><div><div class="stat-label">下家总收支（澳门+粤港）</div><div class="stat-amount ${allStats.sumDownstream >= 0 ? 'stat-income' : 'stat-expense'}">${allStats.sumDownstream >= 0 ? '+' : ''}¥${Math.abs(allStats.sumDownstream).toFixed(2)}</div></div></div><div class="stat-details">记录总数：${allStats.count}条</div></div>`;
-            const macauUpRecords = records.filter(r => r.category === 'macau' && r.subtype === 'up');
-            const macauDownRecords = records.filter(r => r.category === 'macau' && r.subtype === 'down');
-            const guangdongUpRecords = records.filter(r => r.category === 'guangdong' && r.subtype === 'up');
-            const guangdongDownRecords = records.filter(r => r.category === 'guangdong' && r.subtype === 'down');
-            const macauUpTotal = calculateStatsOld(macauUpRecords);
-            const macauDownTotal = calculateStatsOld(macauDownRecords);
-            const guangdongUpTotal = calculateStatsOld(guangdongUpRecords);
-            const guangdongDownTotal = calculateStatsOld(guangdongDownRecords);
-            const macauMyIncome = macauDownTotal.profit - macauUpTotal.profit;
-            const guangdongMyIncome = guangdongDownTotal.profit - guangdongUpTotal.profit;
-            const guangdongUpRebate = calculateGuangdongUpRebate(guangdongUpRecords);
-            if (filterCategory === 'all' || filterCategory.includes('macau')) {
-                const macauIsIncome = macauMyIncome >= 0;
-                container.innerHTML += `<div class="stat-card"><div class="stat-header"><div class="stat-title">澳门 ${timeLabel}统计</div><div class="stat-amount ${macauIsIncome ? 'stat-income' : 'stat-expense'}">${macauIsIncome ? '+' : ''}¥${Math.abs(macauMyIncome).toFixed(2)}</div></div><div class="${macauIsIncome ? 'income-hint' : 'expense-hint'}" style="margin-bottom: 6px;">${macauIsIncome ? '收入' : '支出'} ¥${Math.abs(macauMyIncome).toFixed(2)}</div><div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 6px;"><div><div class="stat-label">上家</div><div class="stat-amount ${macauUpTotal.profit >= 0 ? 'stat-income' : 'stat-expense'}">${macauUpTotal.profit >= 0 ? '+' : ''}¥${Math.abs(macauUpTotal.profit).toFixed(2)}</div></div><div><div class="stat-label">下家</div><div class="stat-amount ${macauDownTotal.profit >= 0 ? 'stat-income' : 'stat-expense'}">${macauDownTotal.profit >= 0 ? '+' : ''}¥${Math.abs(macauDownTotal.profit).toFixed(2)}</div></div></div><div class="stat-details">记录数：${macauUpTotal.count + macauDownTotal.count}条</div></div>`;
+            const timeLabel = selectedYear==='all'?'全部':`${selectedYear}年${selectedMonth==='all'?'':selectedMonth+'月'}`;
+            container.innerHTML = `<div class="stat-card"><div class="stat-header"><div class="stat-title">总计 ${timeLabel}统计</div><div class="stat-amount ${allStats.netIncome>=0?'stat-income':'stat-expense'}">${allStats.netIncome>=0?'+':''}¥${Math.abs(allStats.netIncome).toFixed(2)}</div></div><div class="${allStats.netIncome>=0?'income-hint':'expense-hint'}">${allStats.netIncome>=0?'收入':'支出'} ¥${Math.abs(allStats.netIncome).toFixed(2)}</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px;"><div><div class="stat-label">上家总收支</div><div class="stat-amount ${allStats.sumUpstream>=0?'stat-income':'stat-expense'}">${allStats.sumUpstream>=0?'+':''}¥${Math.abs(allStats.sumUpstream).toFixed(2)}</div></div><div><div class="stat-label">下家总收支</div><div class="stat-amount ${allStats.sumDownstream>=0?'stat-income':'stat-expense'}">${allStats.sumDownstream>=0?'+':''}¥${Math.abs(allStats.sumDownstream).toFixed(2)}</div></div></div><div class="stat-details">记录总数：${allStats.count}条</div></div>`;
+            const macUp = records.filter(r=>r.category==='macau'&&r.subtype==='up'), macDown = records.filter(r=>r.category==='macau'&&r.subtype==='down');
+            const gdUp = records.filter(r=>r.category==='guangdong'&&r.subtype==='up'), gdDown = records.filter(r=>r.category==='guangdong'&&r.subtype==='down');
+            const macUpT = calculateStatsOld(macUp), macDownT = calculateStatsOld(macDown);
+            const gdUpT = calculateStatsOld(gdUp), gdDownT = calculateStatsOld(gdDown);
+            const macMy = macDownT.profit - macUpT.profit;
+            const gdMy = gdDownT.profit - gdUpT.profit;
+            const gdRebate = calculateGuangdongUpRebate(gdUp);
+            if (filterCategory==='all'||filterCategory.includes('macau')) {
+                container.innerHTML += `<div class="stat-card"><div class="stat-header"><div class="stat-title">澳门 ${timeLabel}统计</div><div class="stat-amount ${macMy>=0?'stat-income':'stat-expense'}">${macMy>=0?'+':''}¥${Math.abs(macMy).toFixed(2)}</div></div><div class="${macMy>=0?'income-hint':'expense-hint'}">${macMy>=0?'收入':'支出'} ¥${Math.abs(macMy).toFixed(2)}</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px;"><div><div class="stat-label">上家</div><div class="stat-amount ${macUpT.profit>=0?'stat-income':'stat-expense'}">${macUpT.profit>=0?'+':''}¥${Math.abs(macUpT.profit).toFixed(2)}</div></div><div><div class="stat-label">下家</div><div class="stat-amount ${macDownT.profit>=0?'stat-income':'stat-expense'}">${macDownT.profit>=0?'+':''}¥${Math.abs(macDownT.profit).toFixed(2)}</div></div></div><div class="stat-details">记录数：${macUpT.count+macDownT.count}条</div></div>`;
             }
-            if (filterCategory === 'all' || filterCategory.includes('guangdong')) {
-                const guangdongIsIncome = guangdongMyIncome >= 0;
-                container.innerHTML += `<div class="stat-card"><div class="stat-header"><div class="stat-title">粤港 ${timeLabel}统计</div><div class="stat-amount ${guangdongIsIncome ? 'stat-income' : 'stat-expense'}">${guangdongIsIncome ? '+' : ''}¥${Math.abs(guangdongMyIncome).toFixed(2)}</div></div><div class="${guangdongIsIncome ? 'income-hint' : 'expense-hint'}" style="margin-bottom: 6px;">${guangdongIsIncome ? '收入' : '支出'} ¥${Math.abs(guangdongMyIncome).toFixed(2)}</div><div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 6px;"><div><div class="stat-label">上家</div><div class="stat-amount ${guangdongUpTotal.profit >= 0 ? 'stat-income' : 'stat-expense'}">${guangdongUpTotal.profit >= 0 ? '+' : ''}¥${Math.abs(guangdongUpTotal.profit).toFixed(2)}</div></div><div><div class="stat-label">下家</div><div class="stat-amount ${guangdongDownTotal.profit >= 0 ? 'stat-income' : 'stat-expense'}">${guangdongDownTotal.profit >= 0 ? '+' : ''}¥${Math.abs(guangdongDownTotal.profit).toFixed(2)}</div></div></div><div class="${guangdongUpRebate >= 0 ? 'rebate-hint' : 'expense-hint'}" style="margin-top: 6px; font-size: 10px;">上家返点：${guangdongUpRebate >= 0 ? '+' : ''}¥${Math.abs(guangdongUpRebate).toFixed(2)}</div><div class="stat-details">记录数：${guangdongUpTotal.count + guangdongDownTotal.count}条</div></div>`;
+            if (filterCategory==='all'||filterCategory.includes('guangdong')) {
+                const rebateColor = gdRebate >= 0 ? '#ff9800' : '#e74c3c';
+                container.innerHTML += `<div class="stat-card"><div class="stat-header"><div class="stat-title">粤港 ${timeLabel}统计</div><div class="stat-amount ${gdMy>=0?'stat-income':'stat-expense'}">${gdMy>=0?'+':''}¥${Math.abs(gdMy).toFixed(2)}</div></div><div class="${gdMy>=0?'income-hint':'expense-hint'}">${gdMy>=0?'收入':'支出'} ¥${Math.abs(gdMy).toFixed(2)}</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px;"><div><div class="stat-label">上家</div><div class="stat-amount ${gdUpT.profit>=0?'stat-income':'stat-expense'}">${gdUpT.profit>=0?'+':''}¥${Math.abs(gdUpT.profit).toFixed(2)}</div></div><div><div class="stat-label">下家</div><div class="stat-amount ${gdDownT.profit>=0?'stat-income':'stat-expense'}">${gdDownT.profit>=0?'+':''}¥${Math.abs(gdDownT.profit).toFixed(2)}</div></div></div><div style="margin-top:6px;"><span style="color:${rebateColor}; font-weight:600;">上家返点：${gdRebate>=0?'+':''}¥${Math.abs(gdRebate).toFixed(2)}</span></div><div class="stat-details">记录数：${gdUpT.count+gdDownT.count}条</div></div>`;
             }
+        }
+        function calculateStatsNew(list) {
+            let up = 0, down = 0;
+            list.forEach(r => {
+                if ((r.category==='guangdong'&&r.subtype==='up')||(r.category==='macau'&&r.subtype==='up')) up += r.amount;
+                else if ((r.category==='macau'&&r.subtype==='down')||(r.category==='guangdong'&&r.subtype==='down')) down += r.amount;
+            });
+            return { sumUpstream: +up.toFixed(2), sumDownstream: +down.toFixed(2), netIncome: +(down-up).toFixed(2), count: list.length };
         }
 
-        // ==================== 密码保护清除功能 ====================
-        function clearCurrentMonthWithPassword() {
-            const password = prompt('请输入密码以保护数据安全：');
-            if (password === CLEAR_PASSWORD) clearCurrentMonth();
-            else if (password !== null) showToast('密码错误，操作已取消', true);
-        }
-        function clearAllDataWithPassword() {
-            const password = prompt('请输入密码以保护数据安全：');
-            if (password === CLEAR_PASSWORD) clearAllData();
-            else if (password !== null) showToast('密码错误，操作已取消', true);
-        }
+        // ==================== 密码清除 ====================
+        function clearCurrentMonthWithPassword() { const p = prompt('请输入密码：'); if (p===CLEAR_PASSWORD) clearCurrentMonth(); else if (p!==null) showToast('密码错误', true); }
+        function clearAllDataWithPassword() { const p = prompt('请输入密码：'); if (p===CLEAR_PASSWORD) clearAllData(); else if (p!==null) showToast('密码错误', true); }
         function clearCurrentMonth() {
-            if (appState.records.length === 0) { showToast('没有数据可清除', true); return; }
-            const now = new Date();
-            const currentYear = now.getFullYear();
-            const currentMonth = now.getMonth() + 1;
-            const monthRecords = appState.records.filter(record => {
-                const recordDate = new Date(record.date);
-                const recordYear = recordDate.getFullYear();
-                const recordMonth = recordDate.getMonth() + 1;
-                return recordYear === currentYear && recordMonth === currentMonth;
-            });
-            if (monthRecords.length === 0) { showToast('本月没有记录可清除', true); return; }
-            if (confirm(`确定要清除本月的所有记录吗？\n将删除 ${monthRecords.length} 条记录\n此操作不可恢复！`)) {
-                monthRecords.forEach(record => { appState.recycleBin.unshift({ ...record, deletedAt: new Date().toISOString(), originalIndex: appState.records.indexOf(record) }); });
-                appState.records = appState.records.filter(record => {
-                    const recordDate = new Date(record.date);
-                    const recordYear = recordDate.getFullYear();
-                    const recordMonth = recordDate.getMonth() + 1;
-                    return !(recordYear === currentYear && recordMonth === currentMonth);
-                });
-                saveLocalData();
-                updatePersonFilter(); updateYearFilter(); loadRecords(); loadDateRecords(); loadMyIncomeStatsForDate(appState.currentViewDate);
-                updateRecycleCount(); renderRecycleTable();
-                showToast(`已将本月 ${monthRecords.length} 条记录移至回收站`);
+            if (!appState.records.length) { showToast('没有数据可清除', true); return; }
+            const now = new Date(); const cy = now.getFullYear(), cm = now.getMonth()+1;
+            const monthRecords = appState.records.filter(r => { const d = new Date(r.date); return d.getFullYear()===cy && d.getMonth()+1===cm; });
+            if (!monthRecords.length) { showToast('本月没有记录', true); return; }
+            if (confirm(`确定清除本月 ${monthRecords.length} 条记录？`)) {
+                monthRecords.forEach(r => appState.recycleBin.unshift({...r, deletedAt: new Date().toISOString()}));
+                appState.records = appState.records.filter(r => { const d = new Date(r.date); return !(d.getFullYear()===cy && d.getMonth()+1===cm); });
+                saveLocalData(); updatePersonFilter(); updateYearFilter(); loadRecords(); loadDateRecords(); loadMyIncomeStatsForDate(appState.currentViewDate); updateRecycleCount(); renderRecycleTable();
+                showToast(`已清除本月记录`);
             }
         }
         function clearAllData() {
-            if (appState.records.length === 0) { showToast('没有数据可清空', true); return; }
-            if (confirm(`确定要清空所有数据吗？\n将删除 ${appState.records.length} 条记录\n此操作不可恢复！`)) {
-                appState.records.forEach(record => { appState.recycleBin.unshift({ ...record, deletedAt: new Date().toISOString(), originalIndex: appState.records.indexOf(record) }); });
+            if (!appState.records.length) { showToast('没有数据可清空', true); return; }
+            if (confirm(`确定清空全部 ${appState.records.length} 条记录？`)) {
+                appState.records.forEach(r => appState.recycleBin.unshift({...r, deletedAt: new Date().toISOString()}));
                 appState.records = [];
-                saveLocalData();
-                updatePersonFilter(); updateYearFilter(); loadRecords(); loadDateRecords(); loadMyIncomeStatsForDate(appState.currentViewDate);
-                updateRecycleCount(); renderRecycleTable();
-                showToast('已将数据移至回收站');
+                saveLocalData(); updatePersonFilter(); updateYearFilter(); loadRecords(); loadDateRecords(); loadMyIncomeStatsForDate(appState.currentViewDate); updateRecycleCount(); renderRecycleTable();
+                showToast('已清空全部数据');
             }
         }
 
-        // ==================== 导出/导入数据 ====================
+        // ==================== 导出/导入 ====================
         function exportData() {
-            if (appState.records.length === 0) { showToast('没有数据可导出', true); return; }
-            const data = { records: appState.records, recycleBin: appState.recycleBin, exportedAt: new Date().toISOString(), version: '43.0' };
-            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `收支数据_${getCurrentDateChina()}.json`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
+            if (!appState.records.length) { showToast('没有数据可导出', true); return; }
+            const data = { records: appState.records, recycleBin: appState.recycleBin, exportedAt: new Date().toISOString(), version:'45.0' };
+            const blob = new Blob([JSON.stringify(data,null,2)], {type:'application/json'});
+            const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `收支数据_${getCurrentDateChina()}.json`;
+            document.body.appendChild(a); a.click(); document.body.removeChild(a);
             showToast('✅ 数据已导出');
         }
-        function isRecordDuplicate(newRecord, existingRecords) {
-            return existingRecords.some(record => {
-                const amountEqual = Math.abs(record.amount) === Math.abs(newRecord.amount);
-                const noteEqual = (record.note || '') === (newRecord.note || '');
-                return record.date === newRecord.date && record.name === newRecord.name && record.category === newRecord.category && record.subtype === newRecord.subtype && record.type === newRecord.type && amountEqual && noteEqual;
-            });
-        }
         function importData() {
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.accept = '.json';
-            input.onchange = (e) => {
-                const file = e.target.files[0];
-                if (!file) return;
+            const input = document.createElement('input'); input.type='file'; input.accept='.json';
+            input.onchange = e => {
+                const file = e.target.files[0]; if (!file) return;
                 const reader = new FileReader();
-                reader.onload = (event) => {
+                reader.onload = ev => {
                     try {
-                        const data = JSON.parse(event.target.result);
-                        const importedRecords = data.records || [];
-                        if (importedRecords.length === 0) { showToast('导入文件中没有记录', true); return; }
-                        let addedCount = 0, duplicateCount = 0;
-                        for (const importedRecord of importedRecords) {
-                            if (isRecordDuplicate(importedRecord, appState.records)) { duplicateCount++; continue; }
-                            const newRecord = { ...importedRecord, id: Date.now() + '_' + Math.random().toString(36).substr(2, 9) };
-                            appState.records.unshift(newRecord);
-                            addedCount++;
-                        }
-                        saveLocalData();
-                        updatePersonFilter(); updateYearFilter(); loadRecords(); loadDateRecords(); loadMyIncomeStatsForDate(appState.currentViewDate);
-                        updateRecycleCount(); renderRecycleTable();
-                        showToast(`✅ 导入完成：新增 ${addedCount} 条，跳过重复 ${duplicateCount} 条`);
-                        if (duplicateCount > 0) setTimeout(() => showToast(`重复记录未导入，请检查`, false), 2000);
-                    } catch (error) { showToast('❌ 文件格式错误或数据损坏', true); }
+                        const data = JSON.parse(ev.target.result);
+                        const imported = data.records || [];
+                        if (!imported.length) { showToast('文件中无记录', true); return; }
+                        let add = 0, dup = 0;
+                        imported.forEach(imp => {
+                            if (appState.records.some(r => r.date===imp.date && r.name===imp.name && r.category===imp.category && r.subtype===imp.subtype && r.type===imp.type && Math.abs(r.amount)===Math.abs(imp.amount) && (r.note||'')===(imp.note||''))) { dup++; return; }
+                            appState.records.unshift({...imp, id: Date.now()+'_'+Math.random().toString(36).substr(2,9)});
+                            add++;
+                        });
+                        saveLocalData(); updatePersonFilter(); updateYearFilter(); loadRecords(); loadDateRecords(); loadMyIncomeStatsForDate(appState.currentViewDate); updateRecycleCount(); renderRecycleTable();
+                        showToast(`✅ 导入完成：新增 ${add} 条，跳过重复 ${dup} 条`);
+                    } catch (err) { showToast('❌ 文件格式错误', true); }
                 };
                 reader.readAsText(file);
             };
             input.click();
         }
 
-        // ==================== 回收站功能 ====================
+        // ==================== 回收站 ====================
         function openRecyclePanel() { elements.recyclePanel.classList.add('show'); renderRecycleTable(); updateRecycleStats(); }
         function closeRecyclePanel() { elements.recyclePanel.classList.remove('show'); }
         function updateRecycleCount() { elements.recycleCount.textContent = appState.recycleBin.length; }
         function updateRecycleStats() {
-            const total = appState.recycleBin.length;
-            const today = getCurrentDateChina();
-            const weekAgo = new Date(); weekAgo.setDate(weekAgo.getDate() - 7);
-            const weekAgoStr = formatDateChina(weekAgo);
-            const todayCount = appState.recycleBin.filter(item => item.deletedAt.split('T')[0] === today).length;
-            const weekCount = appState.recycleBin.filter(item => item.deletedAt.split('T')[0] >= weekAgoStr).length;
-            const size = new Blob([JSON.stringify(appState.recycleBin)]).size;
+            const total = appState.recycleBin.length, today = getCurrentDateChina();
+            const weekAgo = new Date(); weekAgo.setDate(weekAgo.getDate()-7); const weekStr = formatDateChina(weekAgo);
             elements.recycleTotal.textContent = total;
-            elements.recycleToday.textContent = todayCount;
-            elements.recycleWeek.textContent = weekCount;
-            elements.recycleSize.textContent = (size / 1024).toFixed(1) + 'KB';
+            elements.recycleToday.textContent = appState.recycleBin.filter(i => i.deletedAt.split('T')[0] === today).length;
+            elements.recycleWeek.textContent = appState.recycleBin.filter(i => i.deletedAt.split('T')[0] >= weekStr).length;
+            elements.recycleSize.textContent = (new Blob([JSON.stringify(appState.recycleBin)]).size / 1024).toFixed(1) + 'KB';
         }
         function renderRecycleTable() {
-            const tbody = elements.recycleBody;
-            const searchTerm = elements.recycleSearch.value.toLowerCase().trim();
-            let recycleRecords = appState.recycleBin;
-            if (searchTerm) recycleRecords = recycleRecords.filter(record => record.name.toLowerCase().includes(searchTerm) || (record.note && record.note.toLowerCase().includes(searchTerm)) || record.date.includes(searchTerm));
-            if (recycleRecords.length === 0) { tbody.innerHTML = '<tr><td colspan="10" class="empty-state">回收站为空</td></tr>'; return; }
+            const tbody = elements.recycleBody, search = elements.recycleSearch.value.toLowerCase().trim();
+            let list = appState.recycleBin;
+            if (search) list = list.filter(r => r.name.toLowerCase().includes(search) || (r.note||'').toLowerCase().includes(search) || r.date.includes(search));
+            if (!list.length) { tbody.innerHTML = '<tr><td colspan="10" class="empty-state">回收站为空</td></tr>'; return; }
             let html = '';
-            recycleRecords.forEach(record => {
+            list.forEach(record => {
                 const isIncome = record.amount > 0;
-                const categoryLabel = getCategoryLabel(record.category, record.subtype);
-                const deletedTime = new Date(record.deletedAt).toLocaleString('zh-CN');
-                const originalDate = record.date;
                 const rebate = record.rebate || 0;
+                const rebateDisp = rebate !== 0 ? (rebate>0?`<span style="color:#ff9800;font-weight:600;">¥${rebate.toFixed(2)}</span>`:`<span style="color:#e74c3c;font-weight:600;">-¥${Math.abs(rebate).toFixed(2)}</span>`) : '-';
                 html += `<tr>
-                    <td><input type="checkbox" class="checkbox" value="${record.id}" id="recycle-${record.id}"></td>
-                    <td><span class="deleted-time">${deletedTime}</span></td>
-                    <td>${originalDate}</td>
-                    <td><strong>${record.name}</strong></td>
-                    <td><span class="category-badge ${record.subtype ? record.category + '-' + record.subtype : record.category}">${categoryLabel}</span></td>
-                    <td><span class="type-badge ${isIncome ? 'type-income' : 'type-expense'}">${isIncome ? '收入' : '支出'}</span></td>
-                    <td style="color: ${isIncome ? '#27ae60' : '#e74c3c'}; font-weight: 600;">${isIncome ? '¥' + Math.abs(record.amount).toFixed(2) : '-¥' + Math.abs(record.amount).toFixed(2)}</td>
-                    <td style="color: #ff9800; font-weight: 600;">${rebate !== 0 ? (rebate > 0 ? '¥' + rebate.toFixed(2) : '-¥' + Math.abs(rebate).toFixed(2)) : '-'}</td>
-                    <td>${record.note || '-'}</td>
+                    <td><input type="checkbox" class="checkbox" value="${record.id}"></td>
+                    <td><span class="deleted-time">${new Date(record.deletedAt).toLocaleString('zh-CN')}</span></td>
+                    <td>${record.date}</td><td><strong>${record.name}</strong></td>
+                    <td><span class="category-badge ${record.subtype?record.category+'-'+record.subtype:record.category}">${getCategoryLabel(record.category, record.subtype)}</span></td>
+                    <td><span class="type-badge ${isIncome?'type-income':'type-expense'}">${isIncome?'收入':'支出'}</span></td>
+                    <td style="color:${isIncome?'#27ae60':'#e74c3c'}; font-weight:600;">${isIncome?'¥'+Math.abs(record.amount).toFixed(2):'-¥'+Math.abs(record.amount).toFixed(2)}</td>
+                    <td>${rebateDisp}</td><td>${record.note||'-'}</td>
                     <td><button class="action-btn restore" onclick="restoreRecord('${record.id}')">还原</button><button class="action-btn delete-permanent" onclick="permanentDelete('${record.id}')">彻底删除</button></td>
                 </tr>`;
             });
             tbody.innerHTML = html;
         }
         function searchRecycleRecords() { renderRecycleTable(); }
-        function toggleRecycleSelectAll() {
-            const checkboxes = document.querySelectorAll('#recycle-body input[type="checkbox"]:not(#recycle-select-all)');
-            const selectAllCheckbox = elements.recycleSelectAll;
-            checkboxes.forEach(checkbox => checkbox.checked = selectAllCheckbox.checked);
-        }
-        function selectAllRecycle() {
-            const checkboxes = document.querySelectorAll('#recycle-body input[type="checkbox"]:not(#recycle-select-all)');
-            checkboxes.forEach(checkbox => checkbox.checked = true);
-        }
+        function toggleRecycleSelectAll() { const cbs = document.querySelectorAll('#recycle-body input[type="checkbox"]'); cbs.forEach(cb => cb.checked = elements.recycleSelectAll.checked); }
+        function selectAllRecycle() { document.querySelectorAll('#recycle-body input[type="checkbox"]').forEach(cb => cb.checked = true); }
         function restoreRecord(recordId) {
-            const recordIndex = appState.recycleBin.findIndex(r => r.id === recordId);
-            if (recordIndex === -1) return;
-            const record = appState.recycleBin[recordIndex];
+            const idx = appState.recycleBin.findIndex(r => r.id === recordId); if (idx === -1) return;
+            const record = appState.recycleBin[idx];
             appState.records.unshift({ id: record.id, date: record.date, name: record.name, category: record.category, subtype: record.subtype, type: record.type, amount: record.amount, note: record.note, totalAmount: record.totalAmount, rebateRate: record.rebateRate, rebate: record.rebate, createdAt: record.createdAt });
-            appState.recycleBin.splice(recordIndex, 1);
-            saveLocalData();
-            updatePersonFilter(); updateYearFilter(); loadRecords(); loadDateRecords(); loadMyIncomeStatsForDate(appState.currentViewDate);
-            updateRecycleCount(); renderRecycleTable(); updateRecycleStats();
+            appState.recycleBin.splice(idx, 1);
+            saveLocalData(); updatePersonFilter(); updateYearFilter(); loadRecords(); loadDateRecords(); loadMyIncomeStatsForDate(appState.currentViewDate); updateRecycleCount(); renderRecycleTable(); updateRecycleStats();
             showToast('记录已还原');
         }
         function restoreSelected() {
-            const checkboxes = document.querySelectorAll('#recycle-body input[type="checkbox"]:not(#recycle-select-all):checked');
-            if (checkboxes.length === 0) { showToast('请先选择要还原的记录', true); return; }
-            const recordIds = Array.from(checkboxes).map(cb => cb.value);
-            recordIds.forEach(recordId => {
-                const recordIndex = appState.recycleBin.findIndex(r => r.id === recordId);
-                if (recordIndex !== -1) {
-                    const record = appState.recycleBin[recordIndex];
-                    appState.records.unshift({ id: record.id, date: record.date, name: record.name, category: record.category, subtype: record.subtype, type: record.type, amount: record.amount, note: record.note, totalAmount: record.totalAmount, rebateRate: record.rebateRate, rebate: record.rebate, createdAt: record.createdAt });
-                    appState.recycleBin.splice(recordIndex, 1);
-                }
-            });
-            saveLocalData();
-            updatePersonFilter(); updateYearFilter(); loadRecords(); loadDateRecords(); loadMyIncomeStatsForDate(appState.currentViewDate);
-            updateRecycleCount(); renderRecycleTable(); updateRecycleStats();
-            showToast(`已还原 ${recordIds.length} 条记录`);
+            const cbs = document.querySelectorAll('#recycle-body input[type="checkbox"]:checked');
+            if (!cbs.length) { showToast('请先选择要还原的记录', true); return; }
+            const ids = Array.from(cbs).map(cb => cb.value);
+            ids.forEach(id => { const idx = appState.recycleBin.findIndex(r => r.id === id); if (idx !== -1) { const r = appState.recycleBin[idx]; appState.records.unshift({ id: r.id, date: r.date, name: r.name, category: r.category, subtype: r.subtype, type: r.type, amount: r.amount, note: r.note, totalAmount: r.totalAmount, rebateRate: r.rebateRate, rebate: r.rebate, createdAt: r.createdAt }); appState.recycleBin.splice(idx, 1); } });
+            saveLocalData(); updatePersonFilter(); updateYearFilter(); loadRecords(); loadDateRecords(); loadMyIncomeStatsForDate(appState.currentViewDate); updateRecycleCount(); renderRecycleTable(); updateRecycleStats();
+            showToast(`已还原 ${ids.length} 条记录`);
         }
         function restoreAll() {
-            if (appState.recycleBin.length === 0) { showToast('回收站为空', true); return; }
-            if (confirm(`确定要还原回收站中的所有 ${appState.recycleBin.length} 条记录吗？`)) {
-                appState.recycleBin.forEach(record => {
-                    appState.records.unshift({ id: record.id, date: record.date, name: record.name, category: record.category, subtype: record.subtype, type: record.type, amount: record.amount, note: record.note, totalAmount: record.totalAmount, rebateRate: record.rebateRate, rebate: record.rebate, createdAt: record.createdAt });
-                });
+            if (!appState.recycleBin.length) { showToast('回收站为空', true); return; }
+            if (confirm(`确定还原全部 ${appState.recycleBin.length} 条记录？`)) {
+                appState.recycleBin.forEach(r => appState.records.unshift({ id: r.id, date: r.date, name: r.name, category: r.category, subtype: r.subtype, type: r.type, amount: r.amount, note: r.note, totalAmount: r.totalAmount, rebateRate: r.rebateRate, rebate: r.rebate, createdAt: r.createdAt }));
                 appState.recycleBin = [];
-                saveLocalData();
-                updatePersonFilter(); updateYearFilter(); loadRecords(); loadDateRecords(); loadMyIncomeStatsForDate(appState.currentViewDate);
-                updateRecycleCount(); renderRecycleTable(); updateRecycleStats();
-                showToast('已还原所有记录');
+                saveLocalData(); updatePersonFilter(); updateYearFilter(); loadRecords(); loadDateRecords(); loadMyIncomeStatsForDate(appState.currentViewDate); updateRecycleCount(); renderRecycleTable(); updateRecycleStats();
+                showToast('已还原全部记录');
             }
         }
-        function permanentDelete(recordId) {
-            if (confirm('确定要彻底删除这条记录吗？此操作不可恢复！')) {
-                appState.recycleBin = appState.recycleBin.filter(r => r.id !== recordId);
-                saveLocalData();
-                updateRecycleCount(); renderRecycleTable(); updateRecycleStats();
-                showToast('记录已彻底删除');
-            }
-        }
-        function emptyRecycleBin() {
-            if (appState.recycleBin.length === 0) { showToast('回收站已经为空', true); return; }
-            if (confirm(`确定要清空回收站吗？将永久删除 ${appState.recycleBin.length} 条记录！`)) {
-                appState.recycleBin = [];
-                saveLocalData();
-                updateRecycleCount(); renderRecycleTable(); updateRecycleStats();
-                showToast('回收站已清空');
-            }
-        }
+        function permanentDelete(recordId) { if (confirm('确定彻底删除？')) { appState.recycleBin = appState.recycleBin.filter(r => r.id !== recordId); saveLocalData(); updateRecycleCount(); renderRecycleTable(); updateRecycleStats(); showToast('已彻底删除'); } }
+        function emptyRecycleBin() { if (!appState.recycleBin.length) { showToast('回收站已空', true); return; } if (confirm('确定清空回收站？')) { appState.recycleBin = []; saveLocalData(); updateRecycleCount(); renderRecycleTable(); updateRecycleStats(); showToast('回收站已清空'); } }
 
-        // ==================== IndexedDB 数据存取 ====================
+        // ==================== 数据存储 ====================
         async function loadLocalData() {
             try {
                 const data = await dbManager.loadData('finance_main_data');
                 if (data) {
-                    appState.records = data.records || [];
-                    appState.recycleBin = data.recycleBin || [];
-                    appState.records.forEach(record => { if (record.date) record.date = formatDateChina(new Date(record.date)); });
-                    appState.recycleBin.forEach(record => {
-                        if (record.date) record.date = formatDateChina(new Date(record.date));
-                        if (record.deletedAt) record.deletedAt = formatDateTimeChina(new Date(record.deletedAt));
-                    });
-                    updatePersonFilter();
-                    updateYearFilter();
-                    loadRecords();
-                    loadDateRecords();
-                    loadMyIncomeStatsForDate(appState.currentViewDate);
+                    appState.records = data.records || []; appState.recycleBin = data.recycleBin || [];
+                    appState.records.forEach(r => { if (r.date) r.date = formatDateChina(new Date(r.date)); });
+                    appState.recycleBin.forEach(r => { if (r.date) r.date = formatDateChina(new Date(r.date)); });
+                    updatePersonFilter(); updateYearFilter();
                 }
-            } catch (error) {
-                console.error('IndexedDB 加载失败:', error);
-                showToast('数据加载失败，将使用空数据', true);
-            }
+            } catch (e) { showToast('数据加载失败', true); }
         }
         async function saveLocalData() {
-            try {
-                const data = { records: appState.records, recycleBin: appState.recycleBin, savedAt: new Date().toISOString(), version: '43.0' };
-                await dbManager.saveData('finance_main_data', data);
-                updateStorageInfo();
-            } catch (error) {
-                console.error('IndexedDB 存储失败:', error);
-                showToast('数据保存失败，请检查浏览器存储权限', true);
-            }
+            try { await dbManager.saveData('finance_main_data', { records: appState.records, recycleBin: appState.recycleBin, savedAt: new Date().toISOString(), version:'45.0' }); updateStorageInfo(); } catch (e) { showToast('保存失败', true); }
         }
         function updatePersonFilter() {
-            const filter = elements.filterPerson;
-            filter.innerHTML = '<option value="all">全部人员</option>';
-            const persons = new Set();
-            appState.records.forEach(record => { if (record.name && record.name.trim()) persons.add(record.name.trim()); });
-            persons.forEach(person => {
-                const option = document.createElement('option');
-                option.value = person;
-                option.textContent = person;
-                filter.appendChild(option);
-            });
+            const sel = elements.filterPerson; sel.innerHTML = '<option value="all">全部人员</option>';
+            const names = new Set(appState.records.map(r => r.name).filter(Boolean));
+            names.forEach(n => { const o = document.createElement('option'); o.value = n; o.textContent = n; sel.appendChild(o); });
         }
         function updateYearFilter() {
-            const yearSelect = elements.selectYear;
-            yearSelect.innerHTML = '<option value="all">全部年份</option>';
-            const years = new Set();
-            appState.records.forEach(record => { if (record.date) years.add(record.date.split('-')[0]); });
-            const sortedYears = Array.from(years).sort((a, b) => b - a);
-            sortedYears.forEach(year => {
-                const option = document.createElement('option');
-                option.value = year;
-                option.textContent = `${year}年`;
-                yearSelect.appendChild(option);
-            });
+            const sel = elements.selectYear; sel.innerHTML = '<option value="all">全部年份</option>';
+            const years = new Set(appState.records.map(r => r.date?.split('-')[0]).filter(Boolean));
+            [...years].sort((a,b)=>b-a).forEach(y => { const o = document.createElement('option'); o.value = y; o.textContent = y+'年'; sel.appendChild(o); });
         }
         async function updateStorageInfo() {
-            try {
-                const sizeInfo = await dbManager.getDatabaseSize();
-                const recordCount = appState.records.length;
-                elements.storageMode.textContent = 'IndexedDB (大容量)';
-                elements.dataSize.textContent = `${sizeInfo.kb} KB (${sizeInfo.mb} MB)`;
-                elements.recordCount.textContent = recordCount;
-                elements.storageInfo.style.display = 'block';
-                setTimeout(() => elements.storageInfo.style.display = 'none', 5000);
-            } catch (error) { console.error('更新存储信息失败:', error); }
+            try { const s = await dbManager.getDatabaseSize(); elements.storageMode.textContent = 'IndexedDB'; elements.dataSize.textContent = `${s.kb} KB`; elements.recordCount.textContent = appState.records.length; elements.storageInfo.style.display='block'; setTimeout(()=>elements.storageInfo.style.display='none',5000); } catch(e){}
         }
     </script>
 </body>
