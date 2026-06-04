@@ -329,10 +329,10 @@
             color: #fff;
             box-shadow: 0 4px 14px rgba(231, 76, 60, 0.3);
         }
-        /* ========== 主布局 ========== */
+        /* ========== 主布局 - 左侧60%，右侧40% ========== */
         .main-grid {
             display: grid;
-            grid-template-columns: 1fr 2fr;
+            grid-template-columns: 3fr 2fr;
             gap: 14px;
             padding: 14px 16px;
             margin-bottom: 0;
@@ -1017,21 +1017,47 @@
         .total-rebate-value {
             font-size: 13px;
         }
-        /* ========== 详情卡片 ========== */
+        /* ========== 详情卡片 - 独立滚动 ========== */
         .detail-card .table-container {
             width: 100%;
             max-width: 100%;
-            overflow-x: auto;
+            max-height: 450px;
+            overflow: auto;
             border: 1px solid #eef1f5;
             border-radius: var(--radius-sm);
+            position: relative;
+        }
+        .detail-card .table-container table {
+            min-width: 100%;
+            width: max-content;
+        }
+        .detail-card .table-container thead {
+            position: sticky;
+            top: 0;
+            z-index: 5;
         }
         .detail-card .data-table th,
         .detail-card .data-table td {
-            min-width: 80px;
+            min-width: 85px;
             text-align: center;
+            white-space: nowrap;
         }
         .detail-card .data-table th:first-child {
             min-width: 60px;
+            position: sticky;
+            left: 0;
+            background: #f8fafb;
+            z-index: 6;
+        }
+        .detail-card .data-table td:first-child {
+            position: sticky;
+            left: 0;
+            background: #fff;
+            z-index: 4;
+            font-weight: 600;
+        }
+        .detail-card .data-table tr:hover td:first-child {
+            background: #f4f7fb;
         }
         .detail-card .data-table th:last-child {
             min-width: 80px;
@@ -1109,6 +1135,9 @@
             .btn-group {
                 justify-content: center;
             }
+            .detail-card .table-container {
+                max-height: 350px;
+            }
         }
         @media (max-width: 768px) {
             .form-row {
@@ -1128,6 +1157,9 @@
             }
             .recycle-search {
                 min-width: auto;
+            }
+            .detail-card .table-container {
+                max-height: 300px;
             }
         }
         @media (max-width: 480px) {
@@ -1155,6 +1187,9 @@
             .recycle-container {
                 padding: 14px;
                 width: 95%;
+            }
+            .detail-card .table-container {
+                max-height: 250px;
             }
         }
     </style>
@@ -1255,7 +1290,7 @@
                     <div class="card-header primary"><div class="card-title"><span>📊</span><span>收支明细</span></div></div>
                     <div class="card-body">
                         <div class="filter-info"><div style="font-size: 11px; color: #8c9aa5; margin-bottom: 10px;">统计范围：仅统计当前筛选条件下的记录</div><div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px;"><div style="font-size: 10px; background: #f4f8fc; padding: 5px 10px; border-radius: 5px; border-left: 3px solid #5b6abf;"><strong>筛选条件：</strong><span id="filter-year-display">全部年份</span> | <span id="filter-month-display">全部月份</span> | <span id="filter-category-display">全部分类</span> | <span id="filter-name-display">全部人员</span></div></div></div>
-                        <div class="table-container"><table class="data-table" id="detail-transposed-table"><thead><tr><th style="width: 60px;">月份</th></tr></thead><tbody id="detail-transposed-body"><tr class="empty-state-row"><td colspan="1" class="empty-state">暂无数据，请先设置筛选条件</td></tr></tbody></table></div>
+                        <div class="table-container" id="detail-table-wrapper"><table class="data-table" id="detail-transposed-table"><thead><tr><th style="width: 60px;">月份</th></tr></thead><tbody id="detail-transposed-body"><tr class="empty-state-row"><td colspan="1" class="empty-state">暂无数据，请先设置筛选条件</td></tr></tbody></table></div>
                         <div style="margin-top: 14px; font-size: 11px; color: #8c9aa5;"><div style="display: flex; justify-content: space-between; align-items: center;"><div>当前显示 <span id="transposed-person-count">0</span> 个人员，<span id="transposed-month-count">0</span> 个月份</div><div>总利润：<span id="transposed-total">0</span> 元</div></div></div>
                     </div>
                 </div>
@@ -1277,7 +1312,7 @@
     <script>
         // ==================== IndexedDB 管理类 ====================
         class DatabaseManager {
-            constructor(dbName = 'FinanceManagementDB', version = 3) {
+            constructor(dbName = 'FinanceManagementDB', version = 4) {
                 this.dbName = dbName;
                 this.version = version;
                 this.db = null;
@@ -1358,8 +1393,7 @@
                     const data = await this.getAllData();
                     const jsonString = JSON.stringify(data);
                     const sizeInBytes = new Blob([jsonString]).size;
-                    return { bytes: sizeInBytes, kb: (sizeInBytes / 1024).toFixed(2), mb: (sizeInBytes / (1024 * 1024))
-                            .toFixed(2) };
+                    return { bytes: sizeInBytes, kb: (sizeInBytes / 1024).toFixed(2), mb: (sizeInBytes / (1024 * 1024)).toFixed(2) };
                 } catch (error) {
                     return { bytes: 0, kb: '0.00', mb: '0.00' };
                 }
@@ -1369,8 +1403,7 @@
                 return new Promise((resolve, reject) => {
                     const transaction = this.db.transaction([this.backupStoreName], 'readwrite');
                     const store = transaction.objectStore(this.backupStoreName);
-                    const backupData = { timestamp: new Date().getTime(), type: 'daily_backup', data: data,
-                        backupDate: getCurrentDateChina() };
+                    const backupData = { timestamp: new Date().getTime(), type: 'daily_backup', data: data, backupDate: getCurrentDateChina() };
                     const request = store.put(backupData);
                     request.onsuccess = () => resolve(true);
                     request.onerror = () => reject(request.error);
@@ -1487,7 +1520,8 @@
             storageInfo: document.getElementById('storage-info'),
             storageMode: document.getElementById('storage-mode'),
             dataSize: document.getElementById('data-size'),
-            recordCount: document.getElementById('record-count')
+            recordCount: document.getElementById('record-count'),
+            detailTableWrapper: document.getElementById('detail-table-wrapper')
         };
 
         const dbManager = new DatabaseManager();
@@ -1527,14 +1561,10 @@
         function showToast(message, isError = false) {
             const toast = document.createElement('div');
             toast.textContent = message;
-            toast.style.cssText =
-                `position: fixed; top: 14px; right: 14px; background: ${isError ? '#e74c3c' : '#27ae60'}; color: white; padding: 10px 18px; border-radius: 8px; font-weight: 600; font-size: 13px; box-shadow: 0 6px 20px rgba(0,0,0,0.18); z-index: 1000; opacity: 0; transform: translateY(-20px); transition: all 0.3s ease;`;
+            toast.style.cssText = `position: fixed; top: 14px; right: 14px; background: ${isError ? '#e74c3c' : '#27ae60'}; color: white; padding: 10px 18px; border-radius: 8px; font-weight: 600; font-size: 13px; box-shadow: 0 6px 20px rgba(0,0,0,0.18); z-index: 1000; opacity: 0; transform: translateY(-20px); transition: all 0.3s ease;`;
             document.body.appendChild(toast);
-            setTimeout(() => { toast.style.opacity = '1';
-                toast.style.transform = 'translateY(0)'; }, 10);
-            setTimeout(() => { toast.style.opacity = '0';
-                toast.style.transform = 'translateY(-20px)';
-                setTimeout(() => document.body.removeChild(toast), 300); }, 3000);
+            setTimeout(() => { toast.style.opacity = '1'; toast.style.transform = 'translateY(0)'; }, 10);
+            setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translateY(-20px)'; setTimeout(() => document.body.removeChild(toast), 300); }, 3000);
         }
         function showUndoToast() {
             let countdown = 5;
@@ -1548,8 +1578,7 @@
         }
         function hideUndoToast() {
             elements.undoToast.classList.remove('show');
-            if (appState.undoTimer) { clearInterval(appState.undoTimer);
-                appState.undoTimer = null; }
+            if (appState.undoTimer) { clearInterval(appState.undoTimer); appState.undoTimer = null; }
         }
 
         // ==================== 登录/退出 ====================
@@ -1559,9 +1588,7 @@
                 appState.isLoggedIn = true;
                 appState.loginAttempts = 0;
                 elements.loginOverlay.classList.add('hidden');
-                setTimeout(() => { elements.loginOverlay.style.display = 'none';
-                    elements.mainApp.style.display = 'block';
-                    init(); }, 350);
+                setTimeout(() => { elements.loginOverlay.style.display = 'none'; elements.mainApp.style.display = 'block'; init(); }, 350);
                 showToast('登录成功！');
             } else {
                 appState.loginAttempts++;
@@ -1673,7 +1700,7 @@
                         records: appState.records,
                         recycleBin: appState.recycleBin,
                         backupTime: new Date().toISOString(),
-                        version: '38.0'
+                        version: '39.0'
                     };
                     await dbManager.saveDailyBackup(backupData);
                     const success = await writeBackupFile(backupData);
@@ -1695,7 +1722,7 @@
                 records: appState.records,
                 recycleBin: appState.recycleBin,
                 backupTime: new Date().toISOString(),
-                version: '38.0'
+                version: '39.0'
             };
             const success = await writeBackupFile(backupData);
             if (success) {
@@ -1723,8 +1750,7 @@
             if (!appState.isLoggedIn) elements.passwordInput.focus();
         }
         document.addEventListener('DOMContentLoaded', function() {
-            elements.passwordInput.addEventListener('keypress', function(e) { if (e.key === 'Enter') checkPassword
-            (); });
+            elements.passwordInput.addEventListener('keypress', function(e) { if (e.key === 'Enter') checkPassword(); });
             init();
         });
 
@@ -1802,8 +1828,8 @@
 
             if (potentialDuplicate) {
                 if (confirm('⚠️ 检测到疑似重复记录：\n\n' +
-                        `日期：${date}\n姓名：${name}\n分类：${getCategoryLabel(category, subtype)}\n金额：¥${Math.abs(amount).toFixed(2)}\n特码：${note || '无'}\n\n` +
-                        '是否仍然保存此记录？\n（点击"确定"强制保存，"取消"放弃）')) {
+                    `日期：${date}\n姓名：${name}\n分类：${getCategoryLabel(category, subtype)}\n金额：¥${Math.abs(amount).toFixed(2)}\n特码：${note || '无'}\n\n` +
+                    '是否仍然保存此记录？\n（点击"确定"强制保存，"取消"放弃）')) {
                     doSave();
                 }
             } else {
@@ -1855,31 +1881,26 @@
         }
         function renderDateRecordsTable(records) {
             const tbody = elements.dateRecordsBody;
-            if (records.length === 0) { tbody.innerHTML =
-                    '<tr><td colspan="7" class="empty-state">该日期暂无记录</td></tr>'; return; }
+            if (records.length === 0) { tbody.innerHTML = '<tr><td colspan="7" class="empty-state">该日期暂无记录</td></tr>'; return; }
             let html = '';
             records.forEach(record => {
                 const isIncome = record.amount > 0;
                 const categoryLabel = getCategoryLabel(record.category, record.subtype);
                 const rebate = record.rebate || 0;
                 const rebateClass = rebate >= 0 ? 'stat-rebate' : 'stat-expense';
-                html +=
-                    `<tr><td><strong>${record.name}</strong></td><td><span class="category-badge ${record.subtype ? record.category + '-' + record.subtype : record.category}">${categoryLabel}</span></td><td><span class="type-badge ${isIncome ? 'type-income' : 'type-expense'}">${isIncome ? '收入' : '支出'}</span></td><td class="${isIncome ? 'stat-income' : 'stat-expense'}">${isIncome ? '+' : ''}¥${Math.abs(record.amount).toFixed(2)}</td><td class="${rebateClass}">${rebate !== 0 ? (rebate > 0 ? '+' : '') + '¥' + Math.abs(rebate).toFixed(2) : '-'}</td><td>${record.note || '-'}</td><td><button class="action-btn action-delete" onclick="deleteRecord('${record.id}')">删除</button></td></tr>`;
+                html += `<tr><td><strong>${record.name}</strong></td><td><span class="category-badge ${record.subtype ? record.category + '-' + record.subtype : record.category}">${categoryLabel}</span></td><td><span class="type-badge ${isIncome ? 'type-income' : 'type-expense'}">${isIncome ? '收入' : '支出'}</span></td><td class="${isIncome ? 'stat-income' : 'stat-expense'}">${isIncome ? '+' : ''}¥${Math.abs(record.amount).toFixed(2)}</td><td class="${rebateClass}">${rebate !== 0 ? (rebate > 0 ? '+' : '') + '¥' + Math.abs(rebate).toFixed(2) : '-'}</td><td>${record.note || '-'}</td><td><button class="action-btn action-delete" onclick="deleteRecord('${record.id}')">删除</button></td></tr>`;
             });
             tbody.innerHTML = html;
         }
         function updateDateRebateSummary(records) {
             if (!elements.dateRebateSummary) return;
-            let macauDownRebate = 0,
-                guangdongDownRebate = 0;
+            let macauDownRebate = 0, guangdongDownRebate = 0;
             records.forEach(record => {
                 if (record.category === 'macau' && record.subtype === 'down') macauDownRebate += record.rebate || 0;
-                else if (record.category === 'guangdong' && record.subtype === 'down') guangdongDownRebate += record
-                    .rebate || 0;
+                else if (record.category === 'guangdong' && record.subtype === 'down') guangdongDownRebate += record.rebate || 0;
             });
             const totalRebate = macauDownRebate + guangdongDownRebate;
-            elements.dateRebateSummary.innerHTML =
-                `<div class="rebate-item">澳门下家返点:<span class="rebate-value">${macauDownRebate.toFixed(2)}元</span></div><div class="rebate-item">粤港下家返点:<span class="rebate-value">${guangdongDownRebate.toFixed(2)}元</span></div><div class="total-rebate">总返点:<span class="total-rebate-value">${totalRebate.toFixed(2)}元</span></div>`;
+            elements.dateRebateSummary.innerHTML = `<div class="rebate-item">澳门下家返点:<span class="rebate-value">${macauDownRebate.toFixed(2)}元</span></div><div class="rebate-item">粤港下家返点:<span class="rebate-value">${guangdongDownRebate.toFixed(2)}元</span></div><div class="total-rebate">总返点:<span class="total-rebate-value">${totalRebate.toFixed(2)}元</span></div>`;
         }
 
         // ==================== 我的收支统计 ====================
@@ -1910,10 +1931,8 @@
             return totalRebate;
         }
         function calculateStatsOld(recordList) {
-            let income = 0,
-                expense = 0;
-            recordList.forEach(record => { if (record.amount > 0) income += record.amount;
-                else expense += record.amount; });
+            let income = 0, expense = 0;
+            recordList.forEach(record => { if (record.amount > 0) income += record.amount; else expense += record.amount; });
             return { income, expense: Math.abs(expense), profit: income + expense, count: recordList.length };
         }
         function getCategoryLabel(category, subtype) {
@@ -1925,14 +1944,11 @@
             const container = elements.myIncomeStats;
             container.innerHTML = '';
             const macauIsIncome = stats.macau.my >= 0;
-            container.innerHTML +=
-                `<div class="stat-card"><div class="stat-header"><div class="stat-title">澳门收支统计</div><div class="stat-amount ${macauIsIncome ? 'stat-income' : 'stat-expense'}">${macauIsIncome ? '+' : ''}¥${Math.abs(stats.macau.my).toFixed(2)}</div></div><div class="${macauIsIncome ? 'income-hint' : 'expense-hint'}" style="margin-top: 5px;">${macauIsIncome ? '收入' : '支出'} ¥${Math.abs(stats.macau.my).toFixed(2)}</div><div class="stat-details">澳门下家：${stats.macau.down.profit >= 0 ? '+' : ''}¥${Math.abs(stats.macau.down.profit).toFixed(2)}<br>澳门上家：${stats.macau.up.profit >= 0 ? '+' : ''}¥${Math.abs(stats.macau.up.profit).toFixed(2)}</div></div>`;
+            container.innerHTML += `<div class="stat-card"><div class="stat-header"><div class="stat-title">澳门收支统计</div><div class="stat-amount ${macauIsIncome ? 'stat-income' : 'stat-expense'}">${macauIsIncome ? '+' : ''}¥${Math.abs(stats.macau.my).toFixed(2)}</div></div><div class="${macauIsIncome ? 'income-hint' : 'expense-hint'}" style="margin-top: 5px;">${macauIsIncome ? '收入' : '支出'} ¥${Math.abs(stats.macau.my).toFixed(2)}</div><div class="stat-details">澳门下家：${stats.macau.down.profit >= 0 ? '+' : ''}¥${Math.abs(stats.macau.down.profit).toFixed(2)}<br>澳门上家：${stats.macau.up.profit >= 0 ? '+' : ''}¥${Math.abs(stats.macau.up.profit).toFixed(2)}</div></div>`;
             const guangdongIsIncome = stats.guangdong.my >= 0;
-            container.innerHTML +=
-                `<div class="stat-card"><div class="stat-header"><div class="stat-title">粤港收支统计</div><div class="stat-amount ${guangdongIsIncome ? 'stat-income' : 'stat-expense'}">${guangdongIsIncome ? '+' : ''}¥${Math.abs(stats.guangdong.my).toFixed(2)}</div></div><div class="${guangdongIsIncome ? 'income-hint' : 'expense-hint'}" style="margin-top: 5px;">${guangdongIsIncome ? '收入' : '支出'} ¥${Math.abs(stats.guangdong.my).toFixed(2)}</div><div class="stat-details">粤港下家：${stats.guangdong.down.profit >= 0 ? '+' : ''}¥${Math.abs(stats.guangdong.down.profit).toFixed(2)}<br>粤港上家：${stats.guangdong.up.profit >= 0 ? '+' : ''}¥${Math.abs(stats.guangdong.up.profit).toFixed(2)}<br>上家返点：${stats.guangdongUpRebate >= 0 ? '+' : ''}¥${Math.abs(stats.guangdongUpRebate).toFixed(2)}</div></div>`;
+            container.innerHTML += `<div class="stat-card"><div class="stat-header"><div class="stat-title">粤港收支统计</div><div class="stat-amount ${guangdongIsIncome ? 'stat-income' : 'stat-expense'}">${guangdongIsIncome ? '+' : ''}¥${Math.abs(stats.guangdong.my).toFixed(2)}</div></div><div class="${guangdongIsIncome ? 'income-hint' : 'expense-hint'}" style="margin-top: 5px;">${guangdongIsIncome ? '收入' : '支出'} ¥${Math.abs(stats.guangdong.my).toFixed(2)}</div><div class="stat-details">粤港下家：${stats.guangdong.down.profit >= 0 ? '+' : ''}¥${Math.abs(stats.guangdong.down.profit).toFixed(2)}<br>粤港上家：${stats.guangdong.up.profit >= 0 ? '+' : ''}¥${Math.abs(stats.guangdong.up.profit).toFixed(2)}<br>上家返点：${stats.guangdongUpRebate >= 0 ? '+' : ''}¥${Math.abs(stats.guangdongUpRebate).toFixed(2)}</div></div>`;
             const totalIsIncome = stats.total >= 0;
-            container.innerHTML +=
-                `<div class="stat-card"><div class="stat-header"><div class="stat-title">总计收支统计</div><div class="stat-amount ${totalIsIncome ? 'stat-income' : 'stat-expense'}">${totalIsIncome ? '+' : ''}¥${Math.abs(stats.total).toFixed(2)}</div></div><div class="${totalIsIncome ? 'income-hint' : 'expense-hint'}" style="margin-top: 5px;">${totalIsIncome ? '收入' : '支出'} ¥${Math.abs(stats.total).toFixed(2)}</div><div class="stat-details">日期：${date}<br>澳门：${macauIsIncome ? '+' : ''}¥${Math.abs(stats.macau.my).toFixed(2)}<br>粤港：${guangdongIsIncome ? '+' : ''}¥${Math.abs(stats.guangdong.my).toFixed(2)}<br>粤港上家返点：${stats.guangdongUpRebate >= 0 ? '+' : ''}¥${Math.abs(stats.guangdongUpRebate).toFixed(2)}</div></div>`;
+            container.innerHTML += `<div class="stat-card"><div class="stat-header"><div class="stat-title">总计收支统计</div><div class="stat-amount ${totalIsIncome ? 'stat-income' : 'stat-expense'}">${totalIsIncome ? '+' : ''}¥${Math.abs(stats.total).toFixed(2)}</div></div><div class="${totalIsIncome ? 'income-hint' : 'expense-hint'}" style="margin-top: 5px;">${totalIsIncome ? '收入' : '支出'} ¥${Math.abs(stats.total).toFixed(2)}</div><div class="stat-details">日期：${date}<br>澳门：${macauIsIncome ? '+' : ''}¥${Math.abs(stats.macau.my).toFixed(2)}<br>粤港：${guangdongIsIncome ? '+' : ''}¥${Math.abs(stats.guangdong.my).toFixed(2)}<br>粤港上家返点：${stats.guangdongUpRebate >= 0 ? '+' : ''}¥${Math.abs(stats.guangdongUpRebate).toFixed(2)}</div></div>`;
         }
 
         // ==================== 记录列表加载（筛选） ====================
@@ -1942,21 +1958,17 @@
             const filterCategory = elements.filterCategory.value;
             const filterPerson = elements.filterPerson.value;
             let filteredRecords = appState.records;
-            if (selectedYear !== 'all') filteredRecords = filteredRecords.filter(record => record.date.split('-')[0] ===
-                selectedYear);
-            if (selectedMonth !== 'all') filteredRecords = filteredRecords.filter(record => record.date.split('-')[1] ===
-                selectedMonth.toString().padStart(2, '0'));
+            if (selectedYear !== 'all') filteredRecords = filteredRecords.filter(record => record.date.split('-')[0] === selectedYear);
+            if (selectedMonth !== 'all') filteredRecords = filteredRecords.filter(record => record.date.split('-')[1] === selectedMonth.toString().padStart(2, '0'));
             if (filterCategory !== 'all') {
-                if (filterCategory === 'my-income') { renderMyIncomeRecords(filteredRecords, selectedYear, selectedMonth); return; } else if (
-                    filterCategory.includes('-')) {
+                if (filterCategory === 'my-income') { renderMyIncomeRecords(filteredRecords, selectedYear, selectedMonth); return; }
+                else if (filterCategory.includes('-')) {
                     const [category, subtype] = filterCategory.split('-');
-                    filteredRecords = filteredRecords.filter(record => record.category === category && record.subtype ===
-                        subtype);
+                    filteredRecords = filteredRecords.filter(record => record.category === category && record.subtype === subtype);
                 } else filteredRecords = filteredRecords.filter(record => record.category === filterCategory);
             }
             if (filterPerson !== 'all') filteredRecords = filteredRecords.filter(record => record.name === filterPerson);
-            if (appState.searchTerm) filteredRecords = filteredRecords.filter(record => record.name.toLowerCase().includes(appState
-                .searchTerm) || (record.note && record.note.toLowerCase().includes(appState.searchTerm)));
+            if (appState.searchTerm) filteredRecords = filteredRecords.filter(record => record.name.toLowerCase().includes(appState.searchTerm) || (record.note && record.note.toLowerCase().includes(appState.searchTerm)));
             filteredRecords.sort((a, b) => new Date(b.date) - new Date(a.date));
             renderRecordsTable(filteredRecords);
             renderSummaryStats(filteredRecords, selectedYear, selectedMonth, filterCategory);
@@ -1966,44 +1978,34 @@
         }
         function updateDetailRebateSummary(records) {
             if (!elements.detailRebateSummary) return;
-            let macauDownRebate = 0,
-                guangdongDownRebate = 0;
+            let macauDownRebate = 0, guangdongDownRebate = 0;
             records.forEach(record => {
                 if (record.category === 'macau' && record.subtype === 'down') macauDownRebate += record.rebate || 0;
-                else if (record.category === 'guangdong' && record.subtype === 'down') guangdongDownRebate += record
-                    .rebate || 0;
+                else if (record.category === 'guangdong' && record.subtype === 'down') guangdongDownRebate += record.rebate || 0;
             });
             const totalRebate = macauDownRebate + guangdongDownRebate;
-            elements.detailRebateSummary.innerHTML =
-                `<div class="rebate-item">澳门下家返点:<span class="rebate-value">${macauDownRebate.toFixed(2)}元</span></div><div class="rebate-item">粤港下家返点:<span class="rebate-value">${guangdongDownRebate.toFixed(2)}元</span></div><div class="total-rebate">总返点:<span class="total-rebate-value">${totalRebate.toFixed(2)}元</span></div>`;
+            elements.detailRebateSummary.innerHTML = `<div class="rebate-item">澳门下家返点:<span class="rebate-value">${macauDownRebate.toFixed(2)}元</span></div><div class="rebate-item">粤港下家返点:<span class="rebate-value">${guangdongDownRebate.toFixed(2)}元</span></div><div class="total-rebate">总返点:<span class="total-rebate-value">${totalRebate.toFixed(2)}元</span></div>`;
         }
         function updateFilterDisplay() {
-            elements.filterYearDisplay.textContent = elements.selectYear.value === 'all' ? '全部年份' :
-                `${elements.selectYear.value}年`;
-            elements.filterMonthDisplay.textContent = elements.selectMonth.value === 'all' ? '全部月份' :
-                `${elements.selectMonth.value}月`;
-            elements.filterCategoryDisplay.textContent = elements.filterCategory.value === 'all' ? '全部分类' : elements
-                .filterCategory.options[elements.filterCategory.selectedIndex].text;
-            elements.filterNameDisplay.textContent = elements.filterPerson.value === 'all' ? '全部人员' : elements.filterPerson
-                .value;
+            elements.filterYearDisplay.textContent = elements.selectYear.value === 'all' ? '全部年份' : `${elements.selectYear.value}年`;
+            elements.filterMonthDisplay.textContent = elements.selectMonth.value === 'all' ? '全部月份' : `${elements.selectMonth.value}月`;
+            elements.filterCategoryDisplay.textContent = elements.filterCategory.value === 'all' ? '全部分类' : elements.filterCategory.options[elements.filterCategory.selectedIndex].text;
+            elements.filterNameDisplay.textContent = elements.filterPerson.value === 'all' ? '全部人员' : elements.filterPerson.value;
         }
 
-        // ==================== 转置收支明细表 ====================
+        // ==================== 转置收支明细表 - 独立滚动 ====================
         function updateDetailTransposedTable(filteredRecords) {
             const tableHead = document.querySelector('#detail-transposed-table thead tr');
             const transposedBody = elements.transposedBody;
             const personCount = elements.transposedPersonCount;
             const monthCount = elements.transposedMonthCount;
             const totalProfit = elements.transposedTotal;
-            tableHead.innerHTML = '<th style="width: 60px;">月份</th>';
+            const tableWrapper = elements.detailTableWrapper;
+            tableHead.innerHTML = '<th style="width: 60px; min-width: 60px;">月份</th>';
             transposedBody.innerHTML = '';
             if (filteredRecords.length === 0) {
-                transposedBody.innerHTML =
-                    '<tr class="empty-state-row"><td colspan="1" class="empty-state">暂无数据</td></tr>';
-                personCount.textContent = '0';
-                monthCount.textContent = '0';
-                totalProfit.textContent = '0';
-                totalProfit.className = '';
+                transposedBody.innerHTML = '<tr class="empty-state-row"><td colspan="1" class="empty-state">暂无数据</td></tr>';
+                personCount.textContent = '0'; monthCount.textContent = '0'; totalProfit.textContent = '0'; totalProfit.className = '';
                 return;
             }
             const allPersons = [...new Set(filteredRecords.map(record => record.name))].sort();
@@ -2027,12 +2029,14 @@
             });
             allPersons.forEach(name => {
                 const th = document.createElement('th');
-                th.style.width = '80px';
+                th.style.minWidth = '85px';
+                th.style.width = '85px';
                 th.innerHTML = `<strong>${name}</strong>`;
                 tableHead.appendChild(th);
             });
             const totalTh = document.createElement('th');
-            totalTh.style.width = '80px';
+            totalTh.style.minWidth = '85px';
+            totalTh.style.width = '85px';
             totalTh.innerHTML = '<strong>总计</strong>';
             tableHead.appendChild(totalTh);
             monthsToShow.forEach(month => {
@@ -2046,18 +2050,16 @@
                     const cell = document.createElement('td');
                     const profit = personMonthStats[name]?.[month] || 0;
                     if (profit !== 0) {
-                        if (profit > 0) { cell.className = 'stat-income';
-                            cell.innerHTML = `+¥${profit.toFixed(2)}`; } else { cell.className = 'stat-expense';
-                            cell.innerHTML = `-¥${Math.abs(profit).toFixed(2)}`; }
+                        if (profit > 0) { cell.className = 'stat-income'; cell.innerHTML = `+¥${profit.toFixed(2)}`; }
+                        else { cell.className = 'stat-expense'; cell.innerHTML = `-¥${Math.abs(profit).toFixed(2)}`; }
                         monthTotal += profit;
                     } else cell.innerHTML = '';
                     row.appendChild(cell);
                 });
                 const totalCell = document.createElement('td');
                 if (monthTotal !== 0) {
-                    if (monthTotal > 0) { totalCell.className = 'stat-income';
-                        totalCell.innerHTML = `+¥${monthTotal.toFixed(2)}`; } else { totalCell.className = 'stat-expense';
-                        totalCell.innerHTML = `-¥${Math.abs(monthTotal).toFixed(2)}`; }
+                    if (monthTotal > 0) { totalCell.className = 'stat-income'; totalCell.innerHTML = `+¥${monthTotal.toFixed(2)}`; }
+                    else { totalCell.className = 'stat-expense'; totalCell.innerHTML = `-¥${Math.abs(monthTotal).toFixed(2)}`; }
                 } else totalCell.innerHTML = '';
                 row.appendChild(totalCell);
                 transposedBody.appendChild(row);
@@ -2072,29 +2074,24 @@
                 let personTotal = 0;
                 monthsToShow.forEach(month => { personTotal += personMonthStats[name]?.[month] || 0; });
                 if (personTotal !== 0) {
-                    if (personTotal > 0) { cell.className = 'stat-income';
-                        cell.innerHTML = `+¥${personTotal.toFixed(2)}`; } else { cell.className = 'stat-expense';
-                        cell.innerHTML = `-¥${Math.abs(personTotal).toFixed(2)}`; }
+                    if (personTotal > 0) { cell.className = 'stat-income'; cell.innerHTML = `+¥${personTotal.toFixed(2)}`; }
+                    else { cell.className = 'stat-expense'; cell.innerHTML = `-¥${Math.abs(personTotal).toFixed(2)}`; }
                 } else cell.innerHTML = '';
                 totalRow.appendChild(cell);
             });
             const grandTotalCell = document.createElement('td');
             if (grandTotalProfit !== 0) {
-                if (grandTotalProfit > 0) { grandTotalCell.className = 'stat-income';
-                    grandTotalCell.innerHTML = `+¥${grandTotalProfit.toFixed(2)}`; } else { grandTotalCell.className =
-                    'stat-expense';
-                    grandTotalCell.innerHTML = `-¥${Math.abs(grandTotalProfit).toFixed(2)}`; }
+                if (grandTotalProfit > 0) { grandTotalCell.className = 'stat-income'; grandTotalCell.innerHTML = `+¥${grandTotalProfit.toFixed(2)}`; }
+                else { grandTotalCell.className = 'stat-expense'; grandTotalCell.innerHTML = `-¥${Math.abs(grandTotalProfit).toFixed(2)}`; }
             } else grandTotalCell.innerHTML = '';
             totalRow.appendChild(grandTotalCell);
             transposedBody.appendChild(totalRow);
             personCount.textContent = allPersons.length;
             monthCount.textContent = monthsToShow.length;
             if (grandTotalProfit !== 0) {
-                if (grandTotalProfit > 0) { totalProfit.className = 'stat-income';
-                    totalProfit.innerHTML = `+¥${grandTotalProfit.toFixed(2)}`; } else { totalProfit.className = 'stat-expense';
-                    totalProfit.innerHTML = `-¥${Math.abs(grandTotalProfit).toFixed(2)}`; }
-            } else { totalProfit.innerHTML = '0';
-                totalProfit.className = ''; }
+                if (grandTotalProfit > 0) { totalProfit.className = 'stat-income'; totalProfit.innerHTML = `+¥${grandTotalProfit.toFixed(2)}`; }
+                else { totalProfit.className = 'stat-expense'; totalProfit.innerHTML = `-¥${Math.abs(grandTotalProfit).toFixed(2)}`; }
+            } else { totalProfit.innerHTML = '0'; totalProfit.className = ''; }
         }
 
         // ==================== 批量选择与删除 ====================
@@ -2102,11 +2099,9 @@
             const checkboxes = document.querySelectorAll('#records-body input[type="checkbox"]:not(#select-all)');
             const selectAllCheckbox = elements.selectAll;
             if (selectAllCheckbox.checked) {
-                checkboxes.forEach(checkbox => { checkbox.checked = true;
-                    appState.selectedRecords.add(checkbox.value); });
+                checkboxes.forEach(checkbox => { checkbox.checked = true; appState.selectedRecords.add(checkbox.value); });
             } else {
-                checkboxes.forEach(checkbox => { checkbox.checked = false;
-                    appState.selectedRecords.delete(checkbox.value); });
+                checkboxes.forEach(checkbox => { checkbox.checked = false; appState.selectedRecords.delete(checkbox.value); });
             }
             updateBatchToolbar();
         }
@@ -2120,13 +2115,10 @@
             elements.batchCount.textContent = count;
             elements.batchToolbar.classList.toggle('show', count > 0);
             const totalCheckboxes = document.querySelectorAll('#records-body input[type="checkbox"]:not(#select-all)');
-            const checkedCheckboxes = document.querySelectorAll(
-                '#records-body input[type="checkbox"]:not(#select-all):checked');
-            if (checkedCheckboxes.length === 0) { elements.selectAll.checked = false;
-                elements.selectAll.indeterminate = false; } else if (checkedCheckboxes.length === totalCheckboxes.length) { elements
-                .selectAll.checked = true;
-                elements.selectAll.indeterminate = false; } else { elements.selectAll.checked = false;
-                elements.selectAll.indeterminate = true; }
+            const checkedCheckboxes = document.querySelectorAll('#records-body input[type="checkbox"]:not(#select-all):checked');
+            if (checkedCheckboxes.length === 0) { elements.selectAll.checked = false; elements.selectAll.indeterminate = false; }
+            else if (checkedCheckboxes.length === totalCheckboxes.length) { elements.selectAll.checked = true; elements.selectAll.indeterminate = false; }
+            else { elements.selectAll.checked = false; elements.selectAll.indeterminate = true; }
         }
         function clearSelection() {
             appState.selectedRecords.clear();
@@ -2139,19 +2131,13 @@
             const record = appState.records.find(r => r.id === recordId);
             if (!record) return;
             if (confirm('确定要删除这条记录吗？记录将移至回收站，可随时恢复。')) {
-                const deletedRecord = { ...record, deletedAt: new Date().toISOString(), originalIndex: appState.records.indexOf(
-                        record) };
+                const deletedRecord = { ...record, deletedAt: new Date().toISOString(), originalIndex: appState.records.indexOf(record) };
                 appState.records = appState.records.filter(r => r.id !== recordId);
                 appState.recycleBin.unshift(deletedRecord);
                 appState.selectedRecords.delete(recordId);
                 saveLocalData();
-                updatePersonFilter();
-                updateYearFilter();
-                loadRecords();
-                loadDateRecords();
-                loadMyIncomeStatsForDate(appState.currentViewDate);
-                updateRecycleCount();
-                renderRecycleTable();
+                updatePersonFilter(); updateYearFilter(); loadRecords(); loadDateRecords(); loadMyIncomeStatsForDate(appState.currentViewDate);
+                updateRecycleCount(); renderRecycleTable();
                 showToast('记录已删除，可在回收站找回');
                 showUndoToast();
             }
@@ -2161,17 +2147,11 @@
             if (confirm(`确定要删除选中的 ${appState.selectedRecords.size} 条记录吗？记录将移至回收站。`)) {
                 const selectedRecordsData = appState.records.filter(record => appState.selectedRecords.has(record.id));
                 appState.records = appState.records.filter(record => !appState.selectedRecords.has(record.id));
-                selectedRecordsData.forEach(record => { appState.recycleBin.unshift({ ...record, deletedAt: new Date()
-                        .toISOString(), originalIndex: appState.records.length }); });
+                selectedRecordsData.forEach(record => { appState.recycleBin.unshift({ ...record, deletedAt: new Date().toISOString(), originalIndex: appState.records.length }); });
                 clearSelection();
                 saveLocalData();
-                updatePersonFilter();
-                updateYearFilter();
-                loadRecords();
-                loadDateRecords();
-                loadMyIncomeStatsForDate(appState.currentViewDate);
-                updateRecycleCount();
-                renderRecycleTable();
+                updatePersonFilter(); updateYearFilter(); loadRecords(); loadDateRecords(); loadMyIncomeStatsForDate(appState.currentViewDate);
+                updateRecycleCount(); renderRecycleTable();
                 showToast(`已将 ${selectedRecordsData.length} 条记录移至回收站`);
             }
         }
@@ -2183,11 +2163,7 @@
             appState.deletedRecord = null;
             hideUndoToast();
             saveLocalData();
-            updatePersonFilter();
-            updateYearFilter();
-            loadRecords();
-            loadDateRecords();
-            loadMyIncomeStatsForDate(appState.currentViewDate);
+            updatePersonFilter(); updateYearFilter(); loadRecords(); loadDateRecords(); loadMyIncomeStatsForDate(appState.currentViewDate);
             showToast('已撤销删除操作');
         }
 
@@ -2196,8 +2172,7 @@
             const tbody = elements.recordsBody;
             const container = elements.summaryStats;
             const recordsByDate = {};
-            records.forEach(record => { if (!recordsByDate[record.date]) recordsByDate[record.date] = [];
-                recordsByDate[record.date].push(record); });
+            records.forEach(record => { if (!recordsByDate[record.date]) recordsByDate[record.date] = []; recordsByDate[record.date].push(record); });
             const myIncomeRecords = [];
             Object.keys(recordsByDate).forEach(date => {
                 const dateRecords = recordsByDate[date];
@@ -2215,11 +2190,8 @@
                 const totalMyIncome = macauMyIncome + guangdongMyIncome;
                 if (totalMyIncome !== 0) {
                     myIncomeRecords.push({
-                        date,
-                        name: '我的收支',
-                        category: 'my-income',
-                        type: totalMyIncome >= 0 ? 'income' : 'expense',
-                        amount: totalMyIncome,
+                        date, name: '我的收支', category: 'my-income',
+                        type: totalMyIncome >= 0 ? 'income' : 'expense', amount: totalMyIncome,
                         note: `澳门:${macauMyIncome >= 0 ? '+' : ''}${macauMyIncome.toFixed(2)} 粤港:${guangdongMyIncome >= 0 ? '+' : ''}${guangdongMyIncome.toFixed(2)} 上家返点:${guangdongUpRebate >= 0 ? '+' : ''}${guangdongUpRebate.toFixed(2)}`,
                         isVirtual: true
                     });
@@ -2237,15 +2209,13 @@
                 const rowClass = isIncome ? 'my-income-row' : 'my-expense-row';
                 const badgeClass = isIncome ? 'my-income' : 'my-expense';
                 const badgeText = isIncome ? '我的收入' : '我的支出';
-                html +=
-                    `<tr class="${rowClass}"><td><input type="checkbox" class="checkbox" value="${record.id}" onchange="toggleRecordSelection('${record.id}', this)"></td><td>${record.date}</td><td><strong>${record.name}</strong></td><td><span class="category-badge ${badgeClass}">${badgeText}</span></td><td><span class="type-badge ${isIncome ? 'type-income' : 'type-expense'}">${isIncome ? '收入' : '支出'}</span></td><td class="${isIncome ? 'stat-income' : 'stat-expense'}">${isIncome ? '+' : ''}¥${Math.abs(record.amount).toFixed(2)}</td><td>-</td><td>${record.note || '-'}</td><td><span style="color: #8c9aa5; font-size: 10px;">计算得出</span></td></tr>`;
+                html += `<tr class="${rowClass}"><td><input type="checkbox" class="checkbox" value="${record.id}" onchange="toggleRecordSelection('${record.id}', this)"></td><td>${record.date}</td><td><strong>${record.name}</strong></td><td><span class="category-badge ${badgeClass}">${badgeText}</span></td><td><span class="type-badge ${isIncome ? 'type-income' : 'type-expense'}">${isIncome ? '收入' : '支出'}</span></td><td class="${isIncome ? 'stat-income' : 'stat-expense'}">${isIncome ? '+' : ''}¥${Math.abs(record.amount).toFixed(2)}</td><td>-</td><td>${record.note || '-'}</td><td><span style="color: #8c9aa5; font-size: 10px;">计算得出</span></td></tr>`;
             });
             tbody.innerHTML = html;
             const myIncomeStats = calculateStatsOld(myIncomeRecords);
             const timeLabel = selectedYear === 'all' ? '全部' : `${selectedYear}年${selectedMonth === 'all' ? '' : selectedMonth + '月'}`;
             const isIncome = myIncomeStats.profit >= 0;
-            container.innerHTML =
-                `<div class="stat-card"><div class="stat-header"><div class="stat-title">我的收支 ${timeLabel}统计</div><div class="stat-amount ${isIncome ? 'stat-income' : 'stat-expense'}">${isIncome ? '+' : ''}¥${Math.abs(myIncomeStats.profit).toFixed(2)}</div></div><div class="${isIncome ? 'income-hint' : 'expense-hint'}" style="margin-top: 5px;">${isIncome ? '收入' : '支出'} ¥${Math.abs(myIncomeStats.profit).toFixed(2)}</div><div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px;"><div><div class="stat-label">总收入</div><div class="stat-amount stat-income">+¥${myIncomeStats.income.toFixed(2)}</div></div><div><div class="stat-label">总支出</div><div class="stat-amount stat-expense">-¥${myIncomeStats.expense.toFixed(2)}</div></div></div><div class="stat-details">记录数：${myIncomeStats.count}天</div></div>`;
+            container.innerHTML = `<div class="stat-card"><div class="stat-header"><div class="stat-title">我的收支 ${timeLabel}统计</div><div class="stat-amount ${isIncome ? 'stat-income' : 'stat-expense'}">${isIncome ? '+' : ''}¥${Math.abs(myIncomeStats.profit).toFixed(2)}</div></div><div class="${isIncome ? 'income-hint' : 'expense-hint'}" style="margin-top: 5px;">${isIncome ? '收入' : '支出'} ¥${Math.abs(myIncomeStats.profit).toFixed(2)}</div><div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px;"><div><div class="stat-label">总收入</div><div class="stat-amount stat-income">+¥${myIncomeStats.income.toFixed(2)}</div></div><div><div class="stat-label">总支出</div><div class="stat-amount stat-expense">-¥${myIncomeStats.expense.toFixed(2)}</div></div></div><div class="stat-details">记录数：${myIncomeStats.count}天</div></div>`;
         }
 
         // ==================== 记录表格渲染 ====================
@@ -2260,37 +2230,30 @@
                 const rebate = record.rebate || 0;
                 const rebateClass = rebate >= 0 ? 'stat-rebate' : 'stat-expense';
                 const isSelected = appState.selectedRecords.has(record.id);
-                html +=
-                    `<tr class="${isSelected ? 'selected' : ''}"><td><input type="checkbox" class="checkbox" value="${record.id}" ${isSelected ? 'checked' : ''} onchange="toggleRecordSelection('${record.id}', this)"></td><td>${record.date}</td><td><strong>${record.name}</strong></td><td><span class="category-badge ${record.subtype ? record.category + '-' + record.subtype : record.category}">${categoryLabel}</span></td><td><span class="type-badge ${isIncome ? 'type-income' : 'type-expense'}">${isIncome ? '收入' : '支出'}</span></td><td class="${isIncome ? 'stat-income' : 'stat-expense'}">${isIncome ? '+' : ''}¥${Math.abs(record.amount).toFixed(2)}</td><td class="${rebateClass}">${rebate !== 0 ? (rebate > 0 ? '+' : '') + '¥' + Math.abs(rebate).toFixed(2) : '-'}</td><td>${record.note || '-'}</td><td><button class="action-btn action-delete" onclick="deleteRecord('${record.id}')">删除</button></td></tr>`;
+                html += `<tr class="${isSelected ? 'selected' : ''}"><td><input type="checkbox" class="checkbox" value="${record.id}" ${isSelected ? 'checked' : ''} onchange="toggleRecordSelection('${record.id}', this)"></td><td>${record.date}</td><td><strong>${record.name}</strong></td><td><span class="category-badge ${record.subtype ? record.category + '-' + record.subtype : record.category}">${categoryLabel}</span></td><td><span class="type-badge ${isIncome ? 'type-income' : 'type-expense'}">${isIncome ? '收入' : '支出'}</span></td><td class="${isIncome ? 'stat-income' : 'stat-expense'}">${isIncome ? '+' : ''}¥${Math.abs(record.amount).toFixed(2)}</td><td class="${rebateClass}">${rebate !== 0 ? (rebate > 0 ? '+' : '') + '¥' + Math.abs(rebate).toFixed(2) : '-'}</td><td>${record.note || '-'}</td><td><button class="action-btn action-delete" onclick="deleteRecord('${record.id}')">删除</button></td></tr>`;
             });
             tbody.innerHTML = html;
         }
 
         // ==================== 统计卡片 ====================
         function calculateStatsNew(recordList) {
-            let sumUpstream = 0,
-                sumDownstream = 0,
-                count = recordList.length;
+            let sumUpstream = 0, sumDownstream = 0, count = recordList.length;
             recordList.forEach(record => {
                 const category = record.category;
                 const amount = record.amount;
                 const subtype = record.subtype;
-                if ((category === 'guangdong' && subtype === 'up') || (category === 'macau' && subtype === 'up'))
-                    sumUpstream += amount;
-                else if ((category === 'macau' && subtype === 'down') || (category === 'guangdong' && subtype === 'down'))
-                    sumDownstream += amount;
+                if ((category === 'guangdong' && subtype === 'up') || (category === 'macau' && subtype === 'up')) sumUpstream += amount;
+                else if ((category === 'macau' && subtype === 'down') || (category === 'guangdong' && subtype === 'down')) sumDownstream += amount;
             });
             const netIncome = sumDownstream - sumUpstream;
-            return { sumUpstream: Number(sumUpstream.toFixed(2)), sumDownstream: Number(sumDownstream.toFixed(2)), netIncome: Number(
-                    netIncome.toFixed(2)), count: count };
+            return { sumUpstream: Number(sumUpstream.toFixed(2)), sumDownstream: Number(sumDownstream.toFixed(2)), netIncome: Number(netIncome.toFixed(2)), count: count };
         }
         function renderSummaryStats(records, selectedYear, selectedMonth, filterCategory) {
             const container = elements.summaryStats;
             const allStats = calculateStatsNew(records);
             const timeLabel = selectedYear === 'all' ? '全部' : `${selectedYear}年${selectedMonth === 'all' ? '' : selectedMonth + '月'}`;
             container.innerHTML = '';
-            container.innerHTML +=
-                `<div class="stat-card"><div class="stat-header"><div class="stat-title">总计 ${timeLabel}统计</div><div class="stat-amount ${allStats.netIncome >= 0 ? 'stat-income' : 'stat-expense'}">${allStats.netIncome >= 0 ? '+' : ''}¥${Math.abs(allStats.netIncome).toFixed(2)}</div></div><div class="${allStats.netIncome >= 0 ? 'income-hint' : 'expense-hint'}" style="margin-top: 5px;">${allStats.netIncome >= 0 ? '收入' : '支出'} ¥${Math.abs(allStats.netIncome).toFixed(2)}</div><div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px;"><div><div class="stat-label">上家总收支（粤港+澳门）</div><div class="stat-amount ${allStats.sumUpstream >= 0 ? 'stat-income' : 'stat-expense'}">${allStats.sumUpstream >= 0 ? '+' : ''}¥${Math.abs(allStats.sumUpstream).toFixed(2)}</div></div><div><div class="stat-label">下家总收支（澳门+粤港）</div><div class="stat-amount ${allStats.sumDownstream >= 0 ? 'stat-income' : 'stat-expense'}">${allStats.sumDownstream >= 0 ? '+' : ''}¥${Math.abs(allStats.sumDownstream).toFixed(2)}</div></div></div><div class="stat-details">记录总数：${allStats.count}条</div></div>`;
+            container.innerHTML += `<div class="stat-card"><div class="stat-header"><div class="stat-title">总计 ${timeLabel}统计</div><div class="stat-amount ${allStats.netIncome >= 0 ? 'stat-income' : 'stat-expense'}">${allStats.netIncome >= 0 ? '+' : ''}¥${Math.abs(allStats.netIncome).toFixed(2)}</div></div><div class="${allStats.netIncome >= 0 ? 'income-hint' : 'expense-hint'}" style="margin-top: 5px;">${allStats.netIncome >= 0 ? '收入' : '支出'} ¥${Math.abs(allStats.netIncome).toFixed(2)}</div><div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px;"><div><div class="stat-label">上家总收支（粤港+澳门）</div><div class="stat-amount ${allStats.sumUpstream >= 0 ? 'stat-income' : 'stat-expense'}">${allStats.sumUpstream >= 0 ? '+' : ''}¥${Math.abs(allStats.sumUpstream).toFixed(2)}</div></div><div><div class="stat-label">下家总收支（澳门+粤港）</div><div class="stat-amount ${allStats.sumDownstream >= 0 ? 'stat-income' : 'stat-expense'}">${allStats.sumDownstream >= 0 ? '+' : ''}¥${Math.abs(allStats.sumDownstream).toFixed(2)}</div></div></div><div class="stat-details">记录总数：${allStats.count}条</div></div>`;
             const macauUpRecords = records.filter(r => r.category === 'macau' && r.subtype === 'up');
             const macauDownRecords = records.filter(r => r.category === 'macau' && r.subtype === 'down');
             const guangdongUpRecords = records.filter(r => r.category === 'guangdong' && r.subtype === 'up');
@@ -2304,13 +2267,11 @@
             const guangdongUpRebate = calculateGuangdongUpRebate(guangdongUpRecords);
             if (filterCategory === 'all' || filterCategory.includes('macau')) {
                 const macauIsIncome = macauMyIncome >= 0;
-                container.innerHTML +=
-                    `<div class="stat-card"><div class="stat-header"><div class="stat-title">澳门 ${timeLabel}统计</div><div class="stat-amount ${macauIsIncome ? 'stat-income' : 'stat-expense'}">${macauIsIncome ? '+' : ''}¥${Math.abs(macauMyIncome).toFixed(2)}</div></div><div class="${macauIsIncome ? 'income-hint' : 'expense-hint'}" style="margin-bottom: 6px;">${macauIsIncome ? '收入' : '支出'} ¥${Math.abs(macauMyIncome).toFixed(2)}</div><div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 6px;"><div><div class="stat-label">上家</div><div class="stat-amount ${macauUpTotal.profit >= 0 ? 'stat-income' : 'stat-expense'}">${macauUpTotal.profit >= 0 ? '+' : ''}¥${Math.abs(macauUpTotal.profit).toFixed(2)}</div></div><div><div class="stat-label">下家</div><div class="stat-amount ${macauDownTotal.profit >= 0 ? 'stat-income' : 'stat-expense'}">${macauDownTotal.profit >= 0 ? '+' : ''}¥${Math.abs(macauDownTotal.profit).toFixed(2)}</div></div></div><div class="stat-details">记录数：${macauUpTotal.count + macauDownTotal.count}条</div></div>`;
+                container.innerHTML += `<div class="stat-card"><div class="stat-header"><div class="stat-title">澳门 ${timeLabel}统计</div><div class="stat-amount ${macauIsIncome ? 'stat-income' : 'stat-expense'}">${macauIsIncome ? '+' : ''}¥${Math.abs(macauMyIncome).toFixed(2)}</div></div><div class="${macauIsIncome ? 'income-hint' : 'expense-hint'}" style="margin-bottom: 6px;">${macauIsIncome ? '收入' : '支出'} ¥${Math.abs(macauMyIncome).toFixed(2)}</div><div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 6px;"><div><div class="stat-label">上家</div><div class="stat-amount ${macauUpTotal.profit >= 0 ? 'stat-income' : 'stat-expense'}">${macauUpTotal.profit >= 0 ? '+' : ''}¥${Math.abs(macauUpTotal.profit).toFixed(2)}</div></div><div><div class="stat-label">下家</div><div class="stat-amount ${macauDownTotal.profit >= 0 ? 'stat-income' : 'stat-expense'}">${macauDownTotal.profit >= 0 ? '+' : ''}¥${Math.abs(macauDownTotal.profit).toFixed(2)}</div></div></div><div class="stat-details">记录数：${macauUpTotal.count + macauDownTotal.count}条</div></div>`;
             }
             if (filterCategory === 'all' || filterCategory.includes('guangdong')) {
                 const guangdongIsIncome = guangdongMyIncome >= 0;
-                container.innerHTML +=
-                    `<div class="stat-card"><div class="stat-header"><div class="stat-title">粤港 ${timeLabel}统计</div><div class="stat-amount ${guangdongIsIncome ? 'stat-income' : 'stat-expense'}">${guangdongIsIncome ? '+' : ''}¥${Math.abs(guangdongMyIncome).toFixed(2)}</div></div><div class="${guangdongIsIncome ? 'income-hint' : 'expense-hint'}" style="margin-bottom: 6px;">${guangdongIsIncome ? '收入' : '支出'} ¥${Math.abs(guangdongMyIncome).toFixed(2)}</div><div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 6px;"><div><div class="stat-label">上家</div><div class="stat-amount ${guangdongUpTotal.profit >= 0 ? 'stat-income' : 'stat-expense'}">${guangdongUpTotal.profit >= 0 ? '+' : ''}¥${Math.abs(guangdongUpTotal.profit).toFixed(2)}</div></div><div><div class="stat-label">下家</div><div class="stat-amount ${guangdongDownTotal.profit >= 0 ? 'stat-income' : 'stat-expense'}">${guangdongDownTotal.profit >= 0 ? '+' : ''}¥${Math.abs(guangdongDownTotal.profit).toFixed(2)}</div></div></div><div class="${guangdongUpRebate >= 0 ? 'rebate-hint' : 'expense-hint'}" style="margin-top: 6px; font-size: 10px;">上家返点：${guangdongUpRebate >= 0 ? '+' : ''}¥${Math.abs(guangdongUpRebate).toFixed(2)}</div><div class="stat-details">记录数：${guangdongUpTotal.count + guangdongDownTotal.count}条</div></div>`;
+                container.innerHTML += `<div class="stat-card"><div class="stat-header"><div class="stat-title">粤港 ${timeLabel}统计</div><div class="stat-amount ${guangdongIsIncome ? 'stat-income' : 'stat-expense'}">${guangdongIsIncome ? '+' : ''}¥${Math.abs(guangdongMyIncome).toFixed(2)}</div></div><div class="${guangdongIsIncome ? 'income-hint' : 'expense-hint'}" style="margin-bottom: 6px;">${guangdongIsIncome ? '收入' : '支出'} ¥${Math.abs(guangdongMyIncome).toFixed(2)}</div><div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 6px;"><div><div class="stat-label">上家</div><div class="stat-amount ${guangdongUpTotal.profit >= 0 ? 'stat-income' : 'stat-expense'}">${guangdongUpTotal.profit >= 0 ? '+' : ''}¥${Math.abs(guangdongUpTotal.profit).toFixed(2)}</div></div><div><div class="stat-label">下家</div><div class="stat-amount ${guangdongDownTotal.profit >= 0 ? 'stat-income' : 'stat-expense'}">${guangdongDownTotal.profit >= 0 ? '+' : ''}¥${Math.abs(guangdongDownTotal.profit).toFixed(2)}</div></div></div><div class="${guangdongUpRebate >= 0 ? 'rebate-hint' : 'expense-hint'}" style="margin-top: 6px; font-size: 10px;">上家返点：${guangdongUpRebate >= 0 ? '+' : ''}¥${Math.abs(guangdongUpRebate).toFixed(2)}</div><div class="stat-details">记录数：${guangdongUpTotal.count + guangdongDownTotal.count}条</div></div>`;
             }
         }
 
@@ -2338,8 +2299,7 @@
             });
             if (monthRecords.length === 0) { showToast('本月没有记录可清除', true); return; }
             if (confirm(`确定要清除本月的所有记录吗？\n将删除 ${monthRecords.length} 条记录\n此操作不可恢复！`)) {
-                monthRecords.forEach(record => { appState.recycleBin.unshift({ ...record, deletedAt: new Date().toISOString(),
-                        originalIndex: appState.records.indexOf(record) }); });
+                monthRecords.forEach(record => { appState.recycleBin.unshift({ ...record, deletedAt: new Date().toISOString(), originalIndex: appState.records.indexOf(record) }); });
                 appState.records = appState.records.filter(record => {
                     const recordDate = new Date(record.date);
                     const recordYear = recordDate.getFullYear();
@@ -2347,30 +2307,19 @@
                     return !(recordYear === currentYear && recordMonth === currentMonth);
                 });
                 saveLocalData();
-                updatePersonFilter();
-                updateYearFilter();
-                loadRecords();
-                loadDateRecords();
-                loadMyIncomeStatsForDate(appState.currentViewDate);
-                updateRecycleCount();
-                renderRecycleTable();
+                updatePersonFilter(); updateYearFilter(); loadRecords(); loadDateRecords(); loadMyIncomeStatsForDate(appState.currentViewDate);
+                updateRecycleCount(); renderRecycleTable();
                 showToast(`已将本月 ${monthRecords.length} 条记录移至回收站`);
             }
         }
         function clearAllData() {
             if (appState.records.length === 0) { showToast('没有数据可清空', true); return; }
             if (confirm(`确定要清空所有数据吗？\n将删除 ${appState.records.length} 条记录\n此操作不可恢复！`)) {
-                appState.records.forEach(record => { appState.recycleBin.unshift({ ...record, deletedAt: new Date().toISOString(),
-                        originalIndex: appState.records.indexOf(record) }); });
+                appState.records.forEach(record => { appState.recycleBin.unshift({ ...record, deletedAt: new Date().toISOString(), originalIndex: appState.records.indexOf(record) }); });
                 appState.records = [];
                 saveLocalData();
-                updatePersonFilter();
-                updateYearFilter();
-                loadRecords();
-                loadDateRecords();
-                loadMyIncomeStatsForDate(appState.currentViewDate);
-                updateRecycleCount();
-                renderRecycleTable();
+                updatePersonFilter(); updateYearFilter(); loadRecords(); loadDateRecords(); loadMyIncomeStatsForDate(appState.currentViewDate);
+                updateRecycleCount(); renderRecycleTable();
                 showToast('已将数据移至回收站');
             }
         }
@@ -2378,8 +2327,7 @@
         // ==================== 导出/导入数据 ====================
         function exportData() {
             if (appState.records.length === 0) { showToast('没有数据可导出', true); return; }
-            const data = { records: appState.records, recycleBin: appState.recycleBin, exportedAt: new Date().toISOString(),
-                version: '38.0' };
+            const data = { records: appState.records, recycleBin: appState.recycleBin, exportedAt: new Date().toISOString(), version: '39.0' };
             const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -2395,9 +2343,7 @@
             return existingRecords.some(record => {
                 const amountEqual = Math.abs(record.amount) === Math.abs(newRecord.amount);
                 const noteEqual = (record.note || '') === (newRecord.note || '');
-                return record.date === newRecord.date && record.name === newRecord.name && record.category === newRecord
-                    .category && record.subtype === newRecord.subtype && record.type === newRecord.type && amountEqual &&
-                    noteEqual;
+                return record.date === newRecord.date && record.name === newRecord.name && record.category === newRecord.category && record.subtype === newRecord.subtype && record.type === newRecord.type && amountEqual && noteEqual;
             });
         }
         function importData() {
@@ -2413,23 +2359,16 @@
                         const data = JSON.parse(event.target.result);
                         const importedRecords = data.records || [];
                         if (importedRecords.length === 0) { showToast('导入文件中没有记录', true); return; }
-                        let addedCount = 0,
-                            duplicateCount = 0;
+                        let addedCount = 0, duplicateCount = 0;
                         for (const importedRecord of importedRecords) {
                             if (isRecordDuplicate(importedRecord, appState.records)) { duplicateCount++; continue; }
-                            const newRecord = { ...importedRecord, id: Date.now() + '_' + Math.random().toString(36)
-                                    .substr(2, 9) };
+                            const newRecord = { ...importedRecord, id: Date.now() + '_' + Math.random().toString(36).substr(2, 9) };
                             appState.records.unshift(newRecord);
                             addedCount++;
                         }
                         saveLocalData();
-                        updatePersonFilter();
-                        updateYearFilter();
-                        loadRecords();
-                        loadDateRecords();
-                        loadMyIncomeStatsForDate(appState.currentViewDate);
-                        updateRecycleCount();
-                        renderRecycleTable();
+                        updatePersonFilter(); updateYearFilter(); loadRecords(); loadDateRecords(); loadMyIncomeStatsForDate(appState.currentViewDate);
+                        updateRecycleCount(); renderRecycleTable();
                         showToast(`✅ 导入完成：新增 ${addedCount} 条，跳过重复 ${duplicateCount} 条`);
                         if (duplicateCount > 0) setTimeout(() => showToast(`重复记录未导入，请检查`, false), 2000);
                     } catch (error) { showToast('❌ 文件格式错误或数据损坏', true); }
@@ -2440,19 +2379,13 @@
         }
 
         // ==================== 回收站功能 ====================
-        function openRecyclePanel() { elements.recyclePanel.classList.add('show');
-            renderRecycleTable();
-            updateRecycleStats(); }
-
+        function openRecyclePanel() { elements.recyclePanel.classList.add('show'); renderRecycleTable(); updateRecycleStats(); }
         function closeRecyclePanel() { elements.recyclePanel.classList.remove('show'); }
-
         function updateRecycleCount() { elements.recycleCount.textContent = appState.recycleBin.length; }
-
         function updateRecycleStats() {
             const total = appState.recycleBin.length;
             const today = getCurrentDateChina();
-            const weekAgo = new Date();
-            weekAgo.setDate(weekAgo.getDate() - 7);
+            const weekAgo = new Date(); weekAgo.setDate(weekAgo.getDate() - 7);
             const weekAgoStr = formatDateChina(weekAgo);
             const todayCount = appState.recycleBin.filter(item => item.deletedAt.split('T')[0] === today).length;
             const weekCount = appState.recycleBin.filter(item => item.deletedAt.split('T')[0] >= weekAgoStr).length;
@@ -2462,16 +2395,12 @@
             elements.recycleWeek.textContent = weekCount;
             elements.recycleSize.textContent = (size / 1024).toFixed(1) + 'KB';
         }
-
         function renderRecycleTable() {
             const tbody = elements.recycleBody;
             const searchTerm = elements.recycleSearch.value.toLowerCase().trim();
             let recycleRecords = appState.recycleBin;
-            if (searchTerm) recycleRecords = recycleRecords.filter(record => record.name.toLowerCase().includes(
-                searchTerm) || (record.note && record.note.toLowerCase().includes(searchTerm)) || record.date.includes(
-                searchTerm));
-            if (recycleRecords.length === 0) { tbody.innerHTML =
-                    '<tr><td colspan="10" class="empty-state">回收站为空</td></tr>'; return; }
+            if (searchTerm) recycleRecords = recycleRecords.filter(record => record.name.toLowerCase().includes(searchTerm) || (record.note && record.note.toLowerCase().includes(searchTerm)) || record.date.includes(searchTerm));
+            if (recycleRecords.length === 0) { tbody.innerHTML = '<tr><td colspan="10" class="empty-state">回收站为空</td></tr>'; return; }
             let html = '';
             recycleRecords.forEach(record => {
                 const isIncome = record.amount > 0;
@@ -2479,115 +2408,75 @@
                 const deletedTime = new Date(record.deletedAt).toLocaleString('zh-CN');
                 const originalDate = record.date;
                 const rebate = record.rebate || 0;
-                html +=
-                    `<tr><td><input type="checkbox" class="checkbox" value="${record.id}" id="recycle-${record.id}"></td><td><span class="deleted-time">${deletedTime}</span></td><td>${originalDate}</td><td><strong>${record.name}</strong></td><td><span class="category-badge ${record.subtype ? record.category + '-' + record.subtype : record.category}">${categoryLabel}</span></td><td><span class="type-badge ${isIncome ? 'type-income' : 'type-expense'}">${isIncome ? '收入' : '支出'}</span></td><td class="${isIncome ? 'stat-income' : 'stat-expense'}">${isIncome ? '+' : ''}¥${Math.abs(record.amount).toFixed(2)}</td><td class="stat-rebate">${rebate !== 0 ? (rebate > 0 ? '+' : '') + '¥' + Math.abs(rebate).toFixed(2) : '-'}</td><td>${record.note || '-'}</td><td><button class="action-btn restore" onclick="restoreRecord('${record.id}')">还原</button><button class="action-btn delete-permanent" onclick="permanentDelete('${record.id}')">彻底删除</button></td></tr>`;
+                html += `<tr><td><input type="checkbox" class="checkbox" value="${record.id}" id="recycle-${record.id}"></td><td><span class="deleted-time">${deletedTime}</span></td><td>${originalDate}</td><td><strong>${record.name}</strong></td><td><span class="category-badge ${record.subtype ? record.category + '-' + record.subtype : record.category}">${categoryLabel}</span></td><td><span class="type-badge ${isIncome ? 'type-income' : 'type-expense'}">${isIncome ? '收入' : '支出'}</span></td><td class="${isIncome ? 'stat-income' : 'stat-expense'}">${isIncome ? '+' : ''}¥${Math.abs(record.amount).toFixed(2)}</td><td class="stat-rebate">${rebate !== 0 ? (rebate > 0 ? '+' : '') + '¥' + Math.abs(rebate).toFixed(2) : '-'}</td><td>${record.note || '-'}</td><td><button class="action-btn restore" onclick="restoreRecord('${record.id}')">还原</button><button class="action-btn delete-permanent" onclick="permanentDelete('${record.id}')">彻底删除</button></td></tr>`;
             });
             tbody.innerHTML = html;
         }
-
         function searchRecycleRecords() { renderRecycleTable(); }
-
         function toggleRecycleSelectAll() {
             const checkboxes = document.querySelectorAll('#recycle-body input[type="checkbox"]:not(#recycle-select-all)');
             const selectAllCheckbox = elements.recycleSelectAll;
             checkboxes.forEach(checkbox => checkbox.checked = selectAllCheckbox.checked);
         }
-
         function selectAllRecycle() {
             const checkboxes = document.querySelectorAll('#recycle-body input[type="checkbox"]:not(#recycle-select-all)');
             checkboxes.forEach(checkbox => checkbox.checked = true);
         }
-
         function restoreRecord(recordId) {
             const recordIndex = appState.recycleBin.findIndex(r => r.id === recordId);
             if (recordIndex === -1) return;
             const record = appState.recycleBin[recordIndex];
-            appState.records.unshift({ id: record.id, date: record.date, name: record.name, category: record.category,
-                subtype: record.subtype, type: record.type, amount: record.amount, note: record.note, totalAmount: record
-                .totalAmount, rebateRate: record.rebateRate, rebate: record.rebate, createdAt: record.createdAt });
+            appState.records.unshift({ id: record.id, date: record.date, name: record.name, category: record.category, subtype: record.subtype, type: record.type, amount: record.amount, note: record.note, totalAmount: record.totalAmount, rebateRate: record.rebateRate, rebate: record.rebate, createdAt: record.createdAt });
             appState.recycleBin.splice(recordIndex, 1);
             saveLocalData();
-            updatePersonFilter();
-            updateYearFilter();
-            loadRecords();
-            loadDateRecords();
-            loadMyIncomeStatsForDate(appState.currentViewDate);
-            updateRecycleCount();
-            renderRecycleTable();
-            updateRecycleStats();
+            updatePersonFilter(); updateYearFilter(); loadRecords(); loadDateRecords(); loadMyIncomeStatsForDate(appState.currentViewDate);
+            updateRecycleCount(); renderRecycleTable(); updateRecycleStats();
             showToast('记录已还原');
         }
-
         function restoreSelected() {
-            const checkboxes = document.querySelectorAll(
-                '#recycle-body input[type="checkbox"]:not(#recycle-select-all):checked');
+            const checkboxes = document.querySelectorAll('#recycle-body input[type="checkbox"]:not(#recycle-select-all):checked');
             if (checkboxes.length === 0) { showToast('请先选择要还原的记录', true); return; }
             const recordIds = Array.from(checkboxes).map(cb => cb.value);
             recordIds.forEach(recordId => {
                 const recordIndex = appState.recycleBin.findIndex(r => r.id === recordId);
                 if (recordIndex !== -1) {
                     const record = appState.recycleBin[recordIndex];
-                    appState.records.unshift({ id: record.id, date: record.date, name: record.name, category: record
-                            .category, subtype: record.subtype, type: record.type, amount: record.amount, note: record
-                            .note, totalAmount: record.totalAmount, rebateRate: record.rebateRate, rebate: record
-                            .rebate, createdAt: record.createdAt });
+                    appState.records.unshift({ id: record.id, date: record.date, name: record.name, category: record.category, subtype: record.subtype, type: record.type, amount: record.amount, note: record.note, totalAmount: record.totalAmount, rebateRate: record.rebateRate, rebate: record.rebate, createdAt: record.createdAt });
                     appState.recycleBin.splice(recordIndex, 1);
                 }
             });
             saveLocalData();
-            updatePersonFilter();
-            updateYearFilter();
-            loadRecords();
-            loadDateRecords();
-            loadMyIncomeStatsForDate(appState.currentViewDate);
-            updateRecycleCount();
-            renderRecycleTable();
-            updateRecycleStats();
+            updatePersonFilter(); updateYearFilter(); loadRecords(); loadDateRecords(); loadMyIncomeStatsForDate(appState.currentViewDate);
+            updateRecycleCount(); renderRecycleTable(); updateRecycleStats();
             showToast(`已还原 ${recordIds.length} 条记录`);
         }
-
         function restoreAll() {
             if (appState.recycleBin.length === 0) { showToast('回收站为空', true); return; }
             if (confirm(`确定要还原回收站中的所有 ${appState.recycleBin.length} 条记录吗？`)) {
                 appState.recycleBin.forEach(record => {
-                    appState.records.unshift({ id: record.id, date: record.date, name: record.name, category: record
-                            .category, subtype: record.subtype, type: record.type, amount: record.amount, note: record
-                            .note, totalAmount: record.totalAmount, rebateRate: record.rebateRate, rebate: record
-                            .rebate, createdAt: record.createdAt });
+                    appState.records.unshift({ id: record.id, date: record.date, name: record.name, category: record.category, subtype: record.subtype, type: record.type, amount: record.amount, note: record.note, totalAmount: record.totalAmount, rebateRate: record.rebateRate, rebate: record.rebate, createdAt: record.createdAt });
                 });
                 appState.recycleBin = [];
                 saveLocalData();
-                updatePersonFilter();
-                updateYearFilter();
-                loadRecords();
-                loadDateRecords();
-                loadMyIncomeStatsForDate(appState.currentViewDate);
-                updateRecycleCount();
-                renderRecycleTable();
-                updateRecycleStats();
+                updatePersonFilter(); updateYearFilter(); loadRecords(); loadDateRecords(); loadMyIncomeStatsForDate(appState.currentViewDate);
+                updateRecycleCount(); renderRecycleTable(); updateRecycleStats();
                 showToast('已还原所有记录');
             }
         }
-
         function permanentDelete(recordId) {
             if (confirm('确定要彻底删除这条记录吗？此操作不可恢复！')) {
                 appState.recycleBin = appState.recycleBin.filter(r => r.id !== recordId);
                 saveLocalData();
-                updateRecycleCount();
-                renderRecycleTable();
-                updateRecycleStats();
+                updateRecycleCount(); renderRecycleTable(); updateRecycleStats();
                 showToast('记录已彻底删除');
             }
         }
-
         function emptyRecycleBin() {
             if (appState.recycleBin.length === 0) { showToast('回收站已经为空', true); return; }
             if (confirm(`确定要清空回收站吗？将永久删除 ${appState.recycleBin.length} 条记录！`)) {
                 appState.recycleBin = [];
                 saveLocalData();
-                updateRecycleCount();
-                renderRecycleTable();
-                updateRecycleStats();
+                updateRecycleCount(); renderRecycleTable(); updateRecycleStats();
                 showToast('回收站已清空');
             }
         }
@@ -2599,8 +2488,7 @@
                 if (data) {
                     appState.records = data.records || [];
                     appState.recycleBin = data.recycleBin || [];
-                    appState.records.forEach(record => { if (record.date) record.date = formatDateChina(new Date(record
-                            .date)); });
+                    appState.records.forEach(record => { if (record.date) record.date = formatDateChina(new Date(record.date)); });
                     appState.recycleBin.forEach(record => {
                         if (record.date) record.date = formatDateChina(new Date(record.date));
                         if (record.deletedAt) record.deletedAt = formatDateTimeChina(new Date(record.deletedAt));
@@ -2618,8 +2506,7 @@
         }
         async function saveLocalData() {
             try {
-                const data = { records: appState.records, recycleBin: appState.recycleBin, savedAt: new Date().toISOString(),
-                    version: '38.0' };
+                const data = { records: appState.records, recycleBin: appState.recycleBin, savedAt: new Date().toISOString(), version: '39.0' };
                 await dbManager.saveData('finance_main_data', data);
                 updateStorageInfo();
             } catch (error) {
@@ -2627,7 +2514,6 @@
                 showToast('数据保存失败，请检查浏览器存储权限', true);
             }
         }
-
         function updatePersonFilter() {
             const filter = elements.filterPerson;
             filter.innerHTML = '<option value="all">全部人员</option>';
@@ -2640,7 +2526,6 @@
                 filter.appendChild(option);
             });
         }
-
         function updateYearFilter() {
             const yearSelect = elements.selectYear;
             yearSelect.innerHTML = '<option value="all">全部年份</option>';
