@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>个人收支管理系统 - 每日自动覆盖备份</title>
+    <title>个人收支管理系统 - 每日自动覆盖备份（完整版）</title>
     <style>
         * {
             margin: 0;
@@ -12,114 +12,129 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif;
         }
         :root {
-            --primary: #3498db;
-            --primary-dark: #2980b9;
-            --income: #2ecc71;
+            --primary: #5b6abf;
+            --primary-dark: #4a56a8;
+            --income: #27ae60;
             --expense: #e74c3c;
-            --warning: #f39c12;
-            --cloud: #9b59b6;
+            --warning: #f0a030;
+            --cloud: #8e6ab8;
             --profit: #e67e22;
             --rebate: #ff9800;
             --category3: #e67e22;
-            --category4: #34495e;
-            --light: #f8f9fa;
+            --category4: #445566;
+            --light: #f4f6f9;
             --dark: #2c3e50;
-            --border: #ecf0f1;
-            --shadow: 0 3px 8px rgba(0, 0, 0, 0.06);
-            --radius: 6px;
-            --transition: all 0.2s ease;
-            --recycle: #95a5a6;
-            --recycle-hover: #7f8c8d;
+            --border: #e0e4e8;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04);
+            --shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.1);
+            --shadow-xl: 0 12px 32px rgba(0, 0, 0, 0.14);
+            --radius: 10px;
+            --radius-sm: 6px;
+            --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            --recycle: #8899a6;
+            --recycle-hover: #6b7d8a;
+            --bg: #e8ecf1;
+            --nav-start: #3a3f6e;
+            --nav-end: #5b5f8e;
+            --card-header-start: #f0f4fa;
+            --card-header-end: #e8ecf5;
         }
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--bg);
             min-height: 100vh;
-            padding: 12px;
+            padding: 0;
         }
         .container {
-            max-width: 1200px;
+            max-width: 100%;
             margin: 0 auto;
         }
+        /* ========== 登录覆盖层 ========== */
         .login-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #4a6fa5 0%, #5b7db5 30%, #6c8ec4 60%, #7a9fd5 100%);
             display: flex;
             justify-content: center;
             align-items: center;
             z-index: 9999;
-            transition: opacity 0.3s ease;
+            transition: opacity 0.35s ease;
         }
         .login-overlay.hidden {
             opacity: 0;
             pointer-events: none;
         }
         .login-box {
-            background: white;
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 44px 40px;
+            border-radius: 16px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
             text-align: center;
-            min-width: 350px;
-            animation: slideIn 0.5s ease;
+            min-width: 370px;
+            animation: fadeInUp 0.5s ease;
         }
         .login-icon {
-            font-size: 48px;
+            font-size: 52px;
             color: var(--primary);
-            margin-bottom: 20px;
+            margin-bottom: 16px;
         }
         .login-title {
-            font-size: 24px;
-            font-weight: 600;
+            font-size: 26px;
+            font-weight: 700;
             color: var(--dark);
-            margin-bottom: 8px;
+            margin-bottom: 6px;
+            letter-spacing: -0.3px;
         }
         .login-subtitle {
             font-size: 14px;
             color: #7f8c8d;
-            margin-bottom: 30px;
+            margin-bottom: 28px;
         }
         .password-input {
             width: 100%;
-            padding: 12px 16px;
+            padding: 13px 18px;
             border: 2px solid var(--border);
-            border-radius: 8px;
+            border-radius: 10px;
             font-size: 16px;
-            margin-bottom: 20px;
+            margin-bottom: 18px;
             transition: var(--transition);
+            background: #fafbfc;
         }
         .password-input:focus {
             outline: none;
             border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+            box-shadow: 0 0 0 4px rgba(91, 106, 191, 0.1);
+            background: #fff;
         }
         .login-btn {
             width: 100%;
-            padding: 12px;
+            padding: 13px;
             background: linear-gradient(135deg, var(--primary), var(--primary-dark));
             color: white;
             border: none;
-            border-radius: 8px;
+            border-radius: 10px;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
             transition: var(--transition);
-            margin-bottom: 15px;
+            margin-bottom: 14px;
+            letter-spacing: 0.3px;
         }
         .login-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 8px 20px rgba(91, 106, 191, 0.3);
         }
         .login-btn:active {
             transform: translateY(0);
         }
         .error-message {
             color: var(--expense);
-            font-size: 14px;
-            margin-top: 10px;
+            font-size: 13px;
+            margin-top: 8px;
             display: none;
         }
         .error-message.show {
@@ -127,152 +142,888 @@
         }
         .attempts-warning {
             color: var(--warning);
-            font-size: 12px;
-            margin-top: 10px;
+            font-size: 11px;
+            margin-top: 8px;
         }
+        /* ========== 导航栏 - 深蓝紫渐变 ========== */
         .navbar {
-            background: white;
-            border-radius: var(--radius);
-            padding: 10px 12px;
-            margin-bottom: 12px;
+            background: linear-gradient(135deg, var(--nav-start) 0%, var(--nav-end) 100%);
+            padding: 12px 24px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: var(--shadow);
             flex-wrap: wrap;
             gap: 10px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            width: 100%;
+            margin: 0;
+            border-radius: 0;
+            box-shadow: 0 4px 16px rgba(58, 63, 110, 0.25);
         }
         .nav-left {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
             flex-wrap: wrap;
         }
         .nav-icon {
-            font-size: 18px;
-            color: var(--primary);
+            font-size: 22px;
+            color: #fff;
+            background: rgba(255, 255, 255, 0.15);
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
         }
         .nav-title {
-            font-size: 16px;
-            font-weight: 600;
-            color: var(--dark);
+            font-size: 17px;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: -0.2px;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
         }
         .nav-subtitle {
             font-size: 10px;
-            color: #7f8c8d;
-            margin-top: 1px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 2px;
         }
+        /* ========== 按钮 ========== */
         .btn {
-            display: inline-block;
-            padding: 8px 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 8px 15px;
             border: none;
-            border-radius: 6px;
-            font-size: 11px;
+            border-radius: 8px;
+            font-size: 12px;
             font-weight: 600;
             cursor: pointer;
             transition: var(--transition);
             text-align: center;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
             white-space: nowrap;
+            letter-spacing: 0.2px;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.5s, height 0.5s;
+        }
+        .btn:active::after {
+            width: 300px;
+            height: 300px;
         }
         .btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
         }
         .btn:active {
             transform: translateY(0);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
         .btn-success {
-            background: linear-gradient(135deg, var(--income), #27ae60);
+            background: linear-gradient(135deg, #27ae60, #219a52);
             color: white;
+            box-shadow: 0 3px 10px rgba(39, 174, 96, 0.2);
+        }
+        .btn-success:hover {
+            box-shadow: 0 6px 18px rgba(39, 174, 96, 0.35);
         }
         .btn-danger {
-            background: linear-gradient(135deg, var(--expense), #c0392b);
+            background: linear-gradient(135deg, #e74c3c, #d63031);
             color: white;
+            box-shadow: 0 3px 10px rgba(231, 76, 60, 0.2);
+        }
+        .btn-danger:hover {
+            box-shadow: 0 6px 18px rgba(231, 76, 60, 0.35);
         }
         .btn-outline {
-            background: white;
-            color: var(--primary);
-            border: 2px solid var(--primary);
+            background: rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+            border: 1.5px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(5px);
         }
         .btn-outline:hover {
-            background: var(--primary);
-            color: white;
+            background: rgba(255, 255, 255, 0.25);
+            border-color: rgba(255, 255, 255, 0.5);
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
         }
         .btn-warning {
-            background: linear-gradient(135deg, var(--warning), #e67e22);
+            background: linear-gradient(135deg, #f0a030, #e8930c);
             color: white;
+            box-shadow: 0 3px 10px rgba(240, 160, 48, 0.2);
+        }
+        .btn-warning:hover {
+            box-shadow: 0 6px 18px rgba(240, 160, 48, 0.35);
         }
         .btn-cloud {
-            background: linear-gradient(135deg, var(--cloud), #8e44ad);
+            background: linear-gradient(135deg, #8e6ab8, #7b52ab);
             color: white;
+            box-shadow: 0 3px 10px rgba(142, 106, 184, 0.2);
+        }
+        .btn-cloud:hover {
+            box-shadow: 0 6px 18px rgba(142, 106, 184, 0.35);
         }
         .btn-recycle {
-            background: linear-gradient(135deg, var(--recycle), var(--recycle-hover));
-            color: white;
+            background: rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            border: 1.5px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(5px);
         }
         .btn-recycle:hover {
-            background: linear-gradient(135deg, var(--recycle-hover), #6c7b7d);
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
         }
         .btn-sm {
-            padding: 4px 8px;
-            font-size: 10px;
-            border-radius: 4px;
+            padding: 5px 11px;
+            font-size: 11px;
+            border-radius: 6px;
         }
         .btn-group {
             display: flex;
-            gap: 6px;
-            margin-top: 8px;
+            gap: 7px;
             flex-wrap: wrap;
+            align-items: center;
         }
+        .clear-btn {
+            background: linear-gradient(135deg, #b0bec5, #90a4ae) !important;
+            color: white !important;
+            margin-left: 6px;
+            box-shadow: 0 3px 10px rgba(144, 164, 174, 0.2);
+        }
+        .clear-btn:hover {
+            background: linear-gradient(135deg, #90a4ae, #78909c) !important;
+            box-shadow: 0 6px 18px rgba(144, 164, 174, 0.35);
+        }
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.15);
+            color: #ffcccc;
+            border: 1.5px solid rgba(255, 150, 150, 0.4);
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-left: 8px;
+            transition: var(--transition);
+            backdrop-filter: blur(5px);
+        }
+        .logout-btn:hover {
+            background: rgba(231, 76, 60, 0.25);
+            border-color: rgba(255, 120, 120, 0.6);
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(231, 76, 60, 0.3);
+        }
+        /* ========== 主布局 ========== */
         .main-grid {
             display: grid;
             grid-template-columns: 1fr 2fr;
-            gap: 12px;
-            margin-bottom: 12px;
+            gap: 14px;
+            padding: 14px 16px;
+            margin-bottom: 0;
+            width: 100%;
         }
+        /* ========== 卡片 - 动态效果 ========== */
         .card {
-            background: white;
+            background: #fff;
             border-radius: var(--radius);
             overflow: hidden;
             box-shadow: var(--shadow);
-            margin-bottom: 12px;
+            margin-bottom: 14px;
+            border: 1px solid #eef1f5;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            will-change: transform;
         }
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-xl);
+        }
+        /* ========== 卡片头 - 浅蓝白渐变 ========== */
         .card-header {
-            padding: 10px 12px;
+            padding: 13px 16px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            border-bottom: 1px solid #dce3ed;
         }
         .card-header.primary {
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            background: linear-gradient(135deg, var(--card-header-start) 0%, var(--card-header-end) 100%);
         }
         .card-header.warning {
-            background: linear-gradient(135deg, var(--warning), #e67e22);
+            background: linear-gradient(135deg, #fefaf3, #fdf0dc);
         }
         .card-header.recycle {
-            background: linear-gradient(135deg, var(--recycle), var(--recycle-hover));
+            background: linear-gradient(135deg, #f6f8f9, #eef1f4);
         }
         .card-title {
             display: flex;
             align-items: center;
-            gap: 6px;
-            font-size: 13px;
-            font-weight: 600;
-            color: white;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 700;
+            color: #3a4a5a;
+        }
+        .card-title span:first-child {
+            font-size: 16px;
         }
         .card-body {
-            padding: 12px;
+            padding: 14px 16px;
         }
+        /* ========== 表单 ========== */
+        .form-group {
+            margin-bottom: 12px;
+        }
+        .form-label {
+            display: block;
+            margin-bottom: 4px;
+            color: #5a6a7a;
+            font-weight: 600;
+            font-size: 11px;
+            letter-spacing: 0.2px;
+        }
+        .form-input {
+            width: 100%;
+            padding: 9px 12px;
+            border: 1.5px solid #e0e4e8;
+            border-radius: var(--radius-sm);
+            font-size: 13px;
+            transition: var(--transition);
+            background: #fafbfc;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(91, 106, 191, 0.08);
+            background: #fff;
+        }
+        .form-input.error {
+            border-color: var(--expense);
+            box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.06);
+        }
+        .error-msg {
+            color: var(--expense);
+            font-size: 10px;
+            margin-top: 3px;
+            display: none;
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+        /* ========== 分类选择器 ========== */
+        .category-selector {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        .category-group {
+            display: flex;
+            gap: 5px;
+        }
+        .category-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 4px;
+            display: block;
+        }
+        .category-btn {
+            flex: 1;
+            padding: 9px 8px;
+            border: 2px solid #e0e4e8;
+            border-radius: 8px;
+            background: #fff;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+            letter-spacing: 0.3px;
+        }
+        .category-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+        .category-btn.macau-up {
+            color: #e67e22;
+            border-color: #f0c78e;
+        }
+        .category-btn.macau-up.active {
+            background: #e67e22;
+            color: white;
+            border-color: #e67e22;
+            box-shadow: 0 4px 12px rgba(230, 126, 34, 0.25);
+        }
+        .category-btn.macau-down {
+            color: #445566;
+            border-color: #a0aeb8;
+        }
+        .category-btn.macau-down.active {
+            background: #445566;
+            color: white;
+            border-color: #445566;
+            box-shadow: 0 4px 12px rgba(68, 85, 102, 0.25);
+        }
+        .category-btn.guangdong-up {
+            color: #e67e22;
+            border-color: #f0c78e;
+        }
+        .category-btn.guangdong-up.active {
+            background: #e67e22;
+            color: white;
+            border-color: #e67e22;
+            box-shadow: 0 4px 12px rgba(230, 126, 34, 0.25);
+        }
+        .category-btn.guangdong-down {
+            color: #445566;
+            border-color: #a0aeb8;
+        }
+        .category-btn.guangdong-down.active {
+            background: #445566;
+            color: white;
+            border-color: #445566;
+            box-shadow: 0 4px 12px rgba(68, 85, 102, 0.25);
+        }
+        /* ========== 表格 ========== */
+        .table-container {
+            overflow-x: auto;
+            margin-top: 8px;
+            border-radius: var(--radius-sm);
+            border: 1px solid #eef1f5;
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 700px;
+        }
+        .data-table thead {
+            background: #f8fafb;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .data-table th {
+            padding: 10px 12px;
+            text-align: left;
+            font-weight: 700;
+            color: #4a5a6a;
+            border-bottom: 2px solid #e8ecf0;
+            font-size: 11px;
+            letter-spacing: 0.2px;
+        }
+        .data-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #f0f3f5;
+            font-size: 12px;
+            color: #3a4a5a;
+            transition: background 0.15s ease;
+        }
+        .data-table tbody tr {
+            transition: background 0.15s ease;
+        }
+        .data-table tbody tr:hover {
+            background: #f4f7fb;
+        }
+        .data-table tbody tr.selected {
+            background: #eef4fc;
+        }
+        /* ========== 徽章 ========== */
+        .type-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 14px;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+        }
+        .type-income {
+            background: #e6f9f0;
+            color: #1e8449;
+        }
+        .type-expense {
+            background: #fdecea;
+            color: #c0392b;
+        }
+        .type-profit {
+            background: #fef5e7;
+            color: #d68910;
+        }
+        .category-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 9px;
+            font-weight: 600;
+        }
+        .category-badge.macau-up {
+            background: #fef5e7;
+            color: #d68910;
+        }
+        .category-badge.macau-down {
+            background: #eef1f5;
+            color: #445566;
+        }
+        .category-badge.guangdong-up {
+            background: #fef5e7;
+            color: #d68910;
+        }
+        .category-badge.guangdong-down {
+            background: #eef1f5;
+            color: #445566;
+        }
+        .category-badge.my-income {
+            background: #e6f9f0;
+            color: #1e8449;
+            border: 1px dashed #27ae60;
+        }
+        .category-badge.my-expense {
+            background: #fdecea;
+            color: #c0392b;
+            border: 1px dashed #e74c3c;
+        }
+        /* ========== 统计卡片 ========== */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .stat-card {
+            background: #fff;
+            border-radius: var(--radius);
+            padding: 13px 15px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid #eef1f5;
+            transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
+        }
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .stat-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: #4a5a6a;
+        }
+        .stat-amount {
+            font-size: 17px;
+            font-weight: 800;
+            letter-spacing: -0.3px;
+        }
+        .stat-income {
+            color: #27ae60;
+        }
+        .stat-expense {
+            color: #e74c3c;
+        }
+        .stat-profit {
+            color: #d68910;
+        }
+        .stat-rebate {
+            color: #ff9800;
+        }
+        .stat-recycle {
+            color: #8899a6;
+        }
+        .stat-details {
+            font-size: 10px;
+            color: #8c9aa5;
+            margin-top: 5px;
+        }
+        .stat-label {
+            font-size: 10px;
+            color: #8c9aa5;
+            font-weight: 500;
+        }
+        /* ========== 其他 ========== */
+        .checkbox {
+            width: 17px;
+            height: 17px;
+            cursor: pointer;
+            accent-color: var(--primary);
+        }
+        .search-container {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+        .search-box {
+            flex: 1;
+            padding: 9px 14px;
+            border: 1.5px solid #e0e4e8;
+            border-radius: 20px;
+            font-size: 12px;
+            background: #fafbfc;
+            transition: var(--transition);
+        }
+        .search-box:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(91, 106, 191, 0.08);
+            background: #fff;
+        }
+        .batch-toolbar {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            background: linear-gradient(135deg, #fef9f0, #fef3e2);
+            color: #d68910;
+            border-radius: var(--radius-sm);
+            margin-bottom: 10px;
+            font-weight: 600;
+            font-size: 12px;
+            border: 1px solid #fde6c0;
+            animation: fadeInUp 0.3s ease;
+        }
+        .batch-toolbar.show {
+            display: flex;
+        }
+        .filter-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .filter-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: #5a6a7a;
+        }
+        .filter-select {
+            padding: 7px 10px;
+            border: 1.5px solid #e0e4e8;
+            border-radius: var(--radius-sm);
+            font-size: 11px;
+            background: #fafbfc;
+            transition: var(--transition);
+        }
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        .date-selector {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        .date-selector label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #4a5a6a;
+        }
+        .date-selector input {
+            padding: 7px 10px;
+            border: 1.5px solid #e0e4e8;
+            border-radius: var(--radius-sm);
+            font-size: 11px;
+            background: #fafbfc;
+            transition: var(--transition);
+        }
+        .date-selector input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        .action-btn {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            font-size: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-right: 4px;
+        }
+        .action-btn.restore {
+            background: #e6f9f0;
+            color: #1e8449;
+        }
+        .action-btn.restore:hover {
+            background: #27ae60;
+            color: white;
+            transform: translateY(-1px);
+        }
+        .action-btn.delete-permanent {
+            background: #fdecea;
+            color: #c0392b;
+        }
+        .action-btn.delete-permanent:hover {
+            background: #e74c3c;
+            color: white;
+            transform: translateY(-1px);
+        }
+        .action-btn.action-delete {
+            background: #fdecea;
+            color: #c0392b;
+        }
+        .action-btn.action-delete:hover {
+            background: #e74c3c;
+            color: white;
+            transform: translateY(-1px);
+        }
+        .empty-state {
+            text-align: center;
+            padding: 20px;
+            color: #a0aeb8;
+            font-size: 12px;
+        }
+        .my-income-row {
+            background: #f6fdf9 !important;
+            border-left: 3px solid #27ae60;
+        }
+        .my-expense-row {
+            background: #fef9f9 !important;
+            border-left: 3px solid #e74c3c;
+        }
+        .income-hint {
+            color: #27ae60;
+            font-weight: 700;
+            font-size: 11px;
+        }
+        .expense-hint {
+            color: #e74c3c;
+            font-weight: 700;
+            font-size: 11px;
+        }
+        .profit-hint {
+            color: #d68910;
+            font-weight: 700;
+            font-size: 11px;
+        }
+        .rebate-hint {
+            color: #ff9800;
+            font-weight: 700;
+            font-size: 11px;
+        }
+        /* ========== Toast ========== */
+        .undo-toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #3a4a5a;
+            color: white;
+            padding: 13px 18px;
+            border-radius: 10px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+            z-index: 1001;
+            display: none;
+            align-items: center;
+            gap: 12px;
+            font-size: 13px;
+        }
+        .undo-toast.show {
+            display: flex;
+        }
+        .undo-btn {
+            background: white;
+            color: #3a4a5a;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        /* ========== 回收站面板 ========== */
+        .recycle-panel {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.45);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+        }
+        .recycle-panel.show {
+            display: flex;
+        }
+        .recycle-container {
+            background: white;
+            border-radius: 14px;
+            padding: 22px;
+            width: 90%;
+            max-width: 820px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+        }
+        .recycle-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+            padding-bottom: 14px;
+            border-bottom: 2px solid #eef1f5;
+        }
+        .recycle-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .close-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+        .close-btn:hover {
+            background: #c0392b;
+            transform: rotate(90deg);
+        }
+        .recycle-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+        .recycle-stat {
+            background: #f8fafb;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            border-left: 4px solid #8899a6;
+        }
+        .recycle-stat-number {
+            font-size: 20px;
+            font-weight: 800;
+            color: #556775;
+        }
+        .recycle-stat-label {
+            font-size: 10px;
+            color: #8c9aa5;
+            margin-top: 2px;
+        }
+        .recycle-toolbar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+        }
+        .recycle-search {
+            flex: 1;
+            padding: 9px 14px;
+            border: 1.5px solid #e0e4e8;
+            border-radius: 20px;
+            font-size: 12px;
+            min-width: 180px;
+            transition: var(--transition);
+        }
+        .recycle-search:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        .recycle-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 8px;
+        }
+        .recycle-table th,
+        .recycle-table td {
+            padding: 9px 10px;
+            text-align: left;
+            border-bottom: 1px solid #eef1f5;
+            font-size: 11px;
+        }
+        .recycle-table th {
+            background: #f8fafb;
+            font-weight: 700;
+            color: #4a5a6a;
+            position: sticky;
+            top: 0;
+        }
+        .recycle-table tr:hover {
+            background: #f4f7fb;
+        }
+        .deleted-time {
+            color: #8c9aa5;
+            font-size: 10px;
+        }
+        /* ========== 返点汇总 ========== */
+        .rebate-summary {
+            margin-top: 10px;
+            padding: 10px 14px;
+            background: #fef9f0;
+            border-radius: var(--radius-sm);
+            border-left: 3px solid #ff9800;
+            font-size: 11px;
+            color: #d68910;
+        }
+        .rebate-item {
+            display: inline-block;
+            margin-right: 14px;
+        }
+        .rebate-value {
+            font-weight: 700;
+            color: #ff9800;
+        }
+        .total-rebate {
+            display: inline-block;
+            margin-left: 16px;
+            padding: 5px 10px;
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+            border-radius: 5px;
+            font-weight: 700;
+        }
+        .total-rebate-value {
+            font-size: 13px;
+        }
+        /* ========== 详情卡片 ========== */
         .detail-card .table-container {
             width: 100%;
-            max-width: 850px;
+            max-width: 100%;
             overflow-x: auto;
-            border: 1px solid var(--border);
-            border-radius: 5px;
+            border: 1px solid #eef1f5;
+            border-radius: var(--radius-sm);
         }
         .detail-card .data-table th,
         .detail-card .data-table td {
@@ -285,659 +1036,127 @@
         .detail-card .data-table th:last-child {
             min-width: 80px;
         }
-        .clear-btn {
-            background: linear-gradient(135deg, #95a5a6, #7f8c8d) !important;
-            color: white !important;
-            margin-left: 8px;
-        }
-        .clear-btn:hover {
-            background: linear-gradient(135deg, #7f8c8d, #6c7b7d) !important;
-        }
-        .recycle-panel {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 10000;
-            justify-content: center;
-            align-items: center;
-        }
-        .recycle-panel.show {
-            display: flex;
-        }
-        .recycle-container {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            width: 90%;
-            max-width: 800px;
-            max-height: 80vh;
-            overflow-y: auto;
-            animation: slideIn 0.3s ease;
-        }
-        .recycle-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid var(--border);
-        }
-        .recycle-title {
-            font-size: 18px;
-            font-weight: 600;
-            color: var(--dark);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .close-btn {
-            background: var(--expense);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            cursor: pointer;
-            font-size: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .recycle-stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        .recycle-stat {
-            background: var(--light);
-            padding: 10px;
-            border-radius: 6px;
-            text-align: center;
-            border-left: 4px solid var(--recycle);
-        }
-        .recycle-stat-number {
-            font-size: 18px;
-            font-weight: bold;
-            color: var(--recycle);
-        }
-        .recycle-stat-label {
+        .filter-info {
             font-size: 11px;
-            color: #7f8c8d;
-            margin-top: 2px;
-        }
-        .recycle-toolbar {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-            flex-wrap: wrap;
-        }
-        .recycle-search {
-            flex: 1;
-            padding: 8px 12px;
-            border: 2px solid var(--border);
-            border-radius: 20px;
-            font-size: 11px;
-            min-width: 200px;
-        }
-        .recycle-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
-        .recycle-table th,
-        .recycle-table td {
-            padding: 8px;
-            text-align: left;
-            border-bottom: 1px solid var(--border);
-            font-size: 10px;
-        }
-        .recycle-table th {
-            background: var(--light);
-            font-weight: 600;
-            color: var(--dark);
-            position: sticky;
-            top: 0;
-        }
-        .recycle-table tr:hover {
-            background: rgba(149, 165, 166, 0.05);
-        }
-        .deleted-time {
-            color: #7f8c8d;
-            font-size: 9px;
-        }
-        .form-group {
-            margin-bottom: 12px;
-        }
-        .form-label {
-            display: block;
-            margin-bottom: 4px;
-            color: var(--dark);
-            font-weight: 500;
-            font-size: 11px;
-        }
-        .form-input {
-            width: 100%;
-            padding: 8px 10px;
-            border: 1px solid var(--border);
-            border-radius: 5px;
-            font-size: 12px;
-            transition: var(--transition);
-            background: white;
-        }
-        .form-input:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.1);
-        }
-        .form-input.error {
-            border-color: var(--expense);
-            box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.1);
-        }
-        .error-msg {
-            color: var(--expense);
-            font-size: 9px;
-            margin-top: 2px;
-            display: none;
-        }
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            margin-bottom: 8px;
-        }
-        .category-selector {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            margin-bottom: 8px;
-        }
-        .category-group {
-            display: flex;
-            gap: 4px;
-        }
-        .category-label {
-            font-size: 11px;
-            font-weight: 600;
-            color: var(--dark);
-            margin-bottom: 3px;
-            display: block;
-        }
-        .category-btn {
-            flex: 1;
-            padding: 8px 6px;
-            border: 2px solid transparent;
-            border-radius: 6px;
-            background: white;
-            font-size: 10px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 2px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-        .category-btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-        }
-        .category-btn.macau-up {
-            color: var(--category3);
-            border-color: var(--category3);
-        }
-        .category-btn.macau-up.active {
-            background: var(--category3);
-            color: white;
-            box-shadow: 0 4px 8px rgba(230, 126, 34, 0.3);
-        }
-        .category-btn.macau-down {
-            color: var(--category4);
-            border-color: var(--category4);
-        }
-        .category-btn.macau-down.active {
-            background: var(--category4);
-            color: white;
-            box-shadow: 0 4px 8px rgba(52, 73, 94, 0.3);
-        }
-        .category-btn.guangdong-up {
-            color: var(--category3);
-            border-color: var(--category3);
-        }
-        .category-btn.guangdong-up.active {
-            background: var(--category3);
-            color: white;
-            box-shadow: 0 4px 8px rgba(230, 126, 34, 0.3);
-        }
-        .category-btn.guangdong-down {
-            color: var(--category4);
-            border-color: var(--category4);
-        }
-        .category-btn.guangdong-down.active {
-            background: var(--category4);
-            color: white;
-            box-shadow: 0 4px 8px rgba(52, 73, 94, 0.3);
-        }
-        .search-container {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 10px;
-            align-items: center;
-        }
-        .search-box {
-            flex: 1;
-            padding: 8px 12px;
-            border: 2px solid var(--border);
-            border-radius: 20px;
-            font-size: 11px;
-            background: white;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-            transition: var(--transition);
-        }
-        .search-box:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.1);
-        }
-        .batch-toolbar {
-            display: none;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 12px;
-            background: var(--warning);
-            color: white;
-            border-radius: 5px;
-            margin-bottom: 10px;
-            animation: slideIn 0.3s ease;
-        }
-        .batch-toolbar.show {
-            display: flex;
-        }
-        .batch-count {
-            font-weight: 600;
-            margin-right: 8px;
-        }
-        .table-container {
-            overflow-x: auto;
-            margin-top: 10px;
-            border-radius: 5px;
-            border: 1px solid var(--border);
-        }
-        .data-table {
-            width: 100%;
-            border-collapse: collapse;
-            min-width: 700px;
-        }
-        .data-table thead {
-            background: #f8f9fa;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-        }
-        .data-table th {
-            padding: 8px 10px;
-            text-align: left;
-            font-weight: 600;
-            color: var(--dark);
-            border-bottom: 2px solid var(--border);
-            font-size: 10px;
-        }
-        .data-table td {
-            padding: 8px 10px;
-            border-bottom: 1px solid var(--border);
-            font-size: 10px;
-        }
-        .data-table tbody tr:hover {
-            background: rgba(52, 152, 219, 0.05);
-        }
-        .data-table tbody tr.selected {
-            background: rgba(52, 152, 219, 0.1);
-        }
-        .type-badge {
-            display: inline-block;
-            padding: 3px 6px;
-            border-radius: 12px;
-            font-size: 9px;
-            font-weight: 600;
-        }
-        .type-income {
-            background: rgba(46, 204, 113, 0.15);
-            color: var(--income);
-        }
-        .type-expense {
-            background: rgba(231, 76, 60, 0.15);
-            color: var(--expense);
-        }
-        .type-profit {
-            background: rgba(230, 126, 34, 0.15);
-            color: var(--profit);
-        }
-        .checkbox {
-            width: 16px;
-            height: 16px;
-            cursor: pointer;
-        }
-        .filter-row {
-            display: flex;
-            gap: 8px;
-            margin-top: 8px;
-            flex-wrap: wrap;
-        }
-        .filter-group {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-        .filter-label {
-            font-size: 10px;
-            font-weight: 500;
-            color: var(--dark);
-        }
-        .filter-select {
-            padding: 6px 8px;
-            border: 1px solid var(--border);
-            border-radius: 5px;
-            font-size: 10px;
-            background: white;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-        }
-        .date-selector {
-            display: flex;
-            align-items: center;
-            gap: 6px;
+            color: #8c9aa5;
             margin-bottom: 10px;
         }
-        .date-selector label {
-            font-size: 11px;
-            font-weight: 500;
-            color: var(--dark);
-        }
-        .date-selector input {
-            padding: 6px 8px;
-            border: 1px solid var(--border);
-            border-radius: 5px;
-            font-size: 10px;
-            background: white;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-        }
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 8px;
-            margin-top: 10px;
-        }
-        .stat-card {
-            background: white;
-            border-radius: var(--radius);
-            padding: 10px;
-            box-shadow: var(--shadow);
-            border: 1px solid var(--border);
-        }
-        .stat-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 6px;
-        }
-        .stat-title {
-            font-size: 11px;
-            font-weight: 600;
-            color: var(--dark);
-        }
-        .stat-amount {
-            font-size: 14px;
-            font-weight: 700;
-        }
-        .stat-income {
-            color: var(--income);
-        }
-        .stat-expense {
-            color: var(--expense);
-        }
-        .stat-profit {
-            color: var(--profit);
-        }
-        .stat-rebate {
-            color: var(--rebate);
-        }
-        .stat-recycle {
-            color: var(--recycle);
-        }
-        .stat-details {
-            font-size: 9px;
-            color: #7f8c8d;
-            margin-top: 4px;
-        }
-        .action-btn {
-            padding: 4px 6px;
-            border: none;
-            border-radius: 4px;
-            font-size: 9px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: var(--transition);
-            margin-right: 4px;
-        }
-        .action-btn.restore {
-            background: rgba(46, 204, 113, 0.1);
-            color: var(--income);
-        }
-        .action-btn.restore:hover {
-            background: var(--income);
-            color: white;
-        }
-        .action-btn.delete-permanent {
-            background: rgba(231, 76, 60, 0.1);
-            color: var(--expense);
-        }
-        .action-btn.delete-permanent:hover {
-            background: var(--expense);
-            color: white;
-        }
-        .category-badge {
-            display: inline-block;
-            padding: 2px 6px;
-            border-radius: 12px;
-            font-size: 8px;
-            font-weight: 500;
-        }
-        .category-badge.macau-up {
-            background: rgba(230, 126, 34, 0.15);
-            color: var(--category3);
-        }
-        .category-badge.macau-down {
-            background: rgba(52, 73, 94, 0.15);
-            color: var(--category4);
-        }
-        .category-badge.guangdong-up {
-            background: rgba(230, 126, 34, 0.15);
-            color: var(--category3);
-        }
-        .category-badge.guangdong-down {
-            background: rgba(52, 73, 94, 0.15);
-            color: var(--category4);
-        }
-        .category-badge.my-income {
-            background: rgba(46, 204, 113, 0.2);
-            color: var(--income);
-            border: 1px dashed var(--income);
-        }
-        .category-badge.my-expense {
-            background: rgba(231, 76, 60, 0.2);
-            color: var(--expense);
-            border: 1px dashed var(--expense);
-        }
-        .empty-state {
-            text-align: center;
-            padding: 16px;
-            color: #999;
-            font-size: 11px;
-        }
-        .my-income-row {
-            background: rgba(46, 204, 113, 0.05) !important;
-            border-left: 3px solid var(--income);
-        }
-        .my-expense-row {
-            background: rgba(231, 76, 60, 0.05) !important;
-            border-left: 3px solid var(--expense);
-        }
-        .income-hint {
-            color: var(--income);
-            font-weight: 600;
-            font-size: 10px;
-        }
-        .expense-hint {
-            color: var(--expense);
-            font-weight: 600;
-            font-size: 10px;
-        }
-        .profit-hint {
-            color: var(--profit);
-            font-weight: 600;
-            font-size: 10px;
-        }
-        .rebate-hint {
-            color: var(--rebate);
-            font-weight: 600;
-            font-size: 10px;
-        }
-        .undo-toast {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: var(--warning);
-            color: white;
-            padding: 12px 16px;
-            border-radius: 6px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-            z-index: 1001;
-            display: none;
-            align-items: center;
-            gap: 10px;
-            animation: slideInRight 0.3s ease;
-        }
-        .undo-toast.show {
-            display: flex;
-        }
-        .undo-btn {
-            background: white;
-            color: var(--warning);
-            border: none;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 10px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-        .logout-btn {
-            background: var(--expense);
-            color: white;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 4px;
-            font-size: 10px;
-            cursor: pointer;
-            margin-left: 10px;
-        }
-        .logout-btn:hover {
-            background: #c0392b;
-        }
-        .rebate-summary {
-            margin-top: 10px;
-            padding: 8px;
-            background: #fff8e1;
-            border-radius: 4px;
-            border-left: 3px solid var(--rebate);
-            font-size: 10px;
-            color: #e65100;
-        }
-        .rebate-item {
-            display: inline-block;
-            margin-right: 12px;
-        }
-        .rebate-value {
-            font-weight: 600;
-            color: var(--rebate);
-        }
-        .total-rebate {
-            display: inline-block;
-            margin-left: 20px;
-            padding: 4px 8px;
-            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
-            color: white;
-            border-radius: 4px;
-            font-weight: 600;
-        }
-        .total-rebate-value {
-            font-size: 12px;
-        }
+        /* ========== 存储信息 ========== */
         .storage-info {
             position: fixed;
-            bottom: 10px;
-            right: 10px;
-            background: rgba(0, 0, 0, 0.8);
+            bottom: 12px;
+            right: 12px;
+            background: rgba(44, 62, 80, 0.9);
             color: white;
-            padding: 8px 12px;
-            border-radius: 6px;
+            padding: 9px 14px;
+            border-radius: 8px;
             font-size: 10px;
             z-index: 1000;
             display: none;
         }
-        .detail-card {
-            width: 770px !important;
-            max-width: 770px !important;
-        }
-        @media (max-width: 900px) {
-            .main-grid { grid-template-columns: 1fr; }
-            .container { max-width: 100%; padding: 0 6px; }
-            .login-box { min-width: 300px; padding: 30px 20px; }
-            .navbar { flex-direction: column; align-items: stretch; }
-            .nav-left { justify-content: center; text-align: center; margin-bottom: 10px; }
-            .btn-group { justify-content: center; }
-            .detail-card { width: 100% !important; max-width: 100% !important; }
-        }
-        @media (max-width: 768px) {
-            .form-row { grid-template-columns: 1fr; }
-            .stats-grid { grid-template-columns: 1fr; }
-            .filter-row { flex-direction: column; }
-            .category-group { flex-direction: column; }
-            .recycle-toolbar { flex-direction: column; }
-            .recycle-search { min-width: auto; }
-        }
-        @media (max-width: 480px) {
-            .stat-card { padding: 6px; }
-            .stat-title { font-size: 10px; }
-            .stat-amount { font-size: 12px; }
-            .category-btn { font-size: 9px; padding: 6px 4px; }
-            .btn { padding: 6px 10px; font-size: 10px; }
-            .login-box { min-width: 280px; padding: 25px 15px; }
-            .recycle-container { padding: 15px; width: 95%; }
-            .detail-card { width: 100% !important; max-width: 100% !important; }
-        }
-        @keyframes slideIn {
-            from { transform: translateY(-50px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
+        /* ========== 动画 ========== */
+        @keyframes fadeInUp {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
         }
         @keyframes slideInRight {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-        @keyframes fadeOut {
-            from { opacity: 1; }
-            to { opacity: 0; }
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
         }
         @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+            25% {
+                transform: translateX(-5px);
+            }
+            75% {
+                transform: translateX(5px);
+            }
         }
-        .shake { animation: shake 0.5s ease-in-out; }
-        .fade-out { animation: fadeOut 0.3s ease-in-out; }
+        .shake {
+            animation: shake 0.5s ease-in-out;
+        }
+        /* ========== 响应式 ========== */
+        @media (max-width: 900px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+                padding: 10px;
+            }
+            .navbar {
+                flex-direction: column;
+                align-items: stretch;
+                padding: 12px 14px;
+            }
+            .nav-left {
+                justify-content: center;
+                text-align: center;
+                margin-bottom: 8px;
+            }
+            .btn-group {
+                justify-content: center;
+            }
+        }
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            .filter-row {
+                flex-direction: column;
+            }
+            .category-group {
+                flex-direction: column;
+            }
+            .recycle-toolbar {
+                flex-direction: column;
+            }
+            .recycle-search {
+                min-width: auto;
+            }
+        }
+        @media (max-width: 480px) {
+            .stat-card {
+                padding: 8px 10px;
+            }
+            .stat-title {
+                font-size: 11px;
+            }
+            .stat-amount {
+                font-size: 14px;
+            }
+            .category-btn {
+                font-size: 10px;
+                padding: 7px 5px;
+            }
+            .btn {
+                padding: 7px 11px;
+                font-size: 11px;
+            }
+            .login-box {
+                min-width: 280px;
+                padding: 30px 20px;
+            }
+            .recycle-container {
+                padding: 14px;
+                width: 95%;
+            }
+        }
     </style>
 </head>
 <body>
@@ -969,58 +1188,58 @@
             </div>
             <div class="btn-group">
                 <button class="btn btn-recycle btn-sm" onclick="openRecyclePanel()">🗑️ 回收站 (<span id="recycle-count">0</span>)</button>
-                <button class="btn btn-outline btn-sm" onclick="exportData()">导出数据</button>
-                <button class="btn btn-outline btn-sm" onclick="importData()">导入数据</button>
+                <button class="btn btn-outline btn-sm" onclick="exportData()">📤 导出数据</button>
+                <button class="btn btn-outline btn-sm" onclick="importData()">📥 导入数据</button>
                 <button class="btn btn-cloud btn-sm" onclick="manualExportBackup()">📦 手动备份</button>
-                <button class="btn btn-warning btn-sm" onclick="clearCurrentMonthWithPassword()">清除当月</button>
-                <button class="btn btn-danger btn-sm" onclick="clearAllDataWithPassword()">清空数据</button>
-                <button class="logout-btn" onclick="logout()">退出登录</button>
+                <button class="btn btn-warning btn-sm" onclick="clearCurrentMonthWithPassword()">🧹 清除当月</button>
+                <button class="btn btn-danger btn-sm" onclick="clearAllDataWithPassword()">🗑️ 清空数据</button>
+                <button class="logout-btn" onclick="logout()">🚪 退出登录</button>
             </div>
         </nav>
         <div class="main-grid">
             <div>
                 <div class="card">
-                    <div class="card-header primary"><div class="card-title">📝 录入收支</div></div>
+                    <div class="card-header primary"><div class="card-title"><span>📝</span><span>录入收支</span></div></div>
                     <div class="card-body">
                         <div class="category-selector">
                             <div><div class="category-label">澳门分类：</div><div class="category-group"><button class="category-btn macau-up" onclick="selectCategory('macau', 'up')"><span>⬆️ 澳门上家</span></button><button class="category-btn macau-down active" onclick="selectCategory('macau', 'down')"><span>⬇️ 澳门下家</span></button></div></div>
                             <div><div class="category-label">粤港分类：</div><div class="category-group"><button class="category-btn guangdong-up" onclick="selectCategory('guangdong', 'up')"><span>⬆️ 粤港上家</span></button><button class="category-btn guangdong-down" onclick="selectCategory('guangdong', 'down')"><span>⬇️ 粤港下家</span></button></div></div>
                         </div>
                         <div class="form-row">
-                            <div class="form-group"><label class="form-label">姓名</label><input type="text" id="person-name" placeholder="输入姓名" class="form-input" onblur="validateName()" onkeydown="handleNameKeyPress(event)"><div class="error-msg" id="name-error">姓名不能为空</div></div>
-                            <div class="form-group"><label class="form-label">日期</label><input type="date" id="record-date" class="form-input" onblur="validateDate()"><div class="error-msg" id="date-error">请选择有效日期</div></div>
+                            <div class="form-group"><label class="form-label">姓名</label><input type="text" id="person-name" placeholder="输入姓名" class="form-input"></div>
+                            <div class="form-group"><label class="form-label">日期</label><input type="date" id="record-date" class="form-input"></div>
                         </div>
                         <div class="form-row">
-                            <div class="form-group"><label class="form-label">金额</label><input type="number" id="record-amount" placeholder="输入金额" class="form-input" step="0.01" onblur="validateAmount()" onkeydown="handleAmountKeyPress(event)"><div class="error-msg" id="amount-error">金额必须大于0</div></div>
+                            <div class="form-group"><label class="form-label">金额</label><input type="number" id="record-amount" placeholder="输入金额" class="form-input" step="0.01"></div>
                             <div class="form-group"><label class="form-label">类型</label><select id="record-type" class="form-input"><option value="income">收入</option><option value="expense">支出</option></select></div>
                         </div>
                         <div class="form-row">
                             <div class="form-group"><label class="form-label">总额</label><input type="number" id="record-total" placeholder="输入总额" class="form-input" step="0.01"></div>
                             <div class="form-group"><label class="form-label">返水(%)</label><input type="number" id="record-rebate-rate" placeholder="输入返水率" class="form-input" step="0.01"></div>
                         </div>
-                        <div class="form-group"><label class="form-label">特码</label><input type="text" id="record-note" placeholder="输入特码（可选）" class="form-input" onblur="validateNote()"><div class="error-msg" id="note-error">特码不能包含特殊字符</div></div>
-                        <div class="btn-group"><button class="btn btn-success" onclick="saveRecord()">保存记录</button><button class="btn clear-btn" onclick="clearInputs()">清除</button></div>
+                        <div class="form-group"><label class="form-label">特码</label><input type="text" id="record-note" placeholder="输入特码（可选）" class="form-input"></div>
+                        <div class="btn-group"><button class="btn btn-success" onclick="saveRecord()">💾 保存记录</button><button class="btn clear-btn" onclick="clearInputs()">🧹 清除</button></div>
                     </div>
                 </div>
                 <div class="card">
-                    <div class="card-header primary"><div class="card-title">📊 日期收支记录</div></div>
+                    <div class="card-header primary"><div class="card-title"><span>📊</span><span>日期收支记录</span></div></div>
                     <div class="card-body">
-                        <div class="date-selector"><label for="view-date">选择日期：</label><input type="date" id="view-date" onchange="loadDateRecords()"><button class="btn btn-outline btn-sm" onclick="setTodayDate()" style="padding: 4px 8px; font-size: 9px;">今天</button></div>
+                        <div class="date-selector"><label for="view-date">选择日期：</label><input type="date" id="view-date" onchange="loadDateRecords()"><button class="btn btn-outline btn-sm" onclick="setTodayDate()" style="background: rgba(91,106,191,0.1); color: #5b6abf; border: 1.5px solid #c5cae9;">今天</button></div>
                         <div class="table-container"><table class="data-table"><thead><tr><th>姓名/类型</th><th>分类</th><th>类型</th><th>金额</th><th>返点</th><th>特码</th><th>操作</th></tr></thead><tbody id="date-records-body"><tr><td colspan="7" class="empty-state">请选择日期查看记录</td></tr></tbody></table></div>
                         <div id="date-rebate-summary" class="rebate-summary"></div>
                     </div>
                 </div>
                 <div class="card">
-                    <div class="card-header primary"><div class="card-title">💰 选中日期我的收支统计</div></div>
+                    <div class="card-header primary"><div class="card-title"><span>💰</span><span>选中日期我的收支统计</span></div></div>
                     <div class="card-body"><div id="my-income-stats" class="stats-grid"></div></div>
                 </div>
             </div>
             <div>
                 <div class="card">
-                    <div class="card-header primary"><div class="card-title">📈 查看详细记录</div></div>
+                    <div class="card-header primary"><div class="card-title"><span>📈</span><span>查看详细记录</span></div></div>
                     <div class="card-body">
-                        <div class="search-container"><input type="text" id="search-input" class="search-box" placeholder="搜索姓名或特码..." oninput="searchRecords()"><button class="btn btn-outline btn-sm" onclick="clearSearch()">清除</button></div>
-                        <div class="batch-toolbar" id="batch-toolbar"><span class="batch-count" id="batch-count">0</span>条记录被选中<button class="btn btn-danger btn-sm" onclick="batchDelete()">批量删除</button><button class="btn btn-outline btn-sm" onclick="clearSelection()">取消选择</button></div>
+                        <div class="search-container"><input type="text" id="search-input" class="search-box" placeholder="🔍 搜索姓名或特码..." oninput="searchRecords()"><button class="btn btn-outline btn-sm" onclick="clearSearch()" style="background: rgba(91,106,191,0.1); color: #5b6abf; border: 1.5px solid #c5cae9;">清除</button></div>
+                        <div class="batch-toolbar" id="batch-toolbar"><span class="batch-count" id="batch-count">0</span>条记录被选中<button class="btn btn-danger btn-sm" onclick="batchDelete()">批量删除</button><button class="btn btn-outline btn-sm" onclick="clearSelection()" style="background: rgba(91,106,191,0.1); color: #5b6abf; border: 1.5px solid #c5cae9;">取消选择</button></div>
                         <div class="filter-row">
                             <div class="filter-group"><label class="filter-label">选择年份：</label><select id="select-year" class="filter-select" onchange="loadRecords()"><option value="all">全部年份</option></select></div>
                             <div class="filter-group"><label class="filter-label">选择月份：</label><select id="select-month" class="filter-select" onchange="loadRecords()"><option value="all">全部月份</option><option value="1">1月</option><option value="2">2月</option><option value="3">3月</option><option value="4">4月</option><option value="5">5月</option><option value="6">6月</option><option value="7">7月</option><option value="8">8月</option><option value="9">9月</option><option value="10">10月</option><option value="11">11月</option><option value="12">12月</option></select></div>
@@ -1035,9 +1254,9 @@
                 <div class="card detail-card">
                     <div class="card-header primary"><div class="card-title"><span>📊</span><span>收支明细</span></div></div>
                     <div class="card-body">
-                        <div class="filter-info"><div style="font-size: 11px; color: #7f8c8d; margin-bottom: 10px;">统计范围：仅统计当前筛选条件下的记录</div><div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px;"><div style="font-size: 10px; background: #f0f8ff; padding: 4px 8px; border-radius: 4px; border-left: 3px solid #3498db;"><strong>筛选条件：</strong><span id="filter-year-display">全部年份</span> | <span id="filter-month-display">全部月份</span> | <span id="filter-category-display">全部分类</span> | <span id="filter-name-display">全部人员</span></div></div></div>
+                        <div class="filter-info"><div style="font-size: 11px; color: #8c9aa5; margin-bottom: 10px;">统计范围：仅统计当前筛选条件下的记录</div><div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px;"><div style="font-size: 10px; background: #f4f8fc; padding: 5px 10px; border-radius: 5px; border-left: 3px solid #5b6abf;"><strong>筛选条件：</strong><span id="filter-year-display">全部年份</span> | <span id="filter-month-display">全部月份</span> | <span id="filter-category-display">全部分类</span> | <span id="filter-name-display">全部人员</span></div></div></div>
                         <div class="table-container"><table class="data-table" id="detail-transposed-table"><thead><tr><th style="width: 60px;">月份</th></tr></thead><tbody id="detail-transposed-body"><tr class="empty-state-row"><td colspan="1" class="empty-state">暂无数据，请先设置筛选条件</td></tr></tbody></table></div>
-                        <div style="margin-top: 15px; font-size: 10px; color: #7f8c8d;"><div style="display: flex; justify-content: space-between; align-items: center;"><div>当前显示 <span id="transposed-person-count">0</span> 个人员，<span id="transposed-month-count">0</span> 个月份</div><div>总利润：<span id="transposed-total">0</span> 元</div></div></div>
+                        <div style="margin-top: 14px; font-size: 11px; color: #8c9aa5;"><div style="display: flex; justify-content: space-between; align-items: center;"><div>当前显示 <span id="transposed-person-count">0</span> 个人员，<span id="transposed-month-count">0</span> 个月份</div><div>总利润：<span id="transposed-total">0</span> 元</div></div></div>
                     </div>
                 </div>
             </div>
@@ -1048,7 +1267,7 @@
         <div class="recycle-container">
             <div class="recycle-header"><h2 class="recycle-title">🗑️ 回收站管理</h2><button class="close-btn" onclick="closeRecyclePanel()">×</button></div>
             <div class="recycle-stats"><div class="recycle-stat"><div class="recycle-stat-number" id="recycle-total">0</div><div class="recycle-stat-label">总删除记录</div></div><div class="recycle-stat"><div class="recycle-stat-number" id="recycle-today">0</div><div class="recycle-stat-label">今日删除</div></div><div class="recycle-stat"><div class="recycle-stat-number" id="recycle-week">0</div><div class="recycle-stat-label">本周删除</div></div><div class="recycle-stat"><div class="recycle-stat-number" id="recycle-size">0KB</div><div class="recycle-stat-label">占用空间</div></div></div>
-            <div class="recycle-toolbar"><input type="text" class="recycle-search" id="recycle-search" placeholder="搜索已删除的记录..." oninput="searchRecycleRecords()"><button class="btn btn-recycle btn-sm" onclick="selectAllRecycle()">全选</button><button class="btn btn-success btn-sm" onclick="restoreSelected()">还原选中</button><button class="btn btn-warning btn-sm" onclick="restoreAll()">还原全部</button><button class="btn btn-danger btn-sm" onclick="emptyRecycleBin()">清空回收站</button></div>
+            <div class="recycle-toolbar"><input type="text" class="recycle-search" id="recycle-search" placeholder="搜索已删除的记录..." oninput="searchRecycleRecords()"><button class="btn btn-recycle btn-sm" onclick="selectAllRecycle()" style="background: rgba(91,106,191,0.1); color: #5b6abf; border: 1.5px solid #c5cae9;">全选</button><button class="btn btn-success btn-sm" onclick="restoreSelected()">还原选中</button><button class="btn btn-warning btn-sm" onclick="restoreAll()">还原全部</button><button class="btn btn-danger btn-sm" onclick="emptyRecycleBin()">清空回收站</button></div>
             <div class="table-container" style="max-height: 400px; overflow-y: auto;"><table class="recycle-table"><thead><tr><th><input type="checkbox" class="checkbox" id="recycle-select-all" onchange="toggleRecycleSelectAll()"></th><th>删除时间</th><th>原日期</th><th>姓名</th><th>分类</th><th>类型</th><th>金额</th><th>返点</th><th>特码</th><th>操作</th></tr></thead><tbody id="recycle-body"><tr><td colspan="10" class="empty-state">回收站为空</td></tr></tbody></table></div>
         </div>
     </div>
@@ -1058,7 +1277,7 @@
     <script>
         // ==================== IndexedDB 管理类 ====================
         class DatabaseManager {
-            constructor(dbName = 'FinanceManagementDB', version = 1) {
+            constructor(dbName = 'FinanceManagementDB', version = 3) {
                 this.dbName = dbName;
                 this.version = version;
                 this.db = null;
@@ -1139,7 +1358,8 @@
                     const data = await this.getAllData();
                     const jsonString = JSON.stringify(data);
                     const sizeInBytes = new Blob([jsonString]).size;
-                    return { bytes: sizeInBytes, kb: (sizeInBytes / 1024).toFixed(2), mb: (sizeInBytes / (1024 * 1024)).toFixed(2) };
+                    return { bytes: sizeInBytes, kb: (sizeInBytes / 1024).toFixed(2), mb: (sizeInBytes / (1024 * 1024))
+                            .toFixed(2) };
                 } catch (error) {
                     return { bytes: 0, kb: '0.00', mb: '0.00' };
                 }
@@ -1149,7 +1369,8 @@
                 return new Promise((resolve, reject) => {
                     const transaction = this.db.transaction([this.backupStoreName], 'readwrite');
                     const store = transaction.objectStore(this.backupStoreName);
-                    const backupData = { timestamp: new Date().getTime(), type: 'daily_backup', data: data, backupDate: getCurrentDateChina() };
+                    const backupData = { timestamp: new Date().getTime(), type: 'daily_backup', data: data,
+                        backupDate: getCurrentDateChina() };
                     const request = store.put(backupData);
                     request.onsuccess = () => resolve(true);
                     request.onerror = () => reject(request.error);
@@ -1214,7 +1435,6 @@
             isLoggedIn: false
         };
 
-        // DOM 元素
         const elements = {
             passwordInput: document.getElementById('password-input'),
             loginOverlay: document.getElementById('login-overlay'),
@@ -1307,12 +1527,15 @@
         function showToast(message, isError = false) {
             const toast = document.createElement('div');
             toast.textContent = message;
-            toast.style.cssText = `position: fixed; top: 12px; right: 12px; background: ${isError ? '#e74c3c' : '#2ecc71'}; color: white; padding: 8px 16px; border-radius: 6px; font-weight: 600; font-size: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); z-index: 1000; opacity: 0; transform: translateY(-20px); transition: all 0.3s ease;`;
+            toast.style.cssText =
+                `position: fixed; top: 14px; right: 14px; background: ${isError ? '#e74c3c' : '#27ae60'}; color: white; padding: 10px 18px; border-radius: 8px; font-weight: 600; font-size: 13px; box-shadow: 0 6px 20px rgba(0,0,0,0.18); z-index: 1000; opacity: 0; transform: translateY(-20px); transition: all 0.3s ease;`;
             document.body.appendChild(toast);
-            setTimeout(() => { toast.style.opacity = '1'; toast.style.transform = 'translateY(0)'; }, 10);
-            setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translateY(-20px)'; setTimeout(() => document.body.removeChild(toast), 300); }, 3000);
+            setTimeout(() => { toast.style.opacity = '1';
+                toast.style.transform = 'translateY(0)'; }, 10);
+            setTimeout(() => { toast.style.opacity = '0';
+                toast.style.transform = 'translateY(-20px)';
+                setTimeout(() => document.body.removeChild(toast), 300); }, 3000);
         }
-
         function showUndoToast() {
             let countdown = 5;
             elements.undoToast.classList.add('show');
@@ -1325,7 +1548,8 @@
         }
         function hideUndoToast() {
             elements.undoToast.classList.remove('show');
-            if (appState.undoTimer) { clearInterval(appState.undoTimer); appState.undoTimer = null; }
+            if (appState.undoTimer) { clearInterval(appState.undoTimer);
+                appState.undoTimer = null; }
         }
 
         // ==================== 登录/退出 ====================
@@ -1335,7 +1559,9 @@
                 appState.isLoggedIn = true;
                 appState.loginAttempts = 0;
                 elements.loginOverlay.classList.add('hidden');
-                setTimeout(() => { elements.loginOverlay.style.display = 'none'; elements.mainApp.style.display = 'block'; init(); }, 300);
+                setTimeout(() => { elements.loginOverlay.style.display = 'none';
+                    elements.mainApp.style.display = 'block';
+                    init(); }, 350);
                 showToast('登录成功！');
             } else {
                 appState.loginAttempts++;
@@ -1447,7 +1673,7 @@
                         records: appState.records,
                         recycleBin: appState.recycleBin,
                         backupTime: new Date().toISOString(),
-                        version: '36.0'
+                        version: '38.0'
                     };
                     await dbManager.saveDailyBackup(backupData);
                     const success = await writeBackupFile(backupData);
@@ -1469,7 +1695,7 @@
                 records: appState.records,
                 recycleBin: appState.recycleBin,
                 backupTime: new Date().toISOString(),
-                version: '36.0'
+                version: '38.0'
             };
             const success = await writeBackupFile(backupData);
             if (success) {
@@ -1496,48 +1722,11 @@
             }, 60 * 60 * 1000);
             if (!appState.isLoggedIn) elements.passwordInput.focus();
         }
-
         document.addEventListener('DOMContentLoaded', function() {
-            elements.passwordInput.addEventListener('keypress', function(e) { if (e.key === 'Enter') checkPassword(); });
+            elements.passwordInput.addEventListener('keypress', function(e) { if (e.key === 'Enter') checkPassword
+            (); });
             init();
         });
-
-        // ==================== 表单验证 ====================
-        function validateName() {
-            const name = elements.personName.value.trim();
-            const errorElement = document.getElementById('name-error');
-            if (!name) { showError(elements.personName, errorElement, '姓名不能为空'); return false; }
-            else { hideError(elements.personName, errorElement); return true; }
-        }
-        function validateDate() {
-            const date = elements.recordDate.value;
-            const errorElement = document.getElementById('date-error');
-            const today = getCurrentDateChina();
-            if (!date) { showError(elements.recordDate, errorElement, '请选择日期'); return false; }
-            else if (date > today) { showError(elements.recordDate, errorElement, '不能选择未来日期'); return false; }
-            else { hideError(elements.recordDate, errorElement); return true; }
-        }
-        function validateAmount() {
-            const amount = parseFloat(elements.recordAmount.value);
-            const errorElement = document.getElementById('amount-error');
-            if (isNaN(amount) || amount <= 0) { showError(elements.recordAmount, errorElement, '金额必须大于0'); return false; }
-            else { hideError(elements.recordAmount, errorElement); return true; }
-        }
-        function validateNote() {
-            const note = elements.recordNote.value.trim();
-            const errorElement = document.getElementById('note-error');
-            hideError(elements.recordNote, errorElement);
-            return true;
-        }
-        function showError(input, errorElement, message) {
-            input.classList.add('error');
-            errorElement.textContent = message;
-            errorElement.style.display = 'block';
-        }
-        function hideError(input, errorElement) {
-            input.classList.remove('error');
-            errorElement.style.display = 'none';
-        }
 
         // ==================== 分类选择 ====================
         function selectCategory(category, subtype) {
@@ -1565,15 +1754,11 @@
             return 0;
         }
 
-        // ==================== 保存记录 ====================
+        // ==================== 保存记录（重复提醒但可强制保存） ====================
         function saveRecord() {
-            if (!validateName() || !validateDate() || !validateAmount()) {
-                showToast('请正确填写所有必填项', true);
-                return;
-            }
-            const name = elements.personName.value.trim();
-            const date = elements.recordDate.value;
-            const amount = parseFloat(elements.recordAmount.value);
+            const name = elements.personName.value.trim() || '(未填写)';
+            const date = elements.recordDate.value || getCurrentDateChina();
+            const amount = parseFloat(elements.recordAmount.value) || 0;
             const type = elements.recordType.value;
             const note = elements.recordNote.value.trim();
             const category = appState.selectedCategory;
@@ -1581,46 +1766,55 @@
             const totalAmount = parseFloat(elements.recordTotal.value) || 0;
             const rebateRate = parseFloat(elements.recordRebateRate.value) || 0;
 
-            const isDuplicate = appState.records.some(record =>
+            const potentialDuplicate = appState.records.find(record =>
                 record.date === date && record.name === name &&
-                Math.abs(record.amount) === amount && record.category === category &&
-                record.subtype === subtype && record.note === note
+                record.category === category && record.subtype === subtype &&
+                record.type === type && Math.abs(record.amount) === Math.abs(amount) &&
+                (record.note || '') === note
             );
-            if (isDuplicate) { showToast('发现重复记录，请勿重复提交', true); return; }
 
-            const record = {
-                id: Date.now() + '_' + Math.random().toString(36).substr(2, 9),
-                date,
-                name,
-                category,
-                subtype: subtype || '',
-                type,
-                amount: type === 'expense' ? -Math.abs(amount) : Math.abs(amount),
-                note,
-                totalAmount: totalAmount || null,
-                rebateRate: rebateRate || null,
-                rebate: 0,
-                createdAt: new Date().toISOString()
+            const doSave = () => {
+                const record = {
+                    id: Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+                    date,
+                    name,
+                    category,
+                    subtype: subtype || '',
+                    type,
+                    amount: type === 'expense' ? -Math.abs(amount) : Math.abs(amount),
+                    note,
+                    totalAmount: totalAmount || null,
+                    rebateRate: rebateRate || null,
+                    rebate: 0,
+                    createdAt: new Date().toISOString()
+                };
+                record.rebate = calculateRebate(record);
+                appState.records.unshift(record);
+                clearInputsExceptNote();
+                saveLocalData();
+                updatePersonFilter();
+                updateYearFilter();
+                loadRecords();
+                loadDateRecords();
+                loadMyIncomeStatsForDate(appState.currentViewDate);
+                showToast('记录已保存');
             };
-            record.rebate = calculateRebate(record);
-            appState.records.unshift(record);
-            clearInputsExceptNote();
-            saveLocalData();
-            updatePersonFilter();
-            updateYearFilter();
-            loadRecords();
-            loadDateRecords();
-            loadMyIncomeStatsForDate(appState.currentViewDate);
-            showToast('记录已保存');
-        }
 
+            if (potentialDuplicate) {
+                if (confirm('⚠️ 检测到疑似重复记录：\n\n' +
+                        `日期：${date}\n姓名：${name}\n分类：${getCategoryLabel(category, subtype)}\n金额：¥${Math.abs(amount).toFixed(2)}\n特码：${note || '无'}\n\n` +
+                        '是否仍然保存此记录？\n（点击"确定"强制保存，"取消"放弃）')) {
+                    doSave();
+                }
+            } else {
+                doSave();
+            }
+        }
         function clearInputsExceptNote() {
             elements.personName.value = '';
             elements.recordAmount.value = '';
             elements.recordTotal.value = '';
             elements.recordRebateRate.value = '';
-            hideError(elements.personName, document.getElementById('name-error'));
-            hideError(elements.recordAmount, document.getElementById('amount-error'));
             elements.personName.focus();
         }
         function clearInputs() {
@@ -1629,11 +1823,8 @@
             elements.recordTotal.value = '';
             elements.recordRebateRate.value = '';
             elements.recordNote.value = '';
-            hideError(elements.personName, document.getElementById('name-error'));
-            hideError(elements.recordAmount, document.getElementById('amount-error'));
             elements.personName.focus();
         }
-
         function setTodayDate() {
             const today = getCurrentDateChina();
             elements.viewDate.value = today;
@@ -1641,7 +1832,6 @@
             loadDateRecords();
             loadMyIncomeStatsForDate(today);
         }
-
         function searchRecords() {
             appState.searchTerm = elements.searchInput.value.toLowerCase().trim();
             loadRecords();
@@ -1652,7 +1842,7 @@
             loadRecords();
         }
 
-        // ==================== 日期记录 ====================
+        // ==================== 日期记录加载 ====================
         function loadDateRecords() {
             const selectedDate = elements.viewDate.value;
             if (!selectedDate) return;
@@ -1663,46 +1853,33 @@
             loadMyIncomeStatsForDate(selectedDate);
             updateDateRebateSummary(dateRecords);
         }
-
         function renderDateRecordsTable(records) {
             const tbody = elements.dateRecordsBody;
-            if (records.length === 0) { tbody.innerHTML = '<tr><td colspan="7" class="empty-state">该日期暂无记录</td></tr>'; return; }
+            if (records.length === 0) { tbody.innerHTML =
+                    '<tr><td colspan="7" class="empty-state">该日期暂无记录</td></tr>'; return; }
             let html = '';
             records.forEach(record => {
                 const isIncome = record.amount > 0;
                 const categoryLabel = getCategoryLabel(record.category, record.subtype);
                 const rebate = record.rebate || 0;
-                const isRebatePositive = rebate >= 0;
-                const rebateClass = isRebatePositive ? 'stat-rebate' : 'stat-expense';
-                html += `
-                    <tr>
-                        <td><strong>${record.name}</strong></td>
-                        <td><span class="category-badge ${record.subtype ? record.category + '-' + record.subtype : record.category}">${categoryLabel}</span></td>
-                        <td><span class="type-badge ${isIncome ? 'type-income' : 'type-expense'}">${isIncome ? '收入' : '支出'}</span></td>
-                        <td class="${isIncome ? 'stat-income' : 'stat-expense'}">${isIncome ? '+' : ''}¥${Math.abs(record.amount).toFixed(2)}</td>
-                        <td class="${rebateClass}">${rebate !== 0 ? (rebate > 0 ? '+' : '') + '¥' + Math.abs(rebate).toFixed(2) : '-'}</td>
-                        <td>${record.note || '-'}</td>
-                        <td><button class="action-btn action-delete" onclick="deleteRecord('${record.id}')">删除</button></td>
-                    </tr>
-                `;
+                const rebateClass = rebate >= 0 ? 'stat-rebate' : 'stat-expense';
+                html +=
+                    `<tr><td><strong>${record.name}</strong></td><td><span class="category-badge ${record.subtype ? record.category + '-' + record.subtype : record.category}">${categoryLabel}</span></td><td><span class="type-badge ${isIncome ? 'type-income' : 'type-expense'}">${isIncome ? '收入' : '支出'}</span></td><td class="${isIncome ? 'stat-income' : 'stat-expense'}">${isIncome ? '+' : ''}¥${Math.abs(record.amount).toFixed(2)}</td><td class="${rebateClass}">${rebate !== 0 ? (rebate > 0 ? '+' : '') + '¥' + Math.abs(rebate).toFixed(2) : '-'}</td><td>${record.note || '-'}</td><td><button class="action-btn action-delete" onclick="deleteRecord('${record.id}')">删除</button></td></tr>`;
             });
             tbody.innerHTML = html;
         }
-
         function updateDateRebateSummary(records) {
             if (!elements.dateRebateSummary) return;
-            let macauDownRebate = 0, guangdongDownRebate = 0;
+            let macauDownRebate = 0,
+                guangdongDownRebate = 0;
             records.forEach(record => {
                 if (record.category === 'macau' && record.subtype === 'down') macauDownRebate += record.rebate || 0;
-                else if (record.category === 'guangdong' && record.subtype === 'down') guangdongDownRebate += record.rebate || 0;
+                else if (record.category === 'guangdong' && record.subtype === 'down') guangdongDownRebate += record
+                    .rebate || 0;
             });
             const totalRebate = macauDownRebate + guangdongDownRebate;
-            let html = `
-                <div class="rebate-item">澳门下家返点:<span class="rebate-value">${macauDownRebate.toFixed(2)}元</span></div>
-                <div class="rebate-item">粤港下家返点:<span class="rebate-value">${guangdongDownRebate.toFixed(2)}元</span></div>
-                <div class="total-rebate">总返点:<span class="total-rebate-value">${totalRebate.toFixed(2)}元</span></div>
-            `;
-            elements.dateRebateSummary.innerHTML = html;
+            elements.dateRebateSummary.innerHTML =
+                `<div class="rebate-item">澳门下家返点:<span class="rebate-value">${macauDownRebate.toFixed(2)}元</span></div><div class="rebate-item">粤港下家返点:<span class="rebate-value">${guangdongDownRebate.toFixed(2)}元</span></div><div class="total-rebate">总返点:<span class="total-rebate-value">${totalRebate.toFixed(2)}元</span></div>`;
         }
 
         // ==================== 我的收支统计 ====================
@@ -1727,72 +1904,59 @@
                 total: totalMyIncome
             }, date);
         }
-
         function calculateGuangdongUpRebate(guangdongUpRecords) {
             let totalRebate = 0;
             guangdongUpRecords.forEach(record => totalRebate += record.rebate || 0);
             return totalRebate;
         }
-
         function calculateStatsOld(recordList) {
-            let income = 0, expense = 0;
-            recordList.forEach(record => { if (record.amount > 0) income += record.amount; else expense += record.amount; });
+            let income = 0,
+                expense = 0;
+            recordList.forEach(record => { if (record.amount > 0) income += record.amount;
+                else expense += record.amount; });
             return { income, expense: Math.abs(expense), profit: income + expense, count: recordList.length };
         }
-
         function getCategoryLabel(category, subtype) {
             if (subtype === 'up') return category === 'macau' ? '澳门上家' : '粤港上家';
             else if (subtype === 'down') return category === 'macau' ? '澳门下家' : '粤港下家';
             else return category === 'macau' ? '澳门' : '粤港';
         }
-
         function renderMyIncomeStats(stats, date) {
             const container = elements.myIncomeStats;
             container.innerHTML = '';
             const macauIsIncome = stats.macau.my >= 0;
-            container.innerHTML += `
-                <div class="stat-card">
-                    <div class="stat-header"><div class="stat-title">澳门收支统计</div><div class="stat-amount ${macauIsIncome ? 'stat-income' : 'stat-expense'}">${macauIsIncome ? '+' : ''}¥${Math.abs(stats.macau.my).toFixed(2)}</div></div>
-                    <div class="${macauIsIncome ? 'income-hint' : 'expense-hint'}" style="margin-top: 5px;">${macauIsIncome ? '收入' : '支出'} ¥${Math.abs(stats.macau.my).toFixed(2)}</div>
-                    <div class="stat-details">澳门下家：${stats.macau.down.profit >= 0 ? '+' : ''}¥${Math.abs(stats.macau.down.profit).toFixed(2)}<br>澳门上家：${stats.macau.up.profit >= 0 ? '+' : ''}¥${Math.abs(stats.macau.up.profit).toFixed(2)}</div>
-                </div>
-            `;
+            container.innerHTML +=
+                `<div class="stat-card"><div class="stat-header"><div class="stat-title">澳门收支统计</div><div class="stat-amount ${macauIsIncome ? 'stat-income' : 'stat-expense'}">${macauIsIncome ? '+' : ''}¥${Math.abs(stats.macau.my).toFixed(2)}</div></div><div class="${macauIsIncome ? 'income-hint' : 'expense-hint'}" style="margin-top: 5px;">${macauIsIncome ? '收入' : '支出'} ¥${Math.abs(stats.macau.my).toFixed(2)}</div><div class="stat-details">澳门下家：${stats.macau.down.profit >= 0 ? '+' : ''}¥${Math.abs(stats.macau.down.profit).toFixed(2)}<br>澳门上家：${stats.macau.up.profit >= 0 ? '+' : ''}¥${Math.abs(stats.macau.up.profit).toFixed(2)}</div></div>`;
             const guangdongIsIncome = stats.guangdong.my >= 0;
-            container.innerHTML += `
-                <div class="stat-card">
-                    <div class="stat-header"><div class="stat-title">粤港收支统计</div><div class="stat-amount ${guangdongIsIncome ? 'stat-income' : 'stat-expense'}">${guangdongIsIncome ? '+' : ''}¥${Math.abs(stats.guangdong.my).toFixed(2)}</div></div>
-                    <div class="${guangdongIsIncome ? 'income-hint' : 'expense-hint'}" style="margin-top: 5px;">${guangdongIsIncome ? '收入' : '支出'} ¥${Math.abs(stats.guangdong.my).toFixed(2)}</div>
-                    <div class="stat-details">粤港下家：${stats.guangdong.down.profit >= 0 ? '+' : ''}¥${Math.abs(stats.guangdong.down.profit).toFixed(2)}<br>粤港上家：${stats.guangdong.up.profit >= 0 ? '+' : ''}¥${Math.abs(stats.guangdong.up.profit).toFixed(2)}<br>上家返点：${stats.guangdongUpRebate >= 0 ? '+' : ''}¥${Math.abs(stats.guangdongUpRebate).toFixed(2)}</div>
-                </div>
-            `;
+            container.innerHTML +=
+                `<div class="stat-card"><div class="stat-header"><div class="stat-title">粤港收支统计</div><div class="stat-amount ${guangdongIsIncome ? 'stat-income' : 'stat-expense'}">${guangdongIsIncome ? '+' : ''}¥${Math.abs(stats.guangdong.my).toFixed(2)}</div></div><div class="${guangdongIsIncome ? 'income-hint' : 'expense-hint'}" style="margin-top: 5px;">${guangdongIsIncome ? '收入' : '支出'} ¥${Math.abs(stats.guangdong.my).toFixed(2)}</div><div class="stat-details">粤港下家：${stats.guangdong.down.profit >= 0 ? '+' : ''}¥${Math.abs(stats.guangdong.down.profit).toFixed(2)}<br>粤港上家：${stats.guangdong.up.profit >= 0 ? '+' : ''}¥${Math.abs(stats.guangdong.up.profit).toFixed(2)}<br>上家返点：${stats.guangdongUpRebate >= 0 ? '+' : ''}¥${Math.abs(stats.guangdongUpRebate).toFixed(2)}</div></div>`;
             const totalIsIncome = stats.total >= 0;
-            container.innerHTML += `
-                <div class="stat-card">
-                    <div class="stat-header"><div class="stat-title">总计收支统计</div><div class="stat-amount ${totalIsIncome ? 'stat-income' : 'stat-expense'}">${totalIsIncome ? '+' : ''}¥${Math.abs(stats.total).toFixed(2)}</div></div>
-                    <div class="${totalIsIncome ? 'income-hint' : 'expense-hint'}" style="margin-top: 5px;">${totalIsIncome ? '收入' : '支出'} ¥${Math.abs(stats.total).toFixed(2)}</div>
-                    <div class="stat-details">日期：${date}<br>澳门：${macauIsIncome ? '+' : ''}¥${Math.abs(stats.macau.my).toFixed(2)}<br>粤港：${guangdongIsIncome ? '+' : ''}¥${Math.abs(stats.guangdong.my).toFixed(2)}<br>粤港上家返点：${stats.guangdongUpRebate >= 0 ? '+' : ''}¥${Math.abs(stats.guangdongUpRebate).toFixed(2)}</div>
-                </div>
-            `;
+            container.innerHTML +=
+                `<div class="stat-card"><div class="stat-header"><div class="stat-title">总计收支统计</div><div class="stat-amount ${totalIsIncome ? 'stat-income' : 'stat-expense'}">${totalIsIncome ? '+' : ''}¥${Math.abs(stats.total).toFixed(2)}</div></div><div class="${totalIsIncome ? 'income-hint' : 'expense-hint'}" style="margin-top: 5px;">${totalIsIncome ? '收入' : '支出'} ¥${Math.abs(stats.total).toFixed(2)}</div><div class="stat-details">日期：${date}<br>澳门：${macauIsIncome ? '+' : ''}¥${Math.abs(stats.macau.my).toFixed(2)}<br>粤港：${guangdongIsIncome ? '+' : ''}¥${Math.abs(stats.guangdong.my).toFixed(2)}<br>粤港上家返点：${stats.guangdongUpRebate >= 0 ? '+' : ''}¥${Math.abs(stats.guangdongUpRebate).toFixed(2)}</div></div>`;
         }
 
-        // ==================== 记录列表加载 ====================
+        // ==================== 记录列表加载（筛选） ====================
         function loadRecords() {
             const selectedYear = elements.selectYear.value;
             const selectedMonth = elements.selectMonth.value;
             const filterCategory = elements.filterCategory.value;
             const filterPerson = elements.filterPerson.value;
             let filteredRecords = appState.records;
-            if (selectedYear !== 'all') filteredRecords = filteredRecords.filter(record => record.date.split('-')[0] === selectedYear);
-            if (selectedMonth !== 'all') filteredRecords = filteredRecords.filter(record => record.date.split('-')[1] === selectedMonth.toString().padStart(2, '0'));
+            if (selectedYear !== 'all') filteredRecords = filteredRecords.filter(record => record.date.split('-')[0] ===
+                selectedYear);
+            if (selectedMonth !== 'all') filteredRecords = filteredRecords.filter(record => record.date.split('-')[1] ===
+                selectedMonth.toString().padStart(2, '0'));
             if (filterCategory !== 'all') {
-                if (filterCategory === 'my-income') { renderMyIncomeRecords(filteredRecords, selectedYear, selectedMonth); return; }
-                else if (filterCategory.includes('-')) {
+                if (filterCategory === 'my-income') { renderMyIncomeRecords(filteredRecords, selectedYear, selectedMonth); return; } else if (
+                    filterCategory.includes('-')) {
                     const [category, subtype] = filterCategory.split('-');
-                    filteredRecords = filteredRecords.filter(record => record.category === category && record.subtype === subtype);
+                    filteredRecords = filteredRecords.filter(record => record.category === category && record.subtype ===
+                        subtype);
                 } else filteredRecords = filteredRecords.filter(record => record.category === filterCategory);
             }
             if (filterPerson !== 'all') filteredRecords = filteredRecords.filter(record => record.name === filterPerson);
-            if (appState.searchTerm) filteredRecords = filteredRecords.filter(record => record.name.toLowerCase().includes(appState.searchTerm) || (record.note && record.note.toLowerCase().includes(appState.searchTerm)));
+            if (appState.searchTerm) filteredRecords = filteredRecords.filter(record => record.name.toLowerCase().includes(appState
+                .searchTerm) || (record.note && record.note.toLowerCase().includes(appState.searchTerm)));
             filteredRecords.sort((a, b) => new Date(b.date) - new Date(a.date));
             renderRecordsTable(filteredRecords);
             renderSummaryStats(filteredRecords, selectedYear, selectedMonth, filterCategory);
@@ -1800,32 +1964,29 @@
             updateFilterDisplay();
             updateDetailRebateSummary(filteredRecords);
         }
-
         function updateDetailRebateSummary(records) {
             if (!elements.detailRebateSummary) return;
-            let macauDownRebate = 0, guangdongDownRebate = 0;
+            let macauDownRebate = 0,
+                guangdongDownRebate = 0;
             records.forEach(record => {
                 if (record.category === 'macau' && record.subtype === 'down') macauDownRebate += record.rebate || 0;
-                else if (record.category === 'guangdong' && record.subtype === 'down') guangdongDownRebate += record.rebate || 0;
+                else if (record.category === 'guangdong' && record.subtype === 'down') guangdongDownRebate += record
+                    .rebate || 0;
             });
             const totalRebate = macauDownRebate + guangdongDownRebate;
-            let html = `
-                <div class="rebate-item">澳门下家返点:<span class="rebate-value">${macauDownRebate.toFixed(2)}元</span></div>
-                <div class="rebate-item">粤港下家返点:<span class="rebate-value">${guangdongDownRebate.toFixed(2)}元</span></div>
-                <div class="total-rebate">总返点:<span class="total-rebate-value">${totalRebate.toFixed(2)}元</span></div>
-            `;
-            elements.detailRebateSummary.innerHTML = html;
+            elements.detailRebateSummary.innerHTML =
+                `<div class="rebate-item">澳门下家返点:<span class="rebate-value">${macauDownRebate.toFixed(2)}元</span></div><div class="rebate-item">粤港下家返点:<span class="rebate-value">${guangdongDownRebate.toFixed(2)}元</span></div><div class="total-rebate">总返点:<span class="total-rebate-value">${totalRebate.toFixed(2)}元</span></div>`;
         }
-
         function updateFilterDisplay() {
-            elements.filterYearDisplay.textContent = elements.selectYear.value === 'all' ? '全部年份' : `${elements.selectYear.value}年`;
-            elements.filterMonthDisplay.textContent = elements.selectMonth.value === 'all' ? '全部月份' : `${elements.selectMonth.value}月`;
-            elements.filterCategoryDisplay.textContent = elements.filterCategory.value === 'all' ? '全部分类' : elements.filterCategory.options[elements.filterCategory.selectedIndex].text;
-            elements.filterNameDisplay.textContent = elements.filterPerson.value === 'all' ? '全部人员' : elements.filterPerson.value;
+            elements.filterYearDisplay.textContent = elements.selectYear.value === 'all' ? '全部年份' :
+                `${elements.selectYear.value}年`;
+            elements.filterMonthDisplay.textContent = elements.selectMonth.value === 'all' ? '全部月份' :
+                `${elements.selectMonth.value}月`;
+            elements.filterCategoryDisplay.textContent = elements.filterCategory.value === 'all' ? '全部分类' : elements
+                .filterCategory.options[elements.filterCategory.selectedIndex].text;
+            elements.filterNameDisplay.textContent = elements.filterPerson.value === 'all' ? '全部人员' : elements.filterPerson
+                .value;
         }
-
-        function handleNameKeyPress(event) { if (event.key === 'Enter' && validateName()) saveRecord(); }
-        function handleAmountKeyPress(event) { if (event.key === 'Enter' && validateAmount()) saveRecord(); }
 
         // ==================== 转置收支明细表 ====================
         function updateDetailTransposedTable(filteredRecords) {
@@ -1837,8 +1998,12 @@
             tableHead.innerHTML = '<th style="width: 60px;">月份</th>';
             transposedBody.innerHTML = '';
             if (filteredRecords.length === 0) {
-                transposedBody.innerHTML = '<tr class="empty-state-row"><td colspan="1" class="empty-state">暂无数据</td></tr>';
-                personCount.textContent = '0'; monthCount.textContent = '0'; totalProfit.textContent = '0'; totalProfit.className = '';
+                transposedBody.innerHTML =
+                    '<tr class="empty-state-row"><td colspan="1" class="empty-state">暂无数据</td></tr>';
+                personCount.textContent = '0';
+                monthCount.textContent = '0';
+                totalProfit.textContent = '0';
+                totalProfit.className = '';
                 return;
             }
             const allPersons = [...new Set(filteredRecords.map(record => record.name))].sort();
@@ -1881,16 +2046,18 @@
                     const cell = document.createElement('td');
                     const profit = personMonthStats[name]?.[month] || 0;
                     if (profit !== 0) {
-                        if (profit > 0) { cell.className = 'stat-income'; cell.innerHTML = `+¥${profit.toFixed(2)}`; }
-                        else { cell.className = 'stat-expense'; cell.innerHTML = `-¥${Math.abs(profit).toFixed(2)}`; }
+                        if (profit > 0) { cell.className = 'stat-income';
+                            cell.innerHTML = `+¥${profit.toFixed(2)}`; } else { cell.className = 'stat-expense';
+                            cell.innerHTML = `-¥${Math.abs(profit).toFixed(2)}`; }
                         monthTotal += profit;
                     } else cell.innerHTML = '';
                     row.appendChild(cell);
                 });
                 const totalCell = document.createElement('td');
                 if (monthTotal !== 0) {
-                    if (monthTotal > 0) { totalCell.className = 'stat-income'; totalCell.innerHTML = `+¥${monthTotal.toFixed(2)}`; }
-                    else { totalCell.className = 'stat-expense'; totalCell.innerHTML = `-¥${Math.abs(monthTotal).toFixed(2)}`; }
+                    if (monthTotal > 0) { totalCell.className = 'stat-income';
+                        totalCell.innerHTML = `+¥${monthTotal.toFixed(2)}`; } else { totalCell.className = 'stat-expense';
+                        totalCell.innerHTML = `-¥${Math.abs(monthTotal).toFixed(2)}`; }
                 } else totalCell.innerHTML = '';
                 row.appendChild(totalCell);
                 transposedBody.appendChild(row);
@@ -1905,24 +2072,29 @@
                 let personTotal = 0;
                 monthsToShow.forEach(month => { personTotal += personMonthStats[name]?.[month] || 0; });
                 if (personTotal !== 0) {
-                    if (personTotal > 0) { cell.className = 'stat-income'; cell.innerHTML = `+¥${personTotal.toFixed(2)}`; }
-                    else { cell.className = 'stat-expense'; cell.innerHTML = `-¥${Math.abs(personTotal).toFixed(2)}`; }
+                    if (personTotal > 0) { cell.className = 'stat-income';
+                        cell.innerHTML = `+¥${personTotal.toFixed(2)}`; } else { cell.className = 'stat-expense';
+                        cell.innerHTML = `-¥${Math.abs(personTotal).toFixed(2)}`; }
                 } else cell.innerHTML = '';
                 totalRow.appendChild(cell);
             });
             const grandTotalCell = document.createElement('td');
             if (grandTotalProfit !== 0) {
-                if (grandTotalProfit > 0) { grandTotalCell.className = 'stat-income'; grandTotalCell.innerHTML = `+¥${grandTotalProfit.toFixed(2)}`; }
-                else { grandTotalCell.className = 'stat-expense'; grandTotalCell.innerHTML = `-¥${Math.abs(grandTotalProfit).toFixed(2)}`; }
+                if (grandTotalProfit > 0) { grandTotalCell.className = 'stat-income';
+                    grandTotalCell.innerHTML = `+¥${grandTotalProfit.toFixed(2)}`; } else { grandTotalCell.className =
+                    'stat-expense';
+                    grandTotalCell.innerHTML = `-¥${Math.abs(grandTotalProfit).toFixed(2)}`; }
             } else grandTotalCell.innerHTML = '';
             totalRow.appendChild(grandTotalCell);
             transposedBody.appendChild(totalRow);
             personCount.textContent = allPersons.length;
             monthCount.textContent = monthsToShow.length;
             if (grandTotalProfit !== 0) {
-                if (grandTotalProfit > 0) { totalProfit.className = 'stat-income'; totalProfit.innerHTML = `+¥${grandTotalProfit.toFixed(2)}`; }
-                else { totalProfit.className = 'stat-expense'; totalProfit.innerHTML = `-¥${Math.abs(grandTotalProfit).toFixed(2)}`; }
-            } else { totalProfit.innerHTML = '0'; totalProfit.className = ''; }
+                if (grandTotalProfit > 0) { totalProfit.className = 'stat-income';
+                    totalProfit.innerHTML = `+¥${grandTotalProfit.toFixed(2)}`; } else { totalProfit.className = 'stat-expense';
+                    totalProfit.innerHTML = `-¥${Math.abs(grandTotalProfit).toFixed(2)}`; }
+            } else { totalProfit.innerHTML = '0';
+                totalProfit.className = ''; }
         }
 
         // ==================== 批量选择与删除 ====================
@@ -1930,9 +2102,11 @@
             const checkboxes = document.querySelectorAll('#records-body input[type="checkbox"]:not(#select-all)');
             const selectAllCheckbox = elements.selectAll;
             if (selectAllCheckbox.checked) {
-                checkboxes.forEach(checkbox => { checkbox.checked = true; appState.selectedRecords.add(checkbox.value); });
+                checkboxes.forEach(checkbox => { checkbox.checked = true;
+                    appState.selectedRecords.add(checkbox.value); });
             } else {
-                checkboxes.forEach(checkbox => { checkbox.checked = false; appState.selectedRecords.delete(checkbox.value); });
+                checkboxes.forEach(checkbox => { checkbox.checked = false;
+                    appState.selectedRecords.delete(checkbox.value); });
             }
             updateBatchToolbar();
         }
@@ -1946,10 +2120,13 @@
             elements.batchCount.textContent = count;
             elements.batchToolbar.classList.toggle('show', count > 0);
             const totalCheckboxes = document.querySelectorAll('#records-body input[type="checkbox"]:not(#select-all)');
-            const checkedCheckboxes = document.querySelectorAll('#records-body input[type="checkbox"]:not(#select-all):checked');
-            if (checkedCheckboxes.length === 0) { elements.selectAll.checked = false; elements.selectAll.indeterminate = false; }
-            else if (checkedCheckboxes.length === totalCheckboxes.length) { elements.selectAll.checked = true; elements.selectAll.indeterminate = false; }
-            else { elements.selectAll.checked = false; elements.selectAll.indeterminate = true; }
+            const checkedCheckboxes = document.querySelectorAll(
+                '#records-body input[type="checkbox"]:not(#select-all):checked');
+            if (checkedCheckboxes.length === 0) { elements.selectAll.checked = false;
+                elements.selectAll.indeterminate = false; } else if (checkedCheckboxes.length === totalCheckboxes.length) { elements
+                .selectAll.checked = true;
+                elements.selectAll.indeterminate = false; } else { elements.selectAll.checked = false;
+                elements.selectAll.indeterminate = true; }
         }
         function clearSelection() {
             appState.selectedRecords.clear();
@@ -1962,13 +2139,19 @@
             const record = appState.records.find(r => r.id === recordId);
             if (!record) return;
             if (confirm('确定要删除这条记录吗？记录将移至回收站，可随时恢复。')) {
-                const deletedRecord = { ...record, deletedAt: new Date().toISOString(), originalIndex: appState.records.indexOf(record) };
+                const deletedRecord = { ...record, deletedAt: new Date().toISOString(), originalIndex: appState.records.indexOf(
+                        record) };
                 appState.records = appState.records.filter(r => r.id !== recordId);
                 appState.recycleBin.unshift(deletedRecord);
                 appState.selectedRecords.delete(recordId);
                 saveLocalData();
-                updatePersonFilter(); updateYearFilter(); loadRecords(); loadDateRecords(); loadMyIncomeStatsForDate(appState.currentViewDate);
-                updateRecycleCount(); renderRecycleTable();
+                updatePersonFilter();
+                updateYearFilter();
+                loadRecords();
+                loadDateRecords();
+                loadMyIncomeStatsForDate(appState.currentViewDate);
+                updateRecycleCount();
+                renderRecycleTable();
                 showToast('记录已删除，可在回收站找回');
                 showUndoToast();
             }
@@ -1978,11 +2161,17 @@
             if (confirm(`确定要删除选中的 ${appState.selectedRecords.size} 条记录吗？记录将移至回收站。`)) {
                 const selectedRecordsData = appState.records.filter(record => appState.selectedRecords.has(record.id));
                 appState.records = appState.records.filter(record => !appState.selectedRecords.has(record.id));
-                selectedRecordsData.forEach(record => { appState.recycleBin.unshift({ ...record, deletedAt: new Date().toISOString(), originalIndex: appState.records.length }); });
+                selectedRecordsData.forEach(record => { appState.recycleBin.unshift({ ...record, deletedAt: new Date()
+                        .toISOString(), originalIndex: appState.records.length }); });
                 clearSelection();
                 saveLocalData();
-                updatePersonFilter(); updateYearFilter(); loadRecords(); loadDateRecords(); loadMyIncomeStatsForDate(appState.currentViewDate);
-                updateRecycleCount(); renderRecycleTable();
+                updatePersonFilter();
+                updateYearFilter();
+                loadRecords();
+                loadDateRecords();
+                loadMyIncomeStatsForDate(appState.currentViewDate);
+                updateRecycleCount();
+                renderRecycleTable();
                 showToast(`已将 ${selectedRecordsData.length} 条记录移至回收站`);
             }
         }
@@ -1994,7 +2183,11 @@
             appState.deletedRecord = null;
             hideUndoToast();
             saveLocalData();
-            updatePersonFilter(); updateYearFilter(); loadRecords(); loadDateRecords(); loadMyIncomeStatsForDate(appState.currentViewDate);
+            updatePersonFilter();
+            updateYearFilter();
+            loadRecords();
+            loadDateRecords();
+            loadMyIncomeStatsForDate(appState.currentViewDate);
             showToast('已撤销删除操作');
         }
 
@@ -2003,7 +2196,8 @@
             const tbody = elements.recordsBody;
             const container = elements.summaryStats;
             const recordsByDate = {};
-            records.forEach(record => { if (!recordsByDate[record.date]) recordsByDate[record.date] = []; recordsByDate[record.date].push(record); });
+            records.forEach(record => { if (!recordsByDate[record.date]) recordsByDate[record.date] = [];
+                recordsByDate[record.date].push(record); });
             const myIncomeRecords = [];
             Object.keys(recordsByDate).forEach(date => {
                 const dateRecords = recordsByDate[date];
@@ -2043,35 +2237,15 @@
                 const rowClass = isIncome ? 'my-income-row' : 'my-expense-row';
                 const badgeClass = isIncome ? 'my-income' : 'my-expense';
                 const badgeText = isIncome ? '我的收入' : '我的支出';
-                html += `
-                    <tr class="${rowClass}">
-                        <td><input type="checkbox" class="checkbox" value="${record.id}" onchange="toggleRecordSelection('${record.id}', this)"></td>
-                        <td>${record.date}</td>
-                        <td><strong>${record.name}</strong></td>
-                        <td><span class="category-badge ${badgeClass}">${badgeText}</span></td>
-                        <td><span class="type-badge ${isIncome ? 'type-income' : 'type-expense'}">${isIncome ? '收入' : '支出'}</span></td>
-                        <td class="${isIncome ? 'stat-income' : 'stat-expense'}">${isIncome ? '+' : ''}¥${Math.abs(record.amount).toFixed(2)}</td>
-                        <td>-</td>
-                        <td>${record.note || '-'}</td>
-                        <td><span style="color: #7f8c8d; font-size: 9px;">计算得出</span></td>
-                    </tr>
-                `;
+                html +=
+                    `<tr class="${rowClass}"><td><input type="checkbox" class="checkbox" value="${record.id}" onchange="toggleRecordSelection('${record.id}', this)"></td><td>${record.date}</td><td><strong>${record.name}</strong></td><td><span class="category-badge ${badgeClass}">${badgeText}</span></td><td><span class="type-badge ${isIncome ? 'type-income' : 'type-expense'}">${isIncome ? '收入' : '支出'}</span></td><td class="${isIncome ? 'stat-income' : 'stat-expense'}">${isIncome ? '+' : ''}¥${Math.abs(record.amount).toFixed(2)}</td><td>-</td><td>${record.note || '-'}</td><td><span style="color: #8c9aa5; font-size: 10px;">计算得出</span></td></tr>`;
             });
             tbody.innerHTML = html;
             const myIncomeStats = calculateStatsOld(myIncomeRecords);
             const timeLabel = selectedYear === 'all' ? '全部' : `${selectedYear}年${selectedMonth === 'all' ? '' : selectedMonth + '月'}`;
             const isIncome = myIncomeStats.profit >= 0;
-            container.innerHTML = `
-                <div class="stat-card">
-                    <div class="stat-header"><div class="stat-title">我的收支 ${timeLabel}统计</div><div class="stat-amount ${isIncome ? 'stat-income' : 'stat-expense'}">${isIncome ? '+' : ''}¥${Math.abs(myIncomeStats.profit).toFixed(2)}</div></div>
-                    <div class="${isIncome ? 'income-hint' : 'expense-hint'}" style="margin-top: 5px;">${isIncome ? '收入' : '支出'} ¥${Math.abs(myIncomeStats.profit).toFixed(2)}</div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px;">
-                        <div><div class="stat-label">总收入</div><div class="stat-amount stat-income">+¥${myIncomeStats.income.toFixed(2)}</div></div>
-                        <div><div class="stat-label">总支出</div><div class="stat-amount stat-expense">-¥${myIncomeStats.expense.toFixed(2)}</div></div>
-                    </div>
-                    <div class="stat-details">记录数：${myIncomeStats.count}天</div>
-                </div>
-            `;
+            container.innerHTML =
+                `<div class="stat-card"><div class="stat-header"><div class="stat-title">我的收支 ${timeLabel}统计</div><div class="stat-amount ${isIncome ? 'stat-income' : 'stat-expense'}">${isIncome ? '+' : ''}¥${Math.abs(myIncomeStats.profit).toFixed(2)}</div></div><div class="${isIncome ? 'income-hint' : 'expense-hint'}" style="margin-top: 5px;">${isIncome ? '收入' : '支出'} ¥${Math.abs(myIncomeStats.profit).toFixed(2)}</div><div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px;"><div><div class="stat-label">总收入</div><div class="stat-amount stat-income">+¥${myIncomeStats.income.toFixed(2)}</div></div><div><div class="stat-label">总支出</div><div class="stat-amount stat-expense">-¥${myIncomeStats.expense.toFixed(2)}</div></div></div><div class="stat-details">记录数：${myIncomeStats.count}天</div></div>`;
         }
 
         // ==================== 记录表格渲染 ====================
@@ -2084,56 +2258,39 @@
                 const isIncome = record.amount > 0;
                 const categoryLabel = getCategoryLabel(record.category, record.subtype);
                 const rebate = record.rebate || 0;
-                const isRebatePositive = rebate >= 0;
-                const rebateClass = isRebatePositive ? 'stat-rebate' : 'stat-expense';
+                const rebateClass = rebate >= 0 ? 'stat-rebate' : 'stat-expense';
                 const isSelected = appState.selectedRecords.has(record.id);
-                html += `
-                    <tr class="${isSelected ? 'selected' : ''}">
-                        <td><input type="checkbox" class="checkbox" value="${record.id}" ${isSelected ? 'checked' : ''} onchange="toggleRecordSelection('${record.id}', this)"></td>
-                        <td>${record.date}</td>
-                        <td><strong>${record.name}</strong></td>
-                        <td><span class="category-badge ${record.subtype ? record.category + '-' + record.subtype : record.category}">${categoryLabel}</span></td>
-                        <td><span class="type-badge ${isIncome ? 'type-income' : 'type-expense'}">${isIncome ? '收入' : '支出'}</span></td>
-                        <td class="${isIncome ? 'stat-income' : 'stat-expense'}">${isIncome ? '+' : ''}¥${Math.abs(record.amount).toFixed(2)}</td>
-                        <td class="${rebateClass}">${rebate !== 0 ? (rebate > 0 ? '+' : '') + '¥' + Math.abs(rebate).toFixed(2) : '-'}</td>
-                        <td>${record.note || '-'}</td>
-                        <td><button class="action-btn action-delete" onclick="deleteRecord('${record.id}')">删除</button></td>
-                    </tr>
-                `;
+                html +=
+                    `<tr class="${isSelected ? 'selected' : ''}"><td><input type="checkbox" class="checkbox" value="${record.id}" ${isSelected ? 'checked' : ''} onchange="toggleRecordSelection('${record.id}', this)"></td><td>${record.date}</td><td><strong>${record.name}</strong></td><td><span class="category-badge ${record.subtype ? record.category + '-' + record.subtype : record.category}">${categoryLabel}</span></td><td><span class="type-badge ${isIncome ? 'type-income' : 'type-expense'}">${isIncome ? '收入' : '支出'}</span></td><td class="${isIncome ? 'stat-income' : 'stat-expense'}">${isIncome ? '+' : ''}¥${Math.abs(record.amount).toFixed(2)}</td><td class="${rebateClass}">${rebate !== 0 ? (rebate > 0 ? '+' : '') + '¥' + Math.abs(rebate).toFixed(2) : '-'}</td><td>${record.note || '-'}</td><td><button class="action-btn action-delete" onclick="deleteRecord('${record.id}')">删除</button></td></tr>`;
             });
             tbody.innerHTML = html;
         }
 
         // ==================== 统计卡片 ====================
         function calculateStatsNew(recordList) {
-            let sumUpstream = 0, sumDownstream = 0, count = recordList.length;
+            let sumUpstream = 0,
+                sumDownstream = 0,
+                count = recordList.length;
             recordList.forEach(record => {
                 const category = record.category;
                 const amount = record.amount;
                 const subtype = record.subtype;
-                if ((category === 'guangdong' && subtype === 'up') || (category === 'macau' && subtype === 'up')) sumUpstream += amount;
-                else if ((category === 'macau' && subtype === 'down') || (category === 'guangdong' && subtype === 'down')) sumDownstream += amount;
+                if ((category === 'guangdong' && subtype === 'up') || (category === 'macau' && subtype === 'up'))
+                    sumUpstream += amount;
+                else if ((category === 'macau' && subtype === 'down') || (category === 'guangdong' && subtype === 'down'))
+                    sumDownstream += amount;
             });
             const netIncome = sumDownstream - sumUpstream;
-            return { sumUpstream: Number(sumUpstream.toFixed(2)), sumDownstream: Number(sumDownstream.toFixed(2)), netIncome: Number(netIncome.toFixed(2)), count: count };
+            return { sumUpstream: Number(sumUpstream.toFixed(2)), sumDownstream: Number(sumDownstream.toFixed(2)), netIncome: Number(
+                    netIncome.toFixed(2)), count: count };
         }
-
         function renderSummaryStats(records, selectedYear, selectedMonth, filterCategory) {
             const container = elements.summaryStats;
             const allStats = calculateStatsNew(records);
             const timeLabel = selectedYear === 'all' ? '全部' : `${selectedYear}年${selectedMonth === 'all' ? '' : selectedMonth + '月'}`;
             container.innerHTML = '';
-            container.innerHTML += `
-                <div class="stat-card">
-                    <div class="stat-header"><div class="stat-title">总计 ${timeLabel}统计</div><div class="stat-amount ${allStats.netIncome >= 0 ? 'stat-income' : 'stat-expense'}">${allStats.netIncome >= 0 ? '+' : ''}¥${Math.abs(allStats.netIncome).toFixed(2)}</div></div>
-                    <div class="${allStats.netIncome >= 0 ? 'income-hint' : 'expense-hint'}" style="margin-top: 5px;">${allStats.netIncome >= 0 ? '收入' : '支出'} ¥${Math.abs(allStats.netIncome).toFixed(2)}</div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px;">
-                        <div><div class="stat-label">上家总收支（粤港+澳门）</div><div class="stat-amount ${allStats.sumUpstream >= 0 ? 'stat-income' : 'stat-expense'}">${allStats.sumUpstream >= 0 ? '+' : ''}¥${Math.abs(allStats.sumUpstream).toFixed(2)}</div></div>
-                        <div><div class="stat-label">下家总收支（澳门+粤港）</div><div class="stat-amount ${allStats.sumDownstream >= 0 ? 'stat-income' : 'stat-expense'}">${allStats.sumDownstream >= 0 ? '+' : ''}¥${Math.abs(allStats.sumDownstream).toFixed(2)}</div></div>
-                    </div>
-                    <div class="stat-details">记录总数：${allStats.count}条</div>
-                </div>
-            `;
+            container.innerHTML +=
+                `<div class="stat-card"><div class="stat-header"><div class="stat-title">总计 ${timeLabel}统计</div><div class="stat-amount ${allStats.netIncome >= 0 ? 'stat-income' : 'stat-expense'}">${allStats.netIncome >= 0 ? '+' : ''}¥${Math.abs(allStats.netIncome).toFixed(2)}</div></div><div class="${allStats.netIncome >= 0 ? 'income-hint' : 'expense-hint'}" style="margin-top: 5px;">${allStats.netIncome >= 0 ? '收入' : '支出'} ¥${Math.abs(allStats.netIncome).toFixed(2)}</div><div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px;"><div><div class="stat-label">上家总收支（粤港+澳门）</div><div class="stat-amount ${allStats.sumUpstream >= 0 ? 'stat-income' : 'stat-expense'}">${allStats.sumUpstream >= 0 ? '+' : ''}¥${Math.abs(allStats.sumUpstream).toFixed(2)}</div></div><div><div class="stat-label">下家总收支（澳门+粤港）</div><div class="stat-amount ${allStats.sumDownstream >= 0 ? 'stat-income' : 'stat-expense'}">${allStats.sumDownstream >= 0 ? '+' : ''}¥${Math.abs(allStats.sumDownstream).toFixed(2)}</div></div></div><div class="stat-details">记录总数：${allStats.count}条</div></div>`;
             const macauUpRecords = records.filter(r => r.category === 'macau' && r.subtype === 'up');
             const macauDownRecords = records.filter(r => r.category === 'macau' && r.subtype === 'down');
             const guangdongUpRecords = records.filter(r => r.category === 'guangdong' && r.subtype === 'up');
@@ -2147,32 +2304,13 @@
             const guangdongUpRebate = calculateGuangdongUpRebate(guangdongUpRecords);
             if (filterCategory === 'all' || filterCategory.includes('macau')) {
                 const macauIsIncome = macauMyIncome >= 0;
-                container.innerHTML += `
-                    <div class="stat-card">
-                        <div class="stat-header"><div class="stat-title">澳门 ${timeLabel}统计</div><div class="stat-amount ${macauIsIncome ? 'stat-income' : 'stat-expense'}">${macauIsIncome ? '+' : ''}¥${Math.abs(macauMyIncome).toFixed(2)}</div></div>
-                        <div class="${macauIsIncome ? 'income-hint' : 'expense-hint'}" style="margin-bottom: 6px;">${macauIsIncome ? '收入' : '支出'} ¥${Math.abs(macauMyIncome).toFixed(2)}</div>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 6px;">
-                            <div><div class="stat-label">上家</div><div class="stat-amount ${macauUpTotal.profit >= 0 ? 'stat-income' : 'stat-expense'}">${macauUpTotal.profit >= 0 ? '+' : ''}¥${Math.abs(macauUpTotal.profit).toFixed(2)}</div></div>
-                            <div><div class="stat-label">下家</div><div class="stat-amount ${macauDownTotal.profit >= 0 ? 'stat-income' : 'stat-expense'}">${macauDownTotal.profit >= 0 ? '+' : ''}¥${Math.abs(macauDownTotal.profit).toFixed(2)}</div></div>
-                        </div>
-                        <div class="stat-details">记录数：${macauUpTotal.count + macauDownTotal.count}条</div>
-                    </div>
-                `;
+                container.innerHTML +=
+                    `<div class="stat-card"><div class="stat-header"><div class="stat-title">澳门 ${timeLabel}统计</div><div class="stat-amount ${macauIsIncome ? 'stat-income' : 'stat-expense'}">${macauIsIncome ? '+' : ''}¥${Math.abs(macauMyIncome).toFixed(2)}</div></div><div class="${macauIsIncome ? 'income-hint' : 'expense-hint'}" style="margin-bottom: 6px;">${macauIsIncome ? '收入' : '支出'} ¥${Math.abs(macauMyIncome).toFixed(2)}</div><div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 6px;"><div><div class="stat-label">上家</div><div class="stat-amount ${macauUpTotal.profit >= 0 ? 'stat-income' : 'stat-expense'}">${macauUpTotal.profit >= 0 ? '+' : ''}¥${Math.abs(macauUpTotal.profit).toFixed(2)}</div></div><div><div class="stat-label">下家</div><div class="stat-amount ${macauDownTotal.profit >= 0 ? 'stat-income' : 'stat-expense'}">${macauDownTotal.profit >= 0 ? '+' : ''}¥${Math.abs(macauDownTotal.profit).toFixed(2)}</div></div></div><div class="stat-details">记录数：${macauUpTotal.count + macauDownTotal.count}条</div></div>`;
             }
             if (filterCategory === 'all' || filterCategory.includes('guangdong')) {
                 const guangdongIsIncome = guangdongMyIncome >= 0;
-                container.innerHTML += `
-                    <div class="stat-card">
-                        <div class="stat-header"><div class="stat-title">粤港 ${timeLabel}统计</div><div class="stat-amount ${guangdongIsIncome ? 'stat-income' : 'stat-expense'}">${guangdongIsIncome ? '+' : ''}¥${Math.abs(guangdongMyIncome).toFixed(2)}</div></div>
-                        <div class="${guangdongIsIncome ? 'income-hint' : 'expense-hint'}" style="margin-bottom: 6px;">${guangdongIsIncome ? '收入' : '支出'} ¥${Math.abs(guangdongMyIncome).toFixed(2)}</div>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 6px;">
-                            <div><div class="stat-label">上家</div><div class="stat-amount ${guangdongUpTotal.profit >= 0 ? 'stat-income' : 'stat-expense'}">${guangdongUpTotal.profit >= 0 ? '+' : ''}¥${Math.abs(guangdongUpTotal.profit).toFixed(2)}</div></div>
-                            <div><div class="stat-label">下家</div><div class="stat-amount ${guangdongDownTotal.profit >= 0 ? 'stat-income' : 'stat-expense'}">${guangdongDownTotal.profit >= 0 ? '+' : ''}¥${Math.abs(guangdongDownTotal.profit).toFixed(2)}</div></div>
-                        </div>
-                        <div class="${guangdongUpRebate >= 0 ? 'rebate-hint' : 'expense-hint'}" style="margin-top: 6px; font-size: 10px;">上家返点：${guangdongUpRebate >= 0 ? '+' : ''}¥${Math.abs(guangdongUpRebate).toFixed(2)}</div>
-                        <div class="stat-details">记录数：${guangdongUpTotal.count + guangdongDownTotal.count}条</div>
-                    </div>
-                `;
+                container.innerHTML +=
+                    `<div class="stat-card"><div class="stat-header"><div class="stat-title">粤港 ${timeLabel}统计</div><div class="stat-amount ${guangdongIsIncome ? 'stat-income' : 'stat-expense'}">${guangdongIsIncome ? '+' : ''}¥${Math.abs(guangdongMyIncome).toFixed(2)}</div></div><div class="${guangdongIsIncome ? 'income-hint' : 'expense-hint'}" style="margin-bottom: 6px;">${guangdongIsIncome ? '收入' : '支出'} ¥${Math.abs(guangdongMyIncome).toFixed(2)}</div><div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 6px;"><div><div class="stat-label">上家</div><div class="stat-amount ${guangdongUpTotal.profit >= 0 ? 'stat-income' : 'stat-expense'}">${guangdongUpTotal.profit >= 0 ? '+' : ''}¥${Math.abs(guangdongUpTotal.profit).toFixed(2)}</div></div><div><div class="stat-label">下家</div><div class="stat-amount ${guangdongDownTotal.profit >= 0 ? 'stat-income' : 'stat-expense'}">${guangdongDownTotal.profit >= 0 ? '+' : ''}¥${Math.abs(guangdongDownTotal.profit).toFixed(2)}</div></div></div><div class="${guangdongUpRebate >= 0 ? 'rebate-hint' : 'expense-hint'}" style="margin-top: 6px; font-size: 10px;">上家返点：${guangdongUpRebate >= 0 ? '+' : ''}¥${Math.abs(guangdongUpRebate).toFixed(2)}</div><div class="stat-details">记录数：${guangdongUpTotal.count + guangdongDownTotal.count}条</div></div>`;
             }
         }
 
@@ -2200,7 +2338,8 @@
             });
             if (monthRecords.length === 0) { showToast('本月没有记录可清除', true); return; }
             if (confirm(`确定要清除本月的所有记录吗？\n将删除 ${monthRecords.length} 条记录\n此操作不可恢复！`)) {
-                monthRecords.forEach(record => { appState.recycleBin.unshift({ ...record, deletedAt: new Date().toISOString(), originalIndex: appState.records.indexOf(record) }); });
+                monthRecords.forEach(record => { appState.recycleBin.unshift({ ...record, deletedAt: new Date().toISOString(),
+                        originalIndex: appState.records.indexOf(record) }); });
                 appState.records = appState.records.filter(record => {
                     const recordDate = new Date(record.date);
                     const recordYear = recordDate.getFullYear();
@@ -2208,27 +2347,39 @@
                     return !(recordYear === currentYear && recordMonth === currentMonth);
                 });
                 saveLocalData();
-                updatePersonFilter(); updateYearFilter(); loadRecords(); loadDateRecords(); loadMyIncomeStatsForDate(appState.currentViewDate);
-                updateRecycleCount(); renderRecycleTable();
+                updatePersonFilter();
+                updateYearFilter();
+                loadRecords();
+                loadDateRecords();
+                loadMyIncomeStatsForDate(appState.currentViewDate);
+                updateRecycleCount();
+                renderRecycleTable();
                 showToast(`已将本月 ${monthRecords.length} 条记录移至回收站`);
             }
         }
         function clearAllData() {
             if (appState.records.length === 0) { showToast('没有数据可清空', true); return; }
             if (confirm(`确定要清空所有数据吗？\n将删除 ${appState.records.length} 条记录\n此操作不可恢复！`)) {
-                appState.records.forEach(record => { appState.recycleBin.unshift({ ...record, deletedAt: new Date().toISOString(), originalIndex: appState.records.indexOf(record) }); });
+                appState.records.forEach(record => { appState.recycleBin.unshift({ ...record, deletedAt: new Date().toISOString(),
+                        originalIndex: appState.records.indexOf(record) }); });
                 appState.records = [];
                 saveLocalData();
-                updatePersonFilter(); updateYearFilter(); loadRecords(); loadDateRecords(); loadMyIncomeStatsForDate(appState.currentViewDate);
-                updateRecycleCount(); renderRecycleTable();
-                showToast(`已将 ${appState.records.length} 条记录移至回收站`);
+                updatePersonFilter();
+                updateYearFilter();
+                loadRecords();
+                loadDateRecords();
+                loadMyIncomeStatsForDate(appState.currentViewDate);
+                updateRecycleCount();
+                renderRecycleTable();
+                showToast('已将数据移至回收站');
             }
         }
 
         // ==================== 导出/导入数据 ====================
         function exportData() {
             if (appState.records.length === 0) { showToast('没有数据可导出', true); return; }
-            const data = { records: appState.records, recycleBin: appState.recycleBin, exportedAt: new Date().toISOString(), version: '36.0' };
+            const data = { records: appState.records, recycleBin: appState.recycleBin, exportedAt: new Date().toISOString(),
+                version: '38.0' };
             const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -2244,7 +2395,9 @@
             return existingRecords.some(record => {
                 const amountEqual = Math.abs(record.amount) === Math.abs(newRecord.amount);
                 const noteEqual = (record.note || '') === (newRecord.note || '');
-                return record.date === newRecord.date && record.name === newRecord.name && record.category === newRecord.category && record.subtype === newRecord.subtype && record.type === newRecord.type && amountEqual && noteEqual;
+                return record.date === newRecord.date && record.name === newRecord.name && record.category === newRecord
+                    .category && record.subtype === newRecord.subtype && record.type === newRecord.type && amountEqual &&
+                    noteEqual;
             });
         }
         function importData() {
@@ -2260,16 +2413,23 @@
                         const data = JSON.parse(event.target.result);
                         const importedRecords = data.records || [];
                         if (importedRecords.length === 0) { showToast('导入文件中没有记录', true); return; }
-                        let addedCount = 0, duplicateCount = 0;
+                        let addedCount = 0,
+                            duplicateCount = 0;
                         for (const importedRecord of importedRecords) {
                             if (isRecordDuplicate(importedRecord, appState.records)) { duplicateCount++; continue; }
-                            const newRecord = { ...importedRecord, id: Date.now() + '_' + Math.random().toString(36).substr(2, 9) };
+                            const newRecord = { ...importedRecord, id: Date.now() + '_' + Math.random().toString(36)
+                                    .substr(2, 9) };
                             appState.records.unshift(newRecord);
                             addedCount++;
                         }
                         saveLocalData();
-                        updatePersonFilter(); updateYearFilter(); loadRecords(); loadDateRecords(); loadMyIncomeStatsForDate(appState.currentViewDate);
-                        updateRecycleCount(); renderRecycleTable();
+                        updatePersonFilter();
+                        updateYearFilter();
+                        loadRecords();
+                        loadDateRecords();
+                        loadMyIncomeStatsForDate(appState.currentViewDate);
+                        updateRecycleCount();
+                        renderRecycleTable();
                         showToast(`✅ 导入完成：新增 ${addedCount} 条，跳过重复 ${duplicateCount} 条`);
                         if (duplicateCount > 0) setTimeout(() => showToast(`重复记录未导入，请检查`, false), 2000);
                     } catch (error) { showToast('❌ 文件格式错误或数据损坏', true); }
@@ -2280,13 +2440,19 @@
         }
 
         // ==================== 回收站功能 ====================
-        function openRecyclePanel() { elements.recyclePanel.classList.add('show'); renderRecycleTable(); updateRecycleStats(); }
+        function openRecyclePanel() { elements.recyclePanel.classList.add('show');
+            renderRecycleTable();
+            updateRecycleStats(); }
+
         function closeRecyclePanel() { elements.recyclePanel.classList.remove('show'); }
+
         function updateRecycleCount() { elements.recycleCount.textContent = appState.recycleBin.length; }
+
         function updateRecycleStats() {
             const total = appState.recycleBin.length;
             const today = getCurrentDateChina();
-            const weekAgo = new Date(); weekAgo.setDate(weekAgo.getDate() - 7);
+            const weekAgo = new Date();
+            weekAgo.setDate(weekAgo.getDate() - 7);
             const weekAgoStr = formatDateChina(weekAgo);
             const todayCount = appState.recycleBin.filter(item => item.deletedAt.split('T')[0] === today).length;
             const weekCount = appState.recycleBin.filter(item => item.deletedAt.split('T')[0] >= weekAgoStr).length;
@@ -2296,12 +2462,16 @@
             elements.recycleWeek.textContent = weekCount;
             elements.recycleSize.textContent = (size / 1024).toFixed(1) + 'KB';
         }
+
         function renderRecycleTable() {
             const tbody = elements.recycleBody;
             const searchTerm = elements.recycleSearch.value.toLowerCase().trim();
             let recycleRecords = appState.recycleBin;
-            if (searchTerm) recycleRecords = recycleRecords.filter(record => record.name.toLowerCase().includes(searchTerm) || (record.note && record.note.toLowerCase().includes(searchTerm)) || record.date.includes(searchTerm));
-            if (recycleRecords.length === 0) { tbody.innerHTML = '<tr><td colspan="10" class="empty-state">回收站为空</td></tr>'; return; }
+            if (searchTerm) recycleRecords = recycleRecords.filter(record => record.name.toLowerCase().includes(
+                searchTerm) || (record.note && record.note.toLowerCase().includes(searchTerm)) || record.date.includes(
+                searchTerm));
+            if (recycleRecords.length === 0) { tbody.innerHTML =
+                    '<tr><td colspan="10" class="empty-state">回收站为空</td></tr>'; return; }
             let html = '';
             recycleRecords.forEach(record => {
                 const isIncome = record.amount > 0;
@@ -2309,88 +2479,115 @@
                 const deletedTime = new Date(record.deletedAt).toLocaleString('zh-CN');
                 const originalDate = record.date;
                 const rebate = record.rebate || 0;
-                html += `
-                    <tr>
-                        <td><input type="checkbox" class="checkbox" value="${record.id}" id="recycle-${record.id}"></td>
-                        <td><span class="deleted-time">${deletedTime}</span></td>
-                        <td>${originalDate}</td>
-                        <td><strong>${record.name}</strong></td>
-                        <td><span class="category-badge ${record.subtype ? record.category + '-' + record.subtype : record.category}">${categoryLabel}</span></td>
-                        <td><span class="type-badge ${isIncome ? 'type-income' : 'type-expense'}">${isIncome ? '收入' : '支出'}</span></td>
-                        <td class="${isIncome ? 'stat-income' : 'stat-expense'}">${isIncome ? '+' : ''}¥${Math.abs(record.amount).toFixed(2)}</td>
-                        <td class="stat-rebate">${rebate !== 0 ? (rebate > 0 ? '+' : '') + '¥' + Math.abs(rebate).toFixed(2) : '-'}</td>
-                        <td>${record.note || '-'}</td>
-                        <td><button class="action-btn restore" onclick="restoreRecord('${record.id}')">还原</button><button class="action-btn delete-permanent" onclick="permanentDelete('${record.id}')">彻底删除</button></td>
-                    </tr>
-                `;
+                html +=
+                    `<tr><td><input type="checkbox" class="checkbox" value="${record.id}" id="recycle-${record.id}"></td><td><span class="deleted-time">${deletedTime}</span></td><td>${originalDate}</td><td><strong>${record.name}</strong></td><td><span class="category-badge ${record.subtype ? record.category + '-' + record.subtype : record.category}">${categoryLabel}</span></td><td><span class="type-badge ${isIncome ? 'type-income' : 'type-expense'}">${isIncome ? '收入' : '支出'}</span></td><td class="${isIncome ? 'stat-income' : 'stat-expense'}">${isIncome ? '+' : ''}¥${Math.abs(record.amount).toFixed(2)}</td><td class="stat-rebate">${rebate !== 0 ? (rebate > 0 ? '+' : '') + '¥' + Math.abs(rebate).toFixed(2) : '-'}</td><td>${record.note || '-'}</td><td><button class="action-btn restore" onclick="restoreRecord('${record.id}')">还原</button><button class="action-btn delete-permanent" onclick="permanentDelete('${record.id}')">彻底删除</button></td></tr>`;
             });
             tbody.innerHTML = html;
         }
+
         function searchRecycleRecords() { renderRecycleTable(); }
+
         function toggleRecycleSelectAll() {
             const checkboxes = document.querySelectorAll('#recycle-body input[type="checkbox"]:not(#recycle-select-all)');
             const selectAllCheckbox = elements.recycleSelectAll;
             checkboxes.forEach(checkbox => checkbox.checked = selectAllCheckbox.checked);
         }
+
         function selectAllRecycle() {
             const checkboxes = document.querySelectorAll('#recycle-body input[type="checkbox"]:not(#recycle-select-all)');
             checkboxes.forEach(checkbox => checkbox.checked = true);
         }
+
         function restoreRecord(recordId) {
             const recordIndex = appState.recycleBin.findIndex(r => r.id === recordId);
             if (recordIndex === -1) return;
             const record = appState.recycleBin[recordIndex];
-            appState.records.unshift({ id: record.id, date: record.date, name: record.name, category: record.category, subtype: record.subtype, type: record.type, amount: record.amount, note: record.note, totalAmount: record.totalAmount, rebateRate: record.rebateRate, rebate: record.rebate, createdAt: record.createdAt });
+            appState.records.unshift({ id: record.id, date: record.date, name: record.name, category: record.category,
+                subtype: record.subtype, type: record.type, amount: record.amount, note: record.note, totalAmount: record
+                .totalAmount, rebateRate: record.rebateRate, rebate: record.rebate, createdAt: record.createdAt });
             appState.recycleBin.splice(recordIndex, 1);
             saveLocalData();
-            updatePersonFilter(); updateYearFilter(); loadRecords(); loadDateRecords(); loadMyIncomeStatsForDate(appState.currentViewDate);
-            updateRecycleCount(); renderRecycleTable(); updateRecycleStats();
+            updatePersonFilter();
+            updateYearFilter();
+            loadRecords();
+            loadDateRecords();
+            loadMyIncomeStatsForDate(appState.currentViewDate);
+            updateRecycleCount();
+            renderRecycleTable();
+            updateRecycleStats();
             showToast('记录已还原');
         }
+
         function restoreSelected() {
-            const checkboxes = document.querySelectorAll('#recycle-body input[type="checkbox"]:not(#recycle-select-all):checked');
+            const checkboxes = document.querySelectorAll(
+                '#recycle-body input[type="checkbox"]:not(#recycle-select-all):checked');
             if (checkboxes.length === 0) { showToast('请先选择要还原的记录', true); return; }
             const recordIds = Array.from(checkboxes).map(cb => cb.value);
             recordIds.forEach(recordId => {
                 const recordIndex = appState.recycleBin.findIndex(r => r.id === recordId);
                 if (recordIndex !== -1) {
                     const record = appState.recycleBin[recordIndex];
-                    appState.records.unshift({ id: record.id, date: record.date, name: record.name, category: record.category, subtype: record.subtype, type: record.type, amount: record.amount, note: record.note, totalAmount: record.totalAmount, rebateRate: record.rebateRate, rebate: record.rebate, createdAt: record.createdAt });
+                    appState.records.unshift({ id: record.id, date: record.date, name: record.name, category: record
+                            .category, subtype: record.subtype, type: record.type, amount: record.amount, note: record
+                            .note, totalAmount: record.totalAmount, rebateRate: record.rebateRate, rebate: record
+                            .rebate, createdAt: record.createdAt });
                     appState.recycleBin.splice(recordIndex, 1);
                 }
             });
             saveLocalData();
-            updatePersonFilter(); updateYearFilter(); loadRecords(); loadDateRecords(); loadMyIncomeStatsForDate(appState.currentViewDate);
-            updateRecycleCount(); renderRecycleTable(); updateRecycleStats();
+            updatePersonFilter();
+            updateYearFilter();
+            loadRecords();
+            loadDateRecords();
+            loadMyIncomeStatsForDate(appState.currentViewDate);
+            updateRecycleCount();
+            renderRecycleTable();
+            updateRecycleStats();
             showToast(`已还原 ${recordIds.length} 条记录`);
         }
+
         function restoreAll() {
             if (appState.recycleBin.length === 0) { showToast('回收站为空', true); return; }
             if (confirm(`确定要还原回收站中的所有 ${appState.recycleBin.length} 条记录吗？`)) {
                 appState.recycleBin.forEach(record => {
-                    appState.records.unshift({ id: record.id, date: record.date, name: record.name, category: record.category, subtype: record.subtype, type: record.type, amount: record.amount, note: record.note, totalAmount: record.totalAmount, rebateRate: record.rebateRate, rebate: record.rebate, createdAt: record.createdAt });
+                    appState.records.unshift({ id: record.id, date: record.date, name: record.name, category: record
+                            .category, subtype: record.subtype, type: record.type, amount: record.amount, note: record
+                            .note, totalAmount: record.totalAmount, rebateRate: record.rebateRate, rebate: record
+                            .rebate, createdAt: record.createdAt });
                 });
                 appState.recycleBin = [];
                 saveLocalData();
-                updatePersonFilter(); updateYearFilter(); loadRecords(); loadDateRecords(); loadMyIncomeStatsForDate(appState.currentViewDate);
-                updateRecycleCount(); renderRecycleTable(); updateRecycleStats();
-                showToast(`已还原所有 ${appState.records.length} 条记录`);
+                updatePersonFilter();
+                updateYearFilter();
+                loadRecords();
+                loadDateRecords();
+                loadMyIncomeStatsForDate(appState.currentViewDate);
+                updateRecycleCount();
+                renderRecycleTable();
+                updateRecycleStats();
+                showToast('已还原所有记录');
             }
         }
+
         function permanentDelete(recordId) {
             if (confirm('确定要彻底删除这条记录吗？此操作不可恢复！')) {
                 appState.recycleBin = appState.recycleBin.filter(r => r.id !== recordId);
                 saveLocalData();
-                updateRecycleCount(); renderRecycleTable(); updateRecycleStats();
+                updateRecycleCount();
+                renderRecycleTable();
+                updateRecycleStats();
                 showToast('记录已彻底删除');
             }
         }
+
         function emptyRecycleBin() {
             if (appState.recycleBin.length === 0) { showToast('回收站已经为空', true); return; }
             if (confirm(`确定要清空回收站吗？将永久删除 ${appState.recycleBin.length} 条记录！`)) {
                 appState.recycleBin = [];
                 saveLocalData();
-                updateRecycleCount(); renderRecycleTable(); updateRecycleStats();
+                updateRecycleCount();
+                renderRecycleTable();
+                updateRecycleStats();
                 showToast('回收站已清空');
             }
         }
@@ -2402,7 +2599,8 @@
                 if (data) {
                     appState.records = data.records || [];
                     appState.recycleBin = data.recycleBin || [];
-                    appState.records.forEach(record => { if (record.date) record.date = formatDateChina(new Date(record.date)); });
+                    appState.records.forEach(record => { if (record.date) record.date = formatDateChina(new Date(record
+                            .date)); });
                     appState.recycleBin.forEach(record => {
                         if (record.date) record.date = formatDateChina(new Date(record.date));
                         if (record.deletedAt) record.deletedAt = formatDateTimeChina(new Date(record.deletedAt));
@@ -2412,8 +2610,7 @@
                     loadRecords();
                     loadDateRecords();
                     loadMyIncomeStatsForDate(appState.currentViewDate);
-                    console.log('从 IndexedDB 加载数据成功');
-                } else console.log('IndexedDB 中无数据，使用默认空数据');
+                }
             } catch (error) {
                 console.error('IndexedDB 加载失败:', error);
                 showToast('数据加载失败，将使用空数据', true);
@@ -2421,15 +2618,16 @@
         }
         async function saveLocalData() {
             try {
-                const data = { records: appState.records, recycleBin: appState.recycleBin, savedAt: new Date().toISOString(), version: '36.0' };
+                const data = { records: appState.records, recycleBin: appState.recycleBin, savedAt: new Date().toISOString(),
+                    version: '38.0' };
                 await dbManager.saveData('finance_main_data', data);
-                console.log('数据已保存到 IndexedDB');
                 updateStorageInfo();
             } catch (error) {
                 console.error('IndexedDB 存储失败:', error);
                 showToast('数据保存失败，请检查浏览器存储权限', true);
             }
         }
+
         function updatePersonFilter() {
             const filter = elements.filterPerson;
             filter.innerHTML = '<option value="all">全部人员</option>';
@@ -2442,6 +2640,7 @@
                 filter.appendChild(option);
             });
         }
+
         function updateYearFilter() {
             const yearSelect = elements.selectYear;
             yearSelect.innerHTML = '<option value="all">全部年份</option>';
