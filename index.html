@@ -345,6 +345,11 @@
             padding: 14px 16px;
             margin-bottom: 0;
             width: 100%;
+            min-width: 0;
+        }
+        .main-grid > div {
+            min-width: 0;
+            overflow: hidden;
         }
         /* ========== 卡片 - 动态效果 ========== */
         .card {
@@ -356,6 +361,7 @@
             border: 1px solid #eef1f5;
             transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             will-change: transform;
+            min-width: 0;
         }
         .card:hover {
             transform: translateY(-4px);
@@ -392,6 +398,7 @@
         .card-body {
             padding: 14px 16px;
             min-width: 0;
+            overflow: hidden;
         }
         /* ========== 表单 ========== */
         .form-group {
@@ -521,6 +528,7 @@
             border-radius: var(--radius-sm);
             border: 1px solid #eef1f5;
             min-width: 0;
+            max-width: 100%;
         }
         .data-table {
             width: 100%;
@@ -1051,32 +1059,51 @@
         .total-rebate-value {
             font-size: 13px;
         }
-        /* ========== 详情卡片 - 独立滚动条 ========== */
+        /* ========== 详情卡片 - 严格限制宽度 + 独立滚动条 ========== */
+        .detail-card {
+            min-width: 0;
+            overflow: hidden;
+        }
         .detail-card .card-body {
             min-width: 0;
             overflow: hidden;
+            max-width: 100%;
         }
         .detail-card .table-container {
             width: 100%;
             max-width: 100%;
-            max-height: 450px;
+            min-width: 0;
+            max-height: 400px;
             overflow: auto;
             border: 1px solid #eef1f5;
             border-radius: var(--radius-sm);
+            display: block;
         }
         .detail-card .data-table {
             min-width: 600px;
             width: max-content;
+            table-layout: auto;
         }
         .detail-card .data-table th,
         .detail-card .data-table td {
-            min-width: 85px;
+            min-width: 80px;
             text-align: center;
             white-space: nowrap;
+            padding: 8px 10px;
         }
         .detail-card .data-table th:first-child,
         .detail-card .data-table td:first-child {
-            min-width: 60px;
+            min-width: 55px;
+            position: sticky;
+            left: 0;
+            background: #f8fafb;
+            z-index: 5;
+        }
+        .detail-card .data-table td:first-child {
+            background: #fff;
+        }
+        .detail-card .data-table tr:hover td:first-child {
+            background: #f4f7fb;
         }
         .filter-info {
             font-size: 11px;
@@ -1303,7 +1330,7 @@
                     <div class="card-header primary"><div class="card-title"><span>📊</span><span>收支明细</span></div></div>
                     <div class="card-body">
                         <div class="filter-info"><div style="font-size: 11px; color: #8c9aa5; margin-bottom: 10px;">统计范围：仅统计当前筛选条件下的记录</div><div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px;"><div style="font-size: 10px; background: #f4f8fc; padding: 5px 10px; border-radius: 5px; border-left: 3px solid #5b6abf;"><strong>筛选条件：</strong><span id="filter-year-display">全部年份</span> | <span id="filter-month-display">全部月份</span> | <span id="filter-category-display">全部分类</span> | <span id="filter-name-display">全部人员</span></div></div></div>
-                        <div class="table-container"><table class="data-table" id="detail-transposed-table"><thead><tr><th style="min-width: 60px;">月份</th></tr></thead><tbody id="detail-transposed-body"><tr class="empty-state-row"><td colspan="1" class="empty-state">暂无数据，请先设置筛选条件</td></tr></tbody></table></div>
+                        <div class="table-container"><table class="data-table" id="detail-transposed-table"><thead><tr><th style="min-width: 55px;">月份</th></tr></thead><tbody id="detail-transposed-body"><tr class="empty-state-row"><td colspan="1" class="empty-state">暂无数据，请先设置筛选条件</td></tr></tbody></table></div>
                         <div style="margin-top: 14px; font-size: 11px; color: #8c9aa5;"><div style="display: flex; justify-content: space-between; align-items: center;"><div>当前显示 <span id="transposed-person-count">0</span> 个人员，<span id="transposed-month-count">0</span> 个月份</div><div>总利润：<span id="transposed-total">0</span> 元</div></div></div>
                     </div>
                 </div>
@@ -1325,7 +1352,7 @@
     <script>
         // ==================== IndexedDB 管理类 ====================
         class DatabaseManager {
-            constructor(dbName = 'FinanceManagementDB', version = 7) {
+            constructor(dbName = 'FinanceManagementDB', version = 8) {
                 this.dbName = dbName;
                 this.version = version;
                 this.db = null;
@@ -1712,7 +1739,7 @@
                         records: appState.records,
                         recycleBin: appState.recycleBin,
                         backupTime: new Date().toISOString(),
-                        version: '42.0'
+                        version: '43.0'
                     };
                     await dbManager.saveDailyBackup(backupData);
                     const success = await writeBackupFile(backupData);
@@ -1734,7 +1761,7 @@
                 records: appState.records,
                 recycleBin: appState.recycleBin,
                 backupTime: new Date().toISOString(),
-                version: '42.0'
+                version: '43.0'
             };
             const success = await writeBackupFile(backupData);
             if (success) {
@@ -2019,7 +2046,7 @@
             const personCount = elements.transposedPersonCount;
             const monthCount = elements.transposedMonthCount;
             const totalProfit = elements.transposedTotal;
-            tableHead.innerHTML = '<th style="min-width: 60px;">月份</th>';
+            tableHead.innerHTML = '<th style="min-width: 55px;">月份</th>';
             transposedBody.innerHTML = '';
             if (filteredRecords.length === 0) {
                 transposedBody.innerHTML = '<tr class="empty-state-row"><td colspan="1" class="empty-state">暂无数据</td></tr>';
@@ -2047,12 +2074,12 @@
             });
             allPersons.forEach(name => {
                 const th = document.createElement('th');
-                th.style.minWidth = '85px';
+                th.style.minWidth = '80px';
                 th.innerHTML = `<strong>${name}</strong>`;
                 tableHead.appendChild(th);
             });
             const totalTh = document.createElement('th');
-            totalTh.style.minWidth = '85px';
+            totalTh.style.minWidth = '80px';
             totalTh.innerHTML = '<strong>总计</strong>';
             tableHead.appendChild(totalTh);
             monthsToShow.forEach(month => {
@@ -2362,7 +2389,7 @@
         // ==================== 导出/导入数据 ====================
         function exportData() {
             if (appState.records.length === 0) { showToast('没有数据可导出', true); return; }
-            const data = { records: appState.records, recycleBin: appState.recycleBin, exportedAt: new Date().toISOString(), version: '42.0' };
+            const data = { records: appState.records, recycleBin: appState.recycleBin, exportedAt: new Date().toISOString(), version: '43.0' };
             const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -2552,7 +2579,7 @@
         }
         async function saveLocalData() {
             try {
-                const data = { records: appState.records, recycleBin: appState.recycleBin, savedAt: new Date().toISOString(), version: '42.0' };
+                const data = { records: appState.records, recycleBin: appState.recycleBin, savedAt: new Date().toISOString(), version: '43.0' };
                 await dbManager.saveData('finance_main_data', data);
                 updateStorageInfo();
             } catch (error) {
