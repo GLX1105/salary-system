@@ -291,7 +291,7 @@
     <div class="storage-info" id="storage-info"><div>存储模式: <span id="storage-mode">IndexedDB</span></div><div>数据大小: <span id="data-size">0 KB</span></div><div>记录数量: <span id="record-count">0</span></div></div>
 
     <script>
-                // ==================== IndexedDB 管理类 ====================
+           // ==================== IndexedDB 管理类 ====================
         class DatabaseManager {
             constructor(dbName = 'FinanceManagementDB', version = 10) {
                 this.dbName = dbName;
@@ -542,6 +542,16 @@
             return `${year}-${month}-${day}`;
         }
 
+        // ==================== 金额格式化（去掉¥，去掉多余小数） ====================
+        function formatMoney(amount) {
+            if (amount === 0) return '0';
+            const fixed = amount.toFixed(2);
+            if (fixed.endsWith('.00')) {
+                return fixed.slice(0, -3);
+            }
+            return fixed;
+        }
+
         // ==================== 提示 ====================
         function showToast(message, isError = false) {
             const toast = document.createElement('div');
@@ -710,7 +720,7 @@
                         records: appState.records,
                         recycleBin: appState.recycleBin,
                         backupTime: new Date().toISOString(),
-                        version: '47.0'
+                        version: '48.0'
                     };
                     await dbManager.saveDailyBackup(backupData);
                     const success = await writeBackupFile(backupData);
@@ -733,7 +743,7 @@
                 records: appState.records,
                 recycleBin: appState.recycleBin,
                 backupTime: new Date().toISOString(),
-                version: '47.0'
+                version: '48.0'
             };
             const success = await writeBackupFile(backupData);
             if (success) {
@@ -752,23 +762,19 @@
             selectCategory('macau', 'down');
             await loadLocalData();
 
-            // 修复：确保筛选器默认选中当前年份和月份，且不干扰手动选择
             const nowChina = new Date(new Date().getTime() + (8 * 60 * 60 * 1000));
             const currentYear = nowChina.getUTCFullYear().toString();
             const currentMonth = (nowChina.getUTCMonth() + 1).toString();
 
-            // 检查并设置年份默认值
             if (elements.selectYear.querySelector(`option[value="${currentYear}"]`)) {
                 elements.selectYear.value = currentYear;
             } else {
-                // 如果当前年份不在选项中，添加它并设为默认
                 const option = document.createElement('option');
                 option.value = currentYear;
                 option.textContent = currentYear + '年';
                 elements.selectYear.appendChild(option);
                 elements.selectYear.value = currentYear;
             }
-            // 设置月份默认值
             elements.selectMonth.value = currentMonth;
 
             loadRecords();
@@ -869,7 +875,7 @@
 
             if (potentialDuplicate) {
                 if (confirm('⚠️ 检测到疑似重复记录：\n\n' +
-                    `日期：${date}\n姓名：${name}\n分类：${getCategoryLabel(category, subtype)}\n金额：¥${Math.abs(amount).toFixed(2)}\n特码：${note || '无'}\n\n` +
+                    `日期：${date}\n姓名：${name}\n分类：${getCategoryLabel(category, subtype)}\n金额：${formatMoney(Math.abs(amount))}\n特码：${note || '无'}\n\n` +
                     '是否仍然保存此记录？\n（点击"确定"强制保存，"取消"放弃）')) {
                     doSave();
                 }
@@ -939,14 +945,14 @@
                 const rebate = record.rebate || 0;
                 const rebateDisplay = rebate !== 0
                     ? (rebate > 0
-                        ? `<span style="color:#ff9800; font-weight:600;">¥${rebate.toFixed(2)}</span>`
-                        : `<span style="color:#e74c3c; font-weight:600;">-¥${Math.abs(rebate).toFixed(2)}</span>`)
+                        ? `<span style="color:#ff9800; font-weight:600;">${formatMoney(rebate)}</span>`
+                        : `<span style="color:#e74c3c; font-weight:600;">-${formatMoney(Math.abs(rebate))}</span>`)
                     : '<span style="color:#a0aeb8;">-</span>';
                 html += `<tr>
                     <td><strong>${record.name}</strong></td>
                     <td><span class="category-badge ${record.subtype ? record.category + '-' + record.subtype : record.category}">${categoryLabel}</span></td>
                     <td><span class="type-badge ${isIncome ? 'type-income' : 'type-expense'}">${isIncome ? '收入' : '支出'}</span></td>
-                    <td style="color:${isIncome ? '#27ae60' : '#e74c3c'}; font-weight:600;">${isIncome ? '¥' + Math.abs(record.amount).toFixed(2) : '-¥' + Math.abs(record.amount).toFixed(2)}</td>
+                    <td style="color:${isIncome ? '#27ae60' : '#e74c3c'}; font-weight:600;">${isIncome ? formatMoney(Math.abs(record.amount)) : '-' + formatMoney(Math.abs(record.amount))}</td>
                     <td>${rebateDisplay}</td>
                     <td>${record.note || '-'}</td>
                     <td><button class="action-btn action-delete" onclick="deleteRecord('${record.id}')">删除</button></td>
@@ -965,9 +971,9 @@
             });
             const totalRebate = macauDownRebate + guangdongDownRebate;
             elements.dateRebateSummary.innerHTML =
-                `<div class="rebate-item">澳门下家返点:<span class="rebate-value">${macauDownRebate.toFixed(2)}元</span></div>` +
-                `<div class="rebate-item">粤港下家返点:<span class="rebate-value">${guangdongDownRebate.toFixed(2)}元</span></div>` +
-                `<div class="total-rebate">总返点:<span class="total-rebate-value">${totalRebate.toFixed(2)}元</span></div>`;
+                `<div class="rebate-item">澳门下家返点:<span class="rebate-value">${formatMoney(macauDownRebate)}元</span></div>` +
+                `<div class="rebate-item">粤港下家返点:<span class="rebate-value">${formatMoney(guangdongDownRebate)}元</span></div>` +
+                `<div class="total-rebate">总返点:<span class="total-rebate-value">${formatMoney(totalRebate)}元</span></div>`;
         }
 
         // ==================== 我的收支统计 ====================
@@ -1025,15 +1031,15 @@
             container.innerHTML = '';
             const macauIsIncome = stats.macau.my >= 0;
             container.innerHTML +=
-                `<div class="stat-card"><div class="stat-header"><div class="stat-title">澳门收支统计</div><div class="stat-amount ${macauIsIncome ? 'stat-income' : 'stat-expense'}">${macauIsIncome ? '+' : ''}¥${Math.abs(stats.macau.my).toFixed(2)}</div></div><div class="${macauIsIncome ? 'income-hint' : 'expense-hint'}" style="margin-top:5px;">${macauIsIncome ? '收入' : '支出'} ¥${Math.abs(stats.macau.my).toFixed(2)}</div><div class="stat-details">澳门下家：${stats.macau.down.profit >= 0 ? '+' : ''}¥${Math.abs(stats.macau.down.profit).toFixed(2)}<br>澳门上家：${stats.macau.up.profit >= 0 ? '+' : ''}¥${Math.abs(stats.macau.up.profit).toFixed(2)}</div></div>`;
+                `<div class="stat-card"><div class="stat-header"><div class="stat-title">澳门收支统计</div><div class="stat-amount ${macauIsIncome ? 'stat-income' : 'stat-expense'}">${macauIsIncome ? '+' : ''}${formatMoney(Math.abs(stats.macau.my))}</div></div><div class="${macauIsIncome ? 'income-hint' : 'expense-hint'}" style="margin-top:5px;">${macauIsIncome ? '收入' : '支出'} ${formatMoney(Math.abs(stats.macau.my))}</div><div class="stat-details">澳门下家：${stats.macau.down.profit >= 0 ? '+' : ''}${formatMoney(Math.abs(stats.macau.down.profit))}<br>澳门上家：${stats.macau.up.profit >= 0 ? '+' : ''}${formatMoney(Math.abs(stats.macau.up.profit))}</div></div>`;
             const guangdongIsIncome = stats.guangdong.my >= 0;
             const guangdongUpRebate = stats.guangdongUpRebate;
             const rebateColor = guangdongUpRebate >= 0 ? '#ff9800' : '#e74c3c';
             container.innerHTML +=
-                `<div class="stat-card"><div class="stat-header"><div class="stat-title">粤港收支统计</div><div class="stat-amount ${guangdongIsIncome ? 'stat-income' : 'stat-expense'}">${guangdongIsIncome ? '+' : ''}¥${Math.abs(stats.guangdong.my).toFixed(2)}</div></div><div class="${guangdongIsIncome ? 'income-hint' : 'expense-hint'}" style="margin-top:5px;">${guangdongIsIncome ? '收入' : '支出'} ¥${Math.abs(stats.guangdong.my).toFixed(2)}</div><div class="stat-details">粤港下家：${stats.guangdong.down.profit >= 0 ? '+' : ''}¥${Math.abs(stats.guangdong.down.profit).toFixed(2)}<br>粤港上家：${stats.guangdong.up.profit >= 0 ? '+' : ''}¥${Math.abs(stats.guangdong.up.profit).toFixed(2)}<br><span style="color:${rebateColor}; font-weight:600;">上家返点：${guangdongUpRebate >= 0 ? '+' : ''}¥${Math.abs(guangdongUpRebate).toFixed(2)}</span></div></div>`;
+                `<div class="stat-card"><div class="stat-header"><div class="stat-title">粤港收支统计</div><div class="stat-amount ${guangdongIsIncome ? 'stat-income' : 'stat-expense'}">${guangdongIsIncome ? '+' : ''}${formatMoney(Math.abs(stats.guangdong.my))}</div></div><div class="${guangdongIsIncome ? 'income-hint' : 'expense-hint'}" style="margin-top:5px;">${guangdongIsIncome ? '收入' : '支出'} ${formatMoney(Math.abs(stats.guangdong.my))}</div><div class="stat-details">粤港下家：${stats.guangdong.down.profit >= 0 ? '+' : ''}${formatMoney(Math.abs(stats.guangdong.down.profit))}<br>粤港上家：${stats.guangdong.up.profit >= 0 ? '+' : ''}${formatMoney(Math.abs(stats.guangdong.up.profit))}<br><span style="color:${rebateColor}; font-weight:600;">上家返点：${guangdongUpRebate >= 0 ? '+' : ''}${formatMoney(Math.abs(guangdongUpRebate))}</span></div></div>`;
             const totalIsIncome = stats.total >= 0;
             container.innerHTML +=
-                `<div class="stat-card"><div class="stat-header"><div class="stat-title">总计收支统计</div><div class="stat-amount ${totalIsIncome ? 'stat-income' : 'stat-expense'}">${totalIsIncome ? '+' : ''}¥${Math.abs(stats.total).toFixed(2)}</div></div><div class="${totalIsIncome ? 'income-hint' : 'expense-hint'}" style="margin-top:5px;">${totalIsIncome ? '收入' : '支出'} ¥${Math.abs(stats.total).toFixed(2)}</div><div class="stat-details">日期：${date}<br>澳门：${macauIsIncome ? '+' : ''}¥${Math.abs(stats.macau.my).toFixed(2)}<br>粤港：${guangdongIsIncome ? '+' : ''}¥${Math.abs(stats.guangdong.my).toFixed(2)}<br><span style="color:${rebateColor}; font-weight:600;">粤港上家返点：${guangdongUpRebate >= 0 ? '+' : ''}¥${Math.abs(guangdongUpRebate).toFixed(2)}</span></div></div>`;
+                `<div class="stat-card"><div class="stat-header"><div class="stat-title">总计收支统计</div><div class="stat-amount ${totalIsIncome ? 'stat-income' : 'stat-expense'}">${totalIsIncome ? '+' : ''}${formatMoney(Math.abs(stats.total))}</div></div><div class="${totalIsIncome ? 'income-hint' : 'expense-hint'}" style="margin-top:5px;">${totalIsIncome ? '收入' : '支出'} ${formatMoney(Math.abs(stats.total))}</div><div class="stat-details">日期：${date}<br>澳门：${macauIsIncome ? '+' : ''}${formatMoney(Math.abs(stats.macau.my))}<br>粤港：${guangdongIsIncome ? '+' : ''}${formatMoney(Math.abs(stats.guangdong.my))}<br><span style="color:${rebateColor}; font-weight:600;">粤港上家返点：${guangdongUpRebate >= 0 ? '+' : ''}${formatMoney(Math.abs(guangdongUpRebate))}</span></div></div>`;
         }
 
         // ==================== 记录列表 ====================
@@ -1076,9 +1082,9 @@
             });
             const totalRebate = macauDownRebate + guangdongDownRebate;
             elements.detailRebateSummary.innerHTML =
-                `<div class="rebate-item">澳门下家返点:<span class="rebate-value">${macauDownRebate.toFixed(2)}元</span></div>` +
-                `<div class="rebate-item">粤港下家返点:<span class="rebate-value">${guangdongDownRebate.toFixed(2)}元</span></div>` +
-                `<div class="total-rebate">总返点:<span class="total-rebate-value">${totalRebate.toFixed(2)}元</span></div>`;
+                `<div class="rebate-item">澳门下家返点:<span class="rebate-value">${formatMoney(macauDownRebate)}元</span></div>` +
+                `<div class="rebate-item">粤港下家返点:<span class="rebate-value">${formatMoney(guangdongDownRebate)}元</span></div>` +
+                `<div class="total-rebate">总返点:<span class="total-rebate-value">${formatMoney(totalRebate)}元</span></div>`;
         }
 
         function updateFilterDisplay() {
@@ -1140,7 +1146,7 @@
                     if (profit !== 0) {
                         cell.style.color = profit > 0 ? '#27ae60' : '#e74c3c';
                         cell.style.fontWeight = '600';
-                        cell.innerHTML = profit > 0 ? `¥${profit.toFixed(2)}` : `-¥${Math.abs(profit).toFixed(2)}`;
+                        cell.innerHTML = profit > 0 ? formatMoney(profit) : '-' + formatMoney(Math.abs(profit));
                         monthTotal += profit;
                     }
                     row.appendChild(cell);
@@ -1149,7 +1155,7 @@
                 if (monthTotal !== 0) {
                     totalCell.style.color = monthTotal > 0 ? '#27ae60' : '#e74c3c';
                     totalCell.style.fontWeight = '600';
-                    totalCell.innerHTML = monthTotal > 0 ? `¥${monthTotal.toFixed(2)}` : `-¥${Math.abs(monthTotal).toFixed(2)}`;
+                    totalCell.innerHTML = monthTotal > 0 ? formatMoney(monthTotal) : '-' + formatMoney(Math.abs(monthTotal));
                 }
                 row.appendChild(totalCell);
                 transposedBody.appendChild(row);
@@ -1166,7 +1172,7 @@
                 if (personTotal !== 0) {
                     cell.style.color = personTotal > 0 ? '#27ae60' : '#e74c3c';
                     cell.style.fontWeight = '600';
-                    cell.innerHTML = personTotal > 0 ? `¥${personTotal.toFixed(2)}` : `-¥${Math.abs(personTotal).toFixed(2)}`;
+                    cell.innerHTML = personTotal > 0 ? formatMoney(personTotal) : '-' + formatMoney(Math.abs(personTotal));
                 }
                 totalRow.appendChild(cell);
             });
@@ -1174,16 +1180,16 @@
             if (grandTotal !== 0) {
                 grandCell.style.color = grandTotal > 0 ? '#27ae60' : '#e74c3c';
                 grandCell.style.fontWeight = '600';
-                grandCell.innerHTML = grandTotal > 0 ? `¥${grandTotal.toFixed(2)}` : `-¥${Math.abs(grandTotal).toFixed(2)}`;
+                grandCell.innerHTML = grandTotal > 0 ? formatMoney(grandTotal) : '-' + formatMoney(Math.abs(grandTotal));
             } else {
-                grandCell.innerHTML = '¥0.00';
+                grandCell.innerHTML = '0';
             }
             totalRow.appendChild(grandCell);
             transposedBody.appendChild(totalRow);
             elements.transposedPersonCount.textContent = allPersons.length;
             elements.transposedMonthCount.textContent = monthsToShow.length;
             elements.transposedTotal.style.color = grandTotal > 0 ? '#27ae60' : grandTotal < 0 ? '#e74c3c' : '';
-            elements.transposedTotal.innerHTML = grandTotal !== 0 ? (grandTotal > 0 ? `¥${grandTotal.toFixed(2)}` : `-¥${Math.abs(grandTotal).toFixed(2)}`) : '¥0.00';
+            elements.transposedTotal.innerHTML = grandTotal !== 0 ? (grandTotal > 0 ? formatMoney(grandTotal) : '-' + formatMoney(Math.abs(grandTotal))) : '0';
         }
 
         // ==================== 批量操作 ====================
@@ -1328,7 +1334,7 @@
                         category: 'my-income',
                         type: total >= 0 ? 'income' : 'expense',
                         amount: total,
-                        note: `澳门:${macMy >= 0 ? '+' : ''}${macMy.toFixed(2)} 粤港:${gdMy >= 0 ? '+' : ''}${gdMy.toFixed(2)} 返点:${gdRebate >= 0 ? '+' : ''}${gdRebate.toFixed(2)}`,
+                        note: `澳门:${macMy >= 0 ? '+' : ''}${formatMoney(Math.abs(macMy))} 粤港:${gdMy >= 0 ? '+' : ''}${formatMoney(Math.abs(gdMy))} 返点:${gdRebate >= 0 ? '+' : ''}${formatMoney(Math.abs(gdRebate))}`,
                         isVirtual: true
                     });
                 }
@@ -1347,7 +1353,7 @@
                     <td>${record.date}</td><td><strong>${record.name}</strong></td>
                     <td><span class="category-badge ${isIncome ? 'my-income' : 'my-expense'}">${isIncome ? '我的收入' : '我的支出'}</span></td>
                     <td><span class="type-badge ${isIncome ? 'type-income' : 'type-expense'}">${isIncome ? '收入' : '支出'}</span></td>
-                    <td style="color:${isIncome ? '#27ae60' : '#e74c3c'}; font-weight:600;">${isIncome ? '¥' + Math.abs(record.amount).toFixed(2) : '-¥' + Math.abs(record.amount).toFixed(2)}</td>
+                    <td style="color:${isIncome ? '#27ae60' : '#e74c3c'}; font-weight:600;">${isIncome ? formatMoney(Math.abs(record.amount)) : '-' + formatMoney(Math.abs(record.amount))}</td>
                     <td>-</td><td>${record.note || '-'}</td><td><span style="color:#8c9aa5; font-size:10px;">计算得出</span></td>
                 </tr>`;
             });
@@ -1355,7 +1361,7 @@
             const stats = calculateStatsOld(myRecords);
             const timeLabel = selectedYear === 'all' ? '全部' : `${selectedYear}年${selectedMonth === 'all' ? '' : selectedMonth + '月'}`;
             container.innerHTML =
-                `<div class="stat-card"><div class="stat-header"><div class="stat-title">我的收支 ${timeLabel}统计</div><div class="stat-amount ${stats.profit >= 0 ? 'stat-income' : 'stat-expense'}">${stats.profit >= 0 ? '+' : ''}¥${Math.abs(stats.profit).toFixed(2)}</div></div><div class="${stats.profit >= 0 ? 'income-hint' : 'expense-hint'}">${stats.profit >= 0 ? '收入' : '支出'} ¥${Math.abs(stats.profit).toFixed(2)}</div><div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-top:8px;"><div><div class="stat-label">总收入</div><div class="stat-amount stat-income">+¥${stats.income.toFixed(2)}</div></div><div><div class="stat-label">总支出</div><div class="stat-amount stat-expense">-¥${stats.expense.toFixed(2)}</div></div></div><div class="stat-details">记录数：${stats.count}天</div></div>`;
+                `<div class="stat-card"><div class="stat-header"><div class="stat-title">我的收支 ${timeLabel}统计</div><div class="stat-amount ${stats.profit >= 0 ? 'stat-income' : 'stat-expense'}">${stats.profit >= 0 ? '+' : ''}${formatMoney(Math.abs(stats.profit))}</div></div><div class="${stats.profit >= 0 ? 'income-hint' : 'expense-hint'}">${stats.profit >= 0 ? '收入' : '支出'} ${formatMoney(Math.abs(stats.profit))}</div><div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-top:8px;"><div><div class="stat-label">总收入</div><div class="stat-amount stat-income">+${formatMoney(stats.income)}</div></div><div><div class="stat-label">总支出</div><div class="stat-amount stat-expense">-${formatMoney(stats.expense)}</div></div></div><div class="stat-details">记录数：${stats.count}天</div></div>`;
         }
 
         function renderRecordsTable(records) {
@@ -1370,8 +1376,8 @@
                 const rebate = record.rebate || 0;
                 const rebateDisp = rebate !== 0
                     ? (rebate > 0
-                        ? `<span style="color:#ff9800;font-weight:600;">¥${rebate.toFixed(2)}</span>`
-                        : `<span style="color:#e74c3c;font-weight:600;">-¥${Math.abs(rebate).toFixed(2)}</span>`)
+                        ? `<span style="color:#ff9800;font-weight:600;">${formatMoney(rebate)}</span>`
+                        : `<span style="color:#e74c3c;font-weight:600;">-${formatMoney(Math.abs(rebate))}</span>`)
                     : '<span style="color:#a0aeb8;">-</span>';
                 const isSelected = appState.selectedRecords.has(record.id);
                 html += `<tr class="${isSelected ? 'selected' : ''}">
@@ -1379,7 +1385,7 @@
                     <td>${record.date}</td><td><strong>${record.name}</strong></td>
                     <td><span class="category-badge ${record.subtype ? record.category + '-' + record.subtype : record.category}">${getCategoryLabel(record.category, record.subtype)}</span></td>
                     <td><span class="type-badge ${isIncome ? 'type-income' : 'type-expense'}">${isIncome ? '收入' : '支出'}</span></td>
-                    <td style="color:${isIncome ? '#27ae60' : '#e74c3c'}; font-weight:600;">${isIncome ? '¥' + Math.abs(record.amount).toFixed(2) : '-¥' + Math.abs(record.amount).toFixed(2)}</td>
+                    <td style="color:${isIncome ? '#27ae60' : '#e74c3c'}; font-weight:600;">${isIncome ? formatMoney(Math.abs(record.amount)) : '-' + formatMoney(Math.abs(record.amount))}</td>
                     <td>${rebateDisp}</td><td>${record.note || '-'}</td>
                     <td><button class="action-btn action-delete" onclick="deleteRecord('${record.id}')">删除</button></td>
                 </tr>`;
@@ -1392,7 +1398,7 @@
             const allStats = calculateStatsNew(records);
             const timeLabel = selectedYear === 'all' ? '全部' : `${selectedYear}年${selectedMonth === 'all' ? '' : selectedMonth + '月'}`;
             container.innerHTML =
-                `<div class="stat-card"><div class="stat-header"><div class="stat-title">总计 ${timeLabel}统计</div><div class="stat-amount ${allStats.netIncome >= 0 ? 'stat-income' : 'stat-expense'}">${allStats.netIncome >= 0 ? '+' : ''}¥${Math.abs(allStats.netIncome).toFixed(2)}</div></div><div class="${allStats.netIncome >= 0 ? 'income-hint' : 'expense-hint'}">${allStats.netIncome >= 0 ? '收入' : '支出'} ¥${Math.abs(allStats.netIncome).toFixed(2)}</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px;"><div><div class="stat-label">上家总收支</div><div class="stat-amount ${allStats.sumUpstream >= 0 ? 'stat-income' : 'stat-expense'}">${allStats.sumUpstream >= 0 ? '+' : ''}¥${Math.abs(allStats.sumUpstream).toFixed(2)}</div></div><div><div class="stat-label">下家总收支</div><div class="stat-amount ${allStats.sumDownstream >= 0 ? 'stat-income' : 'stat-expense'}">${allStats.sumDownstream >= 0 ? '+' : ''}¥${Math.abs(allStats.sumDownstream).toFixed(2)}</div></div></div><div class="stat-details">记录总数：${allStats.count}条</div></div>`;
+                `<div class="stat-card"><div class="stat-header"><div class="stat-title">总计 ${timeLabel}统计</div><div class="stat-amount ${allStats.netIncome >= 0 ? 'stat-income' : 'stat-expense'}">${allStats.netIncome >= 0 ? '+' : ''}${formatMoney(Math.abs(allStats.netIncome))}</div></div><div class="${allStats.netIncome >= 0 ? 'income-hint' : 'expense-hint'}">${allStats.netIncome >= 0 ? '收入' : '支出'} ${formatMoney(Math.abs(allStats.netIncome))}</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px;"><div><div class="stat-label">上家总收支</div><div class="stat-amount ${allStats.sumUpstream >= 0 ? 'stat-income' : 'stat-expense'}">${allStats.sumUpstream >= 0 ? '+' : ''}${formatMoney(Math.abs(allStats.sumUpstream))}</div></div><div><div class="stat-label">下家总收支</div><div class="stat-amount ${allStats.sumDownstream >= 0 ? 'stat-income' : 'stat-expense'}">${allStats.sumDownstream >= 0 ? '+' : ''}${formatMoney(Math.abs(allStats.sumDownstream))}</div></div></div><div class="stat-details">记录总数：${allStats.count}条</div></div>`;
             const macUp = records.filter(r => r.category === 'macau' && r.subtype === 'up'),
                 macDown = records.filter(r => r.category === 'macau' && r.subtype === 'down');
             const gdUp = records.filter(r => r.category === 'guangdong' && r.subtype === 'up'),
@@ -1406,12 +1412,12 @@
             const gdRebate = calculateGuangdongUpRebate(gdUp);
             if (filterCategory === 'all' || filterCategory.includes('macau')) {
                 container.innerHTML +=
-                    `<div class="stat-card"><div class="stat-header"><div class="stat-title">澳门 ${timeLabel}统计</div><div class="stat-amount ${macMy >= 0 ? 'stat-income' : 'stat-expense'}">${macMy >= 0 ? '+' : ''}¥${Math.abs(macMy).toFixed(2)}</div></div><div class="${macMy >= 0 ? 'income-hint' : 'expense-hint'}">${macMy >= 0 ? '收入' : '支出'} ¥${Math.abs(macMy).toFixed(2)}</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px;"><div><div class="stat-label">上家</div><div class="stat-amount ${macUpT.profit >= 0 ? 'stat-income' : 'stat-expense'}">${macUpT.profit >= 0 ? '+' : ''}¥${Math.abs(macUpT.profit).toFixed(2)}</div></div><div><div class="stat-label">下家</div><div class="stat-amount ${macDownT.profit >= 0 ? 'stat-income' : 'stat-expense'}">${macDownT.profit >= 0 ? '+' : ''}¥${Math.abs(macDownT.profit).toFixed(2)}</div></div></div><div class="stat-details">记录数：${macUpT.count + macDownT.count}条</div></div>`;
+                    `<div class="stat-card"><div class="stat-header"><div class="stat-title">澳门 ${timeLabel}统计</div><div class="stat-amount ${macMy >= 0 ? 'stat-income' : 'stat-expense'}">${macMy >= 0 ? '+' : ''}${formatMoney(Math.abs(macMy))}</div></div><div class="${macMy >= 0 ? 'income-hint' : 'expense-hint'}">${macMy >= 0 ? '收入' : '支出'} ${formatMoney(Math.abs(macMy))}</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px;"><div><div class="stat-label">上家</div><div class="stat-amount ${macUpT.profit >= 0 ? 'stat-income' : 'stat-expense'}">${macUpT.profit >= 0 ? '+' : ''}${formatMoney(Math.abs(macUpT.profit))}</div></div><div><div class="stat-label">下家</div><div class="stat-amount ${macDownT.profit >= 0 ? 'stat-income' : 'stat-expense'}">${macDownT.profit >= 0 ? '+' : ''}${formatMoney(Math.abs(macDownT.profit))}</div></div></div><div class="stat-details">记录数：${macUpT.count + macDownT.count}条</div></div>`;
             }
             if (filterCategory === 'all' || filterCategory.includes('guangdong')) {
                 const rebateColor = gdRebate >= 0 ? '#ff9800' : '#e74c3c';
                 container.innerHTML +=
-                    `<div class="stat-card"><div class="stat-header"><div class="stat-title">粤港 ${timeLabel}统计</div><div class="stat-amount ${gdMy >= 0 ? 'stat-income' : 'stat-expense'}">${gdMy >= 0 ? '+' : ''}¥${Math.abs(gdMy).toFixed(2)}</div></div><div class="${gdMy >= 0 ? 'income-hint' : 'expense-hint'}">${gdMy >= 0 ? '收入' : '支出'} ¥${Math.abs(gdMy).toFixed(2)}</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px;"><div><div class="stat-label">上家</div><div class="stat-amount ${gdUpT.profit >= 0 ? 'stat-income' : 'stat-expense'}">${gdUpT.profit >= 0 ? '+' : ''}¥${Math.abs(gdUpT.profit).toFixed(2)}</div></div><div><div class="stat-label">下家</div><div class="stat-amount ${gdDownT.profit >= 0 ? 'stat-income' : 'stat-expense'}">${gdDownT.profit >= 0 ? '+' : ''}¥${Math.abs(gdDownT.profit).toFixed(2)}</div></div></div><div style="margin-top:6px;"><span style="color:${rebateColor}; font-weight:600;">上家返点：${gdRebate >= 0 ? '+' : ''}¥${Math.abs(gdRebate).toFixed(2)}</span></div><div class="stat-details">记录数：${gdUpT.count + gdDownT.count}条</div></div>`;
+                    `<div class="stat-card"><div class="stat-header"><div class="stat-title">粤港 ${timeLabel}统计</div><div class="stat-amount ${gdMy >= 0 ? 'stat-income' : 'stat-expense'}">${gdMy >= 0 ? '+' : ''}${formatMoney(Math.abs(gdMy))}</div></div><div class="${gdMy >= 0 ? 'income-hint' : 'expense-hint'}">${gdMy >= 0 ? '收入' : '支出'} ${formatMoney(Math.abs(gdMy))}</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px;"><div><div class="stat-label">上家</div><div class="stat-amount ${gdUpT.profit >= 0 ? 'stat-income' : 'stat-expense'}">${gdUpT.profit >= 0 ? '+' : ''}${formatMoney(Math.abs(gdUpT.profit))}</div></div><div><div class="stat-label">下家</div><div class="stat-amount ${gdDownT.profit >= 0 ? 'stat-income' : 'stat-expense'}">${gdDownT.profit >= 0 ? '+' : ''}${formatMoney(Math.abs(gdDownT.profit))}</div></div></div><div style="margin-top:6px;"><span style="color:${rebateColor}; font-weight:600;">上家返点：${gdRebate >= 0 ? '+' : ''}${formatMoney(Math.abs(gdRebate))}</span></div><div class="stat-details">记录数：${gdUpT.count + gdDownT.count}条</div></div>`;
             }
         }
 
@@ -1495,7 +1501,7 @@
                 records: appState.records,
                 recycleBin: appState.recycleBin,
                 exportedAt: new Date().toISOString(),
-                version: '47.0'
+                version: '48.0'
             };
             const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
             const a = document.createElement('a');
@@ -1581,8 +1587,8 @@
                 const rebate = record.rebate || 0;
                 const rebateDisp = rebate !== 0
                     ? (rebate > 0
-                        ? `<span style="color:#ff9800;font-weight:600;">¥${rebate.toFixed(2)}</span>`
-                        : `<span style="color:#e74c3c;font-weight:600;">-¥${Math.abs(rebate).toFixed(2)}</span>`)
+                        ? `<span style="color:#ff9800;font-weight:600;">${formatMoney(rebate)}</span>`
+                        : `<span style="color:#e74c3c;font-weight:600;">-${formatMoney(Math.abs(rebate))}</span>`)
                     : '-';
                 html += `<tr>
                     <td><input type="checkbox" class="checkbox" value="${record.id}"></td>
@@ -1590,7 +1596,7 @@
                     <td>${record.date}</td><td><strong>${record.name}</strong></td>
                     <td><span class="category-badge ${record.subtype ? record.category + '-' + record.subtype : record.category}">${getCategoryLabel(record.category, record.subtype)}</span></td>
                     <td><span class="type-badge ${isIncome ? 'type-income' : 'type-expense'}">${isIncome ? '收入' : '支出'}</span></td>
-                    <td style="color:${isIncome ? '#27ae60' : '#e74c3c'}; font-weight:600;">${isIncome ? '¥' + Math.abs(record.amount).toFixed(2) : '-¥' + Math.abs(record.amount).toFixed(2)}</td>
+                    <td style="color:${isIncome ? '#27ae60' : '#e74c3c'}; font-weight:600;">${isIncome ? formatMoney(Math.abs(record.amount)) : '-' + formatMoney(Math.abs(record.amount))}</td>
                     <td>${rebateDisp}</td><td>${record.note || '-'}</td>
                     <td><button class="action-btn restore" onclick="restoreRecord('${record.id}')">还原</button><button class="action-btn delete-permanent" onclick="permanentDelete('${record.id}')">彻底删除</button></td>
                 </tr>`;
@@ -1754,7 +1760,7 @@
                     records: appState.records,
                     recycleBin: appState.recycleBin,
                     savedAt: new Date().toISOString(),
-                    version: '47.0'
+                    version: '48.0'
                 });
                 updateStorageInfo();
             } catch (e) { showToast('保存失败', true); }
@@ -1774,10 +1780,9 @@
 
         function updateYearFilter() {
             const sel = elements.selectYear;
-            const currentValue = sel.value; // 记住当前选中的值
+            const currentValue = sel.value;
             sel.innerHTML = '<option value="all">全部年份</option>';
             const years = new Set(appState.records.map(r => r.date?.split('-')[0]).filter(Boolean));
-            // 始终包含当前中国时间的年份
             const nowChina = new Date(new Date().getTime() + (8 * 60 * 60 * 1000));
             const currentYear = nowChina.getUTCFullYear().toString();
             years.add(currentYear);
@@ -1787,7 +1792,6 @@
                 o.textContent = y + '年';
                 sel.appendChild(o);
             });
-            // 尝试恢复之前选中的值，如果还存在的话
             if (sel.querySelector(`option[value="${currentValue}"]`)) {
                 sel.value = currentValue;
             }
@@ -1805,4 +1809,4 @@
         }
     </script>
 </body>
-</html>
+</html>     
